@@ -1,0 +1,2158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ProInvoice | Professional Billing</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== GLOBAL FONT RESET ===== */
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            background: #f1f5f9;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* ===== DARK MODE ===== */
+        body.dark {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        body.dark .invoice-paper {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+        body.dark .invoice-paper input,
+        body.dark .invoice-paper textarea,
+        body.dark .invoice-paper select {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+        body.dark .bg-white {
+            background: #1e293b !important;
+        }
+        body.dark .text-slate-800 {
+            color: #f1f5f9 !important;
+        }
+        body.dark .text-slate-600 {
+            color: #94a3b8 !important;
+        }
+        body.dark .border-slate-300 {
+            border-color: #334155 !important;
+        }
+        body.dark .bg-slate-50 {
+            background: #0f172a !important;
+        }
+
+        .invoice-paper {
+            min-height: 800px;
+            background: white;
+            transition: all 0.3s ease;
+            position: relative;
+            margin: 0 auto;
+            max-width: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        .invoice-paper * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+
+        .invoice-paper .watermark {
+            position: absolute;
+            right: 2rem;
+            bottom: 2rem;
+            font-size: 6rem;
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.04);
+            pointer-events: none;
+            letter-spacing: 0.1em;
+        }
+        body.dark .invoice-paper .watermark {
+            color: rgba(255, 255, 255, 0.04);
+        }
+
+        /* ============================================================ */
+        /* PRINT STYLES */
+        /* ============================================================ */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            }
+            .invoice-paper {
+                box-shadow: none !important;
+                border: none !important;
+                min-height: auto !important;
+                padding: 1.2rem !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                background: white !important;
+                max-width: 100% !important;
+                overflow: visible !important;
+                position: relative !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            }
+            .invoice-paper * {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            }
+            .invoice-paper .watermark {
+                opacity: 0.06 !important;
+            }
+
+            .logo-placeholder {
+                display: none !important;
+            }
+            .logo-container:not(:has(img)) {
+                display: none !important;
+            }
+
+            /* ===== WATERMARK ===== */
+            .watermark-print {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                pointer-events: none !important;
+                z-index: 9999 !important;
+                opacity: 0.08 !important;
+                font-size: 4rem !important;
+                font-weight: 900 !important;
+                color: #1e293b !important;
+                transform: rotate(-30deg) !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                letter-spacing: 4px !important;
+                text-transform: uppercase !important;
+                white-space: nowrap !important;
+                user-select: none !important;
+                -webkit-user-select: none !important;
+            }
+            body.dark .watermark-print {
+                color: #e2e8f0 !important;
+                opacity: 0.06 !important;
+            }
+
+            /* Hide calendar pickers and spinners */
+            input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+            input[type="date"]::-webkit-calendar-picker-indicator,
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+                display: none !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+            input[type="number"] {
+                -moz-appearance: textfield !important;
+                appearance: textfield !important;
+            }
+
+            /* ===== HIDE PLACEHOLDER TEXT IN PRINT ===== */
+            .invoice-paper input::placeholder,
+            .invoice-paper textarea::placeholder {
+                color: transparent !important;
+                opacity: 0 !important;
+            }
+
+            /* ===== FORCE ALL INPUT VALUES TO BE VISIBLE ===== */
+            .invoice-paper input,
+            .invoice-paper textarea,
+            .invoice-paper select {
+                border: none !important;
+                background: transparent !important;
+                padding: 2px 4px !important;
+                color: black !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
+                box-shadow: none !important;
+                outline: none !important;
+                font-size: inherit !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                font-weight: inherit !important;
+                resize: none !important;
+                overflow: visible !important;
+                height: auto !important;
+                min-height: auto !important;
+                max-height: none !important;
+                white-space: pre-wrap !important;
+                width: auto !important;
+                display: inline-block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                line-height: 1.4 !important;
+                text-indent: 0 !important;
+                vertical-align: middle !important;
+            }
+
+            .invoice-paper input[type="number"] {
+                text-align: right !important;
+                min-width: 50px !important;
+                width: auto !important;
+                display: inline-block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                color: black !important;
+            }
+
+            .invoice-paper input[type="text"] {
+                text-align: left !important;
+                min-width: 50px !important;
+                display: inline-block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                color: black !important;
+            }
+
+            .invoice-paper input[type="datetime-local"],
+            .invoice-paper input[type="date"] {
+                text-align: right !important;
+                min-width: 100px !important;
+                display: inline-block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                color: black !important;
+            }
+
+            /* ============================================================ */
+            /* DESCRIPTION – SHOW ALL CONTENT */
+            /* ============================================================ */
+            .invoice-paper textarea.desc {
+                display: none !important;
+            }
+            .invoice-paper .desc-print {
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: 30px !important;
+                max-height: none !important;
+                overflow: visible !important;
+                white-space: pre-wrap !important;
+                word-wrap: break-word !important;
+                word-break: break-word !important;
+                padding: 4px 6px !important;
+                color: black !important;
+                font-size: inherit !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                line-height: 1.6 !important;
+                background: transparent !important;
+                border: none !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            .invoice-paper table td.col-desc {
+                height: auto !important;
+                min-height: 40px !important;
+                max-height: none !important;
+                overflow: visible !important;
+                vertical-align: top !important;
+                padding: 6px 8px !important;
+                display: table-cell !important;
+                word-wrap: break-word !important;
+                white-space: normal !important;
+            }
+
+            .invoice-paper table tbody tr {
+                height: auto !important;
+                min-height: 40px !important;
+                max-height: none !important;
+                display: table-row !important;
+            }
+
+            /* ===== FROM/TO TEXTAREAS ===== */
+            .invoice-paper .from-to-box textarea {
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: 30px !important;
+                max-height: none !important;
+                overflow: visible !important;
+                white-space: pre-wrap !important;
+                word-wrap: break-word !important;
+                border: none !important;
+                background: transparent !important;
+                padding: 2px 4px !important;
+                color: black !important;
+                font-size: inherit !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                line-height: 1.5 !important;
+                resize: none !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            /* ===== TABLE ===== */
+            .invoice-paper table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                border-spacing: 0 !important;
+                margin: 0.5rem 0 !important;
+                page-break-inside: avoid !important;
+                table-layout: fixed !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            }
+            .invoice-paper table thead {
+                display: table-header-group !important;
+            }
+            .invoice-paper table tbody {
+                display: table-row-group !important;
+            }
+            .invoice-paper table tr {
+                display: table-row !important;
+                page-break-inside: avoid !important;
+            }
+
+            .invoice-paper table td,
+            .invoice-paper table th {
+                border: 1px solid #ccc !important;
+                padding: 6px 8px !important;
+                text-align: left !important;
+                vertical-align: middle !important;
+                background: white !important;
+                color: black !important;
+                font-size: 10.5pt !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                overflow: visible !important;
+                word-wrap: break-word !important;
+                white-space: normal !important;
+                line-height: 1.5 !important;
+                height: auto !important;
+                min-height: 30px !important;
+                max-height: none !important;
+            }
+
+            .invoice-paper table th {
+                background: #1e293b !important;
+                color: white !important;
+                font-weight: 600 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .invoice-paper table td.text-right,
+            .invoice-paper table th.text-right {
+                text-align: right !important;
+            }
+            .invoice-paper table td.text-center,
+            .invoice-paper table th.text-center {
+                text-align: center !important;
+            }
+
+            .invoice-paper table td:last-child,
+            .invoice-paper table th:last-child {
+                display: none !important;
+            }
+
+            .invoice-paper table .col-desc {
+                width: 34% !important;
+            }
+            .invoice-paper table .col-qty {
+                width: 14% !important;
+            }
+            .invoice-paper table .col-rate {
+                width: 16% !important;
+            }
+            .invoice-paper table .col-taxable {
+                width: 16% !important;
+            }
+            .invoice-paper table .col-total {
+                width: 20% !important;
+            }
+            .invoice-paper table .col-delete {
+                display: none !important;
+            }
+
+            .invoice-paper table td input,
+            .invoice-paper table td textarea {
+                border: none !important;
+                background: transparent !important;
+                padding: 2px 4px !important;
+                color: black !important;
+                font-size: inherit !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                font-weight: inherit !important;
+                width: 100% !important;
+                min-width: 30px !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                height: auto !important;
+                min-height: auto !important;
+                max-height: none !important;
+                resize: none !important;
+                overflow: visible !important;
+                white-space: pre-wrap !important;
+                line-height: 1.5 !important;
+                text-align: inherit !important;
+            }
+
+            .invoice-paper table td input[type="number"] {
+                text-align: right !important;
+                min-width: 40px !important;
+                width: 100% !important;
+                display: block !important;
+            }
+
+            .invoice-paper table td .total-cell {
+                font-weight: 600 !important;
+                display: inline-block !important;
+                min-width: 50px !important;
+                text-align: right !important;
+                color: black !important;
+                padding: 2px 4px !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            }
+
+            /* ===== FROM/TO BOXES ===== */
+            .invoice-paper .from-to-box {
+                border: 1px solid #ccc !important;
+                padding: 0.6rem !important;
+                border-radius: 0 !important;
+            }
+
+            /* ============================================================ */
+            /* HIDE PO # ROW COMPLETELY WHEN EMPTY */
+            /* ============================================================ */
+            .po-row-wrapper.po-hidden {
+                display: none !important;
+            }
+
+            /* ===== DISCOUNT SECTION ===== */
+            .invoice-paper #discount-val,
+            .invoice-paper #discount-symbol,
+            .invoice-paper #cgst,
+            .invoice-paper #sgst {
+                display: inline-block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                color: black !important;
+                border: none !important;
+                background: transparent !important;
+                padding: 2px 4px !important;
+                font-size: inherit !important;
+                font-weight: inherit !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            }
+            .invoice-paper #discount-symbol {
+                min-width: 1.2rem !important;
+            }
+            .invoice-paper #discount-type {
+                display: none !important;
+            }
+
+            /* ============================================================ */
+            /* BOTTOM SECTION: NOTES LEFT, TOTALS RIGHT */
+            /* ============================================================ */
+            .invoice-paper .bottom-section {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+                gap: 1rem !important;
+                margin-top: 1rem !important;
+                border-top: 1px solid #ccc !important;
+                padding-top: 1rem !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            }
+            .invoice-paper .bottom-section .notes-col {
+                flex: 1 1 auto !important;
+                min-width: 200px !important;
+                max-width: 55% !important;
+                order: 1 !important;
+            }
+            .invoice-paper .bottom-section .totals-col {
+                flex: 0 0 auto !important;
+                width: 280px !important;
+                max-width: 45% !important;
+                order: 2 !important;
+            }
+            .invoice-paper .bottom-section .notes-col .notes-heading {
+                font-weight: 600 !important;
+                font-size: 10pt !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.05em !important;
+                margin-bottom: 4px !important;
+                color: #1e293b !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            }
+            .invoice-paper .bottom-section .notes-col .notes-content {
+                white-space: pre-wrap !important;
+                word-wrap: break-word !important;
+                font-size: 9.5pt !important;
+                line-height: 1.5 !important;
+                padding: 4px 0 !important;
+                color: black !important;
+                border: none !important;
+                background: transparent !important;
+                min-height: 30px !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            }
+            body.dark .invoice-paper .bottom-section .notes-col .notes-heading {
+                color: #e2e8f0 !important;
+            }
+
+            /* ===== PRINT MODE ===== */
+            body.print-bw .invoice-paper .bg-slate-800 {
+                background: #333 !important;
+                color: white !important;
+            }
+            body.print-bw .invoice-paper .status-badge {
+                background: #666 !important;
+                color: white !important;
+            }
+            body.print-bw .invoice-paper {
+                filter: grayscale(1) !important;
+            }
+            body.print-bw .invoice-paper img {
+                filter: grayscale(1) !important;
+            }
+            body.print-color .invoice-paper {
+                filter: none !important;
+            }
+            body.print-color .invoice-paper img {
+                filter: none !important;
+            }
+
+            .invoice-paper {
+                page-break-after: avoid;
+            }
+        }
+
+        /* ============================================================ */
+        /* LAYOUTS */
+        /* ============================================================ */
+        .layout-formal {
+            border: 2px solid #1e293b;
+            padding: 1.5rem;
+            box-shadow: 10px 10px 0px #1e293b;
+        }
+        .layout-corporate {
+            border: 1px solid #e2e8f0;
+            border-top: 6px solid #1e3a8a;
+            padding: 1.5rem;
+        }
+        .layout-remittance {
+            border: 1px solid #94a3b8;
+            border-left: 10px solid #1e293b;
+            padding: 1.5rem;
+        }
+        .layout-minimal {
+            border: none;
+            padding: 1.5rem;
+            background: #fafafa;
+        }
+        body.dark .layout-minimal {
+            background: #1e293b;
+        }
+        .layout-elegant {
+            border: 1px solid #d4af37;
+            border-radius: 20px;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #fefcf3 0%, #f8f4e8 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        body.dark .layout-elegant {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-color: #d4af37;
+        }
+        .layout-elegant h1 {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            letter-spacing: 2px;
+        }
+        .layout-modern {
+            border: none;
+            padding: 1.5rem;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            border-radius: 24px;
+        }
+        body.dark .layout-modern {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+        }
+        .layout-modern .bg-slate-800 {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+        }
+        .layout-soft {
+            border: none;
+            padding: 1.5rem;
+            background: #fdf6f0;
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+        }
+        body.dark .layout-soft {
+            background: #1a1a2e;
+        }
+        .layout-soft .bg-slate-800 {
+            background: #d4a373;
+        }
+        .layout-bold {
+            border: 4px solid #0f172a;
+            padding: 1.5rem;
+            background: white;
+            box-shadow: 12px 12px 0px #0f172a;
+        }
+        body.dark .layout-bold {
+            border-color: #e2e8f0;
+            box-shadow: 12px 12px 0px #e2e8f0;
+            background: #1e293b;
+        }
+        .layout-bold h1 {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-weight: 800;
+            letter-spacing: -2px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            background: #0f172a;
+            color: white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-width: 400px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .toast.success {
+            background: #065f46;
+        }
+        .toast.error {
+            background: #991b1b;
+        }
+        .toast.info {
+            background: #1e3a8a;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        .status-draft {
+            background: #e2e8f0;
+            color: #475569;
+        }
+        .status-sent {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .status-paid {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-overdue {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        body.dark .status-draft {
+            background: #334155;
+            color: #94a3b8;
+        }
+        body.dark .status-sent {
+            background: #1e3a8a;
+            color: #93c5fd;
+        }
+        body.dark .status-paid {
+            background: #065f46;
+            color: #6ee7b7;
+        }
+        body.dark .status-overdue {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .layout-preview-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .layout-preview-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+        .layout-preview-card.active {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+        }
+        .layout-preview-card .preview-box {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #64748b;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 0.5rem;
+            text-align: center;
+            line-height: 1.4;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        body.dark .layout-preview-card .preview-box {
+            background: #1e293b;
+            color: #94a3b8;
+        }
+
+        .logo-upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-upload-area:hover {
+            border-color: #2563eb;
+            background: #f8fafc;
+        }
+        body.dark .logo-upload-area {
+            border-color: #334155;
+        }
+        body.dark .logo-upload-area:hover {
+            border-color: #60a5fa;
+            background: #1e293b;
+        }
+        .logo-upload-area img {
+            max-height: 80px;
+            max-width: 100%;
+            object-fit: contain;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo-container img {
+            max-height: 60px;
+            max-width: 120px;
+            object-fit: contain;
+        }
+        .logo-placeholder {
+            width: 60px;
+            height: 60px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.7rem;
+        }
+
+        .print-mode-btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        .print-mode-btn.active {
+            border-color: #2563eb;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        body.dark .print-mode-btn.active {
+            background: #1e3a8a;
+            color: #93c5fd;
+            border-color: #60a5fa;
+        }
+        .print-mode-btn:hover {
+            transform: scale(1.02);
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0.5;
+        }
+        input[type="datetime-local"]:hover::-webkit-calendar-picker-indicator,
+        input[type="date"]:hover::-webkit-calendar-picker-indicator {
+            opacity: 1;
+        }
+        body.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+        body.dark input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+
+        #discount-symbol {
+            min-width: 1.2rem;
+            font-weight: 600;
+            color: #1e293b;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        body.dark #discount-symbol {
+            color: #e2e8f0;
+        }
+
+        /* ============================================================ */
+        /* EDITOR TABLE */
+        /* ============================================================ */
+        .invoice-paper table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        .invoice-paper table .col-desc {
+            width: 34%;
+        }
+        .invoice-paper table .col-qty {
+            width: 14%;
+        }
+        .invoice-paper table .col-rate {
+            width: 16%;
+        }
+        .invoice-paper table .col-taxable {
+            width: 16%;
+        }
+        .invoice-paper table .col-total {
+            width: 20%;
+        }
+        .invoice-paper table .col-delete {
+            width: 4%;
+        }
+
+        .invoice-paper table th,
+        .invoice-paper table td {
+            padding: 8px 6px;
+            vertical-align: middle;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        .invoice-paper table th {
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .invoice-paper table td.text-right,
+        .invoice-paper table th.text-right {
+            text-align: right;
+        }
+        .invoice-paper table td.text-center,
+        .invoice-paper table th.text-center {
+            text-align: center;
+        }
+
+        .invoice-paper table td input,
+        .invoice-paper table td textarea {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: transparent;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+            color: #1e293b;
+            min-width: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        body.dark .invoice-paper table td input,
+        body.dark .invoice-paper table td textarea {
+            border-color: #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .invoice-paper table td input:focus,
+        .invoice-paper table td textarea:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .invoice-paper table td textarea {
+            resize: vertical;
+            min-height: 44px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            line-height: 1.5;
+        }
+        .invoice-paper table td input[type="number"] {
+            text-align: right;
+        }
+        .invoice-paper table td .total-cell {
+            font-weight: 600;
+            padding: 6px 8px;
+            display: inline-block;
+            min-width: 60px;
+            text-align: right;
+            color: #1e293b;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        body.dark .invoice-paper table td .total-cell {
+            color: #e2e8f0;
+        }
+        .invoice-paper table td .remove-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+            line-height: 1;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        .invoice-paper table td .remove-btn:hover {
+            background: #fef2f2;
+        }
+        body.dark .invoice-paper table td .remove-btn:hover {
+            background: #7f1d1d;
+        }
+
+        .from-to-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: border-color 0.3s;
+        }
+        body.dark .from-to-box {
+            border-color: #334155;
+        }
+        .from-to-box:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .from-to-box textarea {
+            width: 100%;
+            padding: 0;
+            border: none;
+            background: transparent;
+            resize: vertical;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-size: 0.875rem;
+            min-height: 80px;
+        }
+        .from-to-box textarea:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        body.dark .from-to-box textarea {
+            color: #e2e8f0;
+        }
+
+        /* ============================================================ */
+        /* HEADER ROWS – each row in a flex container for easy hiding */
+        /* ============================================================ */
+        .header-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        .header-row .header-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #64748b;
+            text-align: right;
+            min-width: 45px;
+            flex-shrink: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        body.dark .header-row .header-label {
+            color: #94a3b8;
+        }
+        .header-row .header-input {
+            flex: 1;
+            min-width: 120px;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.375rem 0.5rem;
+            text-align: right;
+            font-size: 0.875rem;
+            background: transparent;
+            color: #1e293b;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        body.dark .header-row .header-input {
+            border-color: #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .header-row .header-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .header-row .header-input.text-left {
+            text-align: left;
+        }
+        .header-row.po-row-hidden {
+            display: none !important;
+        }
+
+        /* ============================================================ */
+        /* BOTTOM SECTION – NOTES LEFT, TOTALS RIGHT (editor) */
+        /* ============================================================ */
+        .bottom-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1.5rem;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        body.dark .bottom-section {
+            border-color: #334155;
+        }
+        .bottom-section .notes-col {
+            flex: 1 1 auto;
+            min-width: 200px;
+            max-width: 55%;
+            order: 1;
+        }
+        .bottom-section .totals-col {
+            flex: 0 0 auto;
+            width: 280px;
+            max-width: 45%;
+            order: 2;
+        }
+        .bottom-section .notes-col .notes-heading {
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 4px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        body.dark .bottom-section .notes-col .notes-heading {
+            color: #94a3b8;
+        }
+        .bottom-section .notes-col .notes-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            padding: 4px 0;
+            min-height: 60px;
+            color: #1e293b;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+        body.dark .bottom-section .notes-col .notes-content {
+            color: #e2e8f0;
+        }
+        @media (max-width: 640px) {
+            .bottom-section {
+                flex-direction: column;
+            }
+            .bottom-section .notes-col,
+            .bottom-section .totals-col {
+                max-width: 100%;
+                width: 100%;
+                order: unset;
+            }
+            .header-row {
+                flex-wrap: wrap;
+            }
+            .header-row .header-label {
+                min-width: 40px;
+            }
+            .header-row .header-input {
+                min-width: 80px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .invoice-paper table .col-desc {
+                width: 28%;
+            }
+            .invoice-paper table .col-qty {
+                width: 16%;
+            }
+            .invoice-paper table .col-rate {
+                width: 16%;
+            }
+            .invoice-paper table .col-taxable {
+                width: 16%;
+            }
+            .invoice-paper table .col-total {
+                width: 16%;
+            }
+            .invoice-paper table .col-delete {
+                width: 8%;
+            }
+            .invoice-paper table td input,
+            .invoice-paper table td textarea {
+                font-size: 0.75rem;
+                padding: 4px 4px;
+            }
+            .invoice-paper table th,
+            .invoice-paper table td {
+                padding: 4px 3px;
+            }
+            .invoice-paper .from-to-box textarea {
+                min-height: 60px;
+            }
+            .invoice-paper .layout-formal,
+            .invoice-paper .layout-corporate,
+            .invoice-paper .layout-remittance,
+            .invoice-paper .layout-minimal,
+            .invoice-paper .layout-elegant,
+            .invoice-paper .layout-modern,
+            .invoice-paper .layout-soft,
+            .invoice-paper .layout-bold {
+                padding: 1rem;
+            }
+            .invoice-paper table td input[type="number"] {
+                min-width: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <span id="toast-icon">✓</span>
+        <span id="toast-message">Done</span>
+    </div>
+
+    <!-- Nav -->
+    <nav class="bg-slate-900 text-white p-3 shadow-lg sticky top-0 z-50 no-print" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
+            <h1 class="text-xl font-extrabold tracking-tight cursor-pointer flex items-center gap-2" onclick="showView('dashboard')" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <span class="bg-blue-500 w-2 h-2 rounded-full inline-block"></span>
+                ProInvoice
+            </h1>
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex gap-1">
+                    <button onclick="showView('dashboard')" class="px-3 py-1 rounded-lg hover:bg-slate-700 transition text-sm font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Dashboard</button>
+                    <button onclick="showView('settings')" class="px-3 py-1 rounded-lg hover:bg-slate-700 transition text-sm font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Settings</button>
+                </div>
+                <button onclick="toggleDark()" class="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 transition flex items-center justify-center text-sm" title="Toggle dark mode" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    <span id="dark-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="max-w-7xl mx-auto p-3 md:p-6" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+
+        <!-- DASHBOARD -->
+        <div id="dashboard-view" class="space-y-6">
+            <div class="flex flex-wrap justify-between items-center gap-3">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Invoices</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm" id="invoice-count" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">0 invoices</p>
+                </div>
+                <button onclick="createNewInvoice()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-600/20 transition flex items-center gap-2 text-sm md:text-base" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    <span class="text-xl leading-none">+</span> New Invoice
+                </button>
+            </div>
+
+            <div class="flex flex-wrap gap-3 no-print">
+                <select id="filter-status" onchange="renderDashboard()" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[120px]" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    <option value="all">All Status</option>
+                    <option value="draft">Draft</option>
+                    <option value="sent">Sent</option>
+                    <option value="paid">Paid</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+                <input type="text" id="filter-search" oninput="renderDashboard()" placeholder="Search invoice..." class="border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[140px]" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                <button onclick="renderDashboard()" class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-3 py-1.5" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">⟳</button>
+            </div>
+
+            <div id="invoices-list" class="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"></div>
+            <div id="empty-state" class="hidden text-center py-16">
+                <div class="text-6xl mb-4">📄</div>
+                <p class="text-slate-500 dark:text-slate-400 text-lg" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">No invoices yet</p>
+                <button onclick="createNewInvoice()" class="mt-4 text-blue-600 font-semibold hover:underline" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Create your first invoice →</button>
+            </div>
+        </div>
+
+        <!-- EDITOR -->
+        <div id="editor-view" class="hidden">
+            <div class="flex flex-wrap justify-between items-center mb-6 no-print gap-3">
+                <button onclick="confirmExit()" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    ← Back
+                </button>
+                <div class="flex flex-wrap gap-2 items-center">
+                    <select id="invoice-status" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg px-2 py-1.5 text-sm font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                        <option value="draft">📄 Draft</option>
+                        <option value="sent">✉️ Sent</option>
+                        <option value="paid">✅ Paid</option>
+                        <option value="overdue">⚠️ Overdue</option>
+                    </select>
+                    <button onclick="saveCurrentInvoice()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg font-semibold transition shadow shadow-green-600/20 text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">💾 Save</button>
+                    <div class="flex gap-1 border rounded-lg p-1 bg-slate-100 dark:bg-slate-700">
+                        <button onclick="setPrintMode('bw')" id="print-bw-btn" class="print-mode-btn active">⚫</button>
+                        <button onclick="setPrintMode('color')" id="print-color-btn" class="print-mode-btn">🎨</button>
+                    </div>
+                    <button onclick="prepareAndPrint()" class="bg-slate-800 hover:bg-black text-white px-3 py-1.5 rounded-lg font-semibold transition text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">🖨️</button>
+                </div>
+            </div>
+
+            <div id="invoice-container" class="invoice-paper rounded-2xl shadow-2xl overflow-hidden">
+                <div class="watermark">INV</div>
+
+                <!-- ===== WATERMARK FOR PRINT (hidden on screen) ===== -->
+                <div class="watermark-print no-print" style="display:none;"></div>
+
+                <!-- HEADER -->
+                <div class="flex flex-col sm:flex-row flex-wrap justify-between items-start gap-4 mb-6 border-b-2 pb-4">
+                    <div class="flex items-start gap-4">
+                        <div id="logo-display" class="logo-container"></div>
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white tracking-tight" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">INVOICE</h1>
+                            <div class="flex items-center gap-3 mt-1 no-print">
+                                <span class="text-sm text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Status:</span>
+                                <span id="status-display" class="status-badge status-draft">Draft</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full sm:w-auto">
+                        <div class="flex flex-col gap-1.5 w-full sm:w-[220px]">
+                            <div class="header-row">
+                                <span class="header-label">Inv #</span>
+                                <input type="text" id="inv-num" placeholder="INV-000" class="header-input text-left" />
+                            </div>
+                            <div class="header-row">
+                                <span class="header-label">Date</span>
+                                <input type="datetime-local" id="inv-date" class="header-input" />
+                            </div>
+                            <div class="header-row">
+                                <span class="header-label">Due</span>
+                                <input type="date" id="inv-due" class="header-input" />
+                            </div>
+                            <div class="header-row po-row-wrapper" id="po-row">
+                                <span class="header-label">PO #</span>
+                                <input type="text" id="inv-po" placeholder="Optional" class="header-input text-left" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FROM & TO -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="from-to-box">
+                        <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                            <span class="w-1 h-4 bg-blue-500 rounded-full"></span> From
+                        </h3>
+                        <textarea id="bill-from" placeholder="Your company name, address, tax ID…"></textarea>
+                    </div>
+                    <div class="from-to-box">
+                        <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                            <span class="w-1 h-4 bg-blue-500 rounded-full"></span> Bill To
+                        </h3>
+                        <textarea id="bill-to" placeholder="Client name, address, email…"></textarea>
+                    </div>
+                </div>
+
+                <!-- ITEMS TABLE -->
+                <div class="overflow-x-auto">
+                    <table>
+                        <thead class="bg-slate-800 text-white">
+                            <tr>
+                                <th class="col-desc text-left rounded-l-lg">Description</th>
+                                <th class="col-qty text-right">Qty</th>
+                                <th class="col-rate text-right">Rate</th>
+                                <th class="col-taxable text-right">Taxable</th>
+                                <th class="col-total text-right">Total</th>
+                                <th class="col-delete text-center rounded-r-lg no-print"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="items-body" class="divide-y divide-slate-200 dark:divide-slate-700"></tbody>
+                    </table>
+                </div>
+
+                <button onclick="addItem()" class="no-print text-blue-600 font-semibold mb-6 hover:underline flex items-center justify-center sm:justify-start gap-1 w-full sm:w-auto" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    + Add Item
+                </button>
+
+                <!-- BOTTOM SECTION -->
+                <div class="bottom-section">
+                    <div class="notes-col">
+                        <div class="notes-heading">Notes &amp; Terms</div>
+                        <div id="inv-notes-display" class="notes-content"></div>
+                    </div>
+
+                    <div class="totals-col">
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Subtotal</span> <span id="subtotal" class="font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">$0.00</span></div>
+                            <div class="flex flex-wrap justify-between items-center gap-2">
+                                <span class="text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Discount</span>
+                                <div class="flex gap-1 items-center">
+                                    <input type="number" id="discount-val" onchange="calculate()" class="w-16 border p-1.5 rounded text-right dark:bg-slate-800 dark:border-slate-600" value="0" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                                    <span id="discount-symbol" class="text-sm font-medium w-5 text-center">%</span>
+                                    <select id="discount-type" onchange="updateDiscountSymbol(); calculate();" class="border p-1.5 rounded dark:bg-slate-800 dark:border-slate-600 no-print text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                                        <option value="%">%</option>
+                                        <option value="flat">Flat</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center gap-2">
+                                <span class="text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">CGST (%)</span>
+                                <input type="number" id="cgst" onchange="calculate()" class="w-20 border p-1.5 rounded text-right dark:bg-slate-800 dark:border-slate-600" value="0" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                            </div>
+                            <div class="flex justify-between items-center gap-2">
+                                <span class="text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">SGST (%)</span>
+                                <input type="number" id="sgst" onchange="calculate()" class="w-20 border p-1.5 rounded text-right dark:bg-slate-800 dark:border-slate-600" value="0" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                            </div>
+                            <div class="flex justify-between font-bold text-base sm:text-lg pt-2 border-t border-slate-200 dark:border-slate-700">
+                                <span style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Total</span>
+                                <span id="grand-total" class="text-blue-600 dark:text-blue-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="settings-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+            <h2 class="text-2xl font-extrabold mb-6 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">⚙️ Settings</h2>
+
+            <div class="mb-8">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Company Logo</label>
+                <div id="logo-upload-area" class="logo-upload-area" onclick="document.getElementById('logo-input').click()">
+                    <div id="logo-preview">
+                        <div class="text-4xl mb-2">🖼️</div>
+                        <p class="text-sm text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Click to upload logo</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">PNG, JPG, SVG (Max 2MB)</p>
+                    </div>
+                    <input type="file" id="logo-input" accept="image/*" class="hidden" onchange="handleLogoUpload(event)" />
+                </div>
+                <button onclick="removeLogo()" class="mt-2 text-sm text-red-500 hover:text-red-700 dark:hover:text-red-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Remove Logo</button>
+            </div>
+
+            <div class="mb-8">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Invoice Layout</label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="layout-grid"></div>
+            </div>
+
+            <div class="mb-8 border-t pt-6 dark:border-slate-700">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Default Notes &amp; Terms</label>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">These will appear on all new invoices. Leave empty to hide.</p>
+                <textarea id="default-notes" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-3 rounded-xl mt-1 resize-y" rows="4" placeholder="Payment terms: Net 15&#10;Thank you for your business!" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;"></textarea>
+            </div>
+
+            <div class="space-y-5 border-t pt-6 dark:border-slate-700">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Currency</label>
+                    <select id="currency-select" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-2.5 rounded-xl mt-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                        <option value="$">USD ($)</option>
+                        <option value="₹">INR (₹)</option>
+                        <option value="€">EUR (€)</option>
+                        <option value="£">GBP (£)</option>
+                        <option value="¥">JPY (¥)</option>
+                        <option value="C$">CAD (C$)</option>
+                        <option value="A$">AUD (A$)</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Default CGST (%)</label>
+                        <input type="number" id="default-cgst" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-2.5 rounded-xl mt-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Default SGST (%)</label>
+                        <input type="number" id="default-sgst" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-2.5 rounded-xl mt-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 pt-2">
+                    <input type="checkbox" id="dark-toggle" onchange="toggleDark()" class="w-5 h-5 rounded" />
+                    <label for="dark-toggle" class="text-sm font-medium text-slate-700 dark:text-slate-300" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Enable Dark Mode</label>
+                </div>
+                <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition shadow shadow-blue-600/20 mt-4" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    💾 Save Settings
+                </button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button onclick="exportAllData()" class="w-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-2.5 rounded-xl font-medium transition text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                        📤 Export All Data
+                    </button>
+                    <button onclick="importAllData()" class="w-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-2.5 rounded-xl font-medium transition text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                        📥 Import Data
+                    </button>
+                </div>
+                <input type="file" id="import-file" accept=".json" class="hidden" onchange="handleImport(event)" />
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ============================================================
+        //  STATE
+        // ============================================================
+        const STATE = {
+            settings: JSON.parse(localStorage.getItem('invoiceSettings') || JSON.stringify({
+                currency: '$',
+                cgst: 0,
+                sgst: 0,
+                layout: 'layout-formal',
+                dark: false,
+                logo: null,
+                defaultNotes: ''
+            })),
+            currentId: null,
+            isDark: false,
+            printMode: 'bw',
+        };
+
+        const LAYOUTS = [
+            { id: 'layout-formal', label: 'Formal Tax', icon: '📋' },
+            { id: 'layout-corporate', label: 'Corporate', icon: '🏢' },
+            { id: 'layout-remittance', label: 'Remittance', icon: '💳' },
+            { id: 'layout-minimal', label: 'Minimal', icon: '✨' },
+            { id: 'layout-elegant', label: 'Elegant', icon: '🌹' },
+            { id: 'layout-modern', label: 'Modern', icon: '🚀' },
+            { id: 'layout-soft', label: 'Soft', icon: '🌸' },
+            { id: 'layout-bold', label: 'Bold', icon: '⚡' },
+        ];
+
+        // ============================================================
+        //  DOM REFS
+        // ============================================================
+        const $ = id => document.getElementById(id);
+        const qs = (sel, ctx = document) => ctx.querySelector(sel);
+        const qsa = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+
+        // ============================================================
+        //  TOAST
+        // ============================================================
+        let toastTimer = null;
+
+        function showToast(message, type = 'info') {
+            const el = $('toast');
+            const icon = $('toast-icon');
+            const msg = $('toast-message');
+            el.className = 'toast';
+            if (type === 'success') { el.classList.add('success');
+                icon.textContent = '✓'; } else if (type === 'error') { el.classList.add('error');
+                icon.textContent = '✕'; } else { el.classList.add('info');
+                icon.textContent = 'ℹ'; }
+            msg.textContent = message;
+            clearTimeout(toastTimer);
+            requestAnimationFrame(() => { el.classList.add('show'); });
+            toastTimer = setTimeout(() => { el.classList.remove('show'); }, 2800);
+        }
+
+        // ============================================================
+        //  DARK MODE
+        // ============================================================
+        function toggleDark() {
+            STATE.isDark = !STATE.isDark;
+            document.body.classList.toggle('dark', STATE.isDark);
+            $('dark-icon').textContent = STATE.isDark ? '☀️' : '🌙';
+            if ($('dark-toggle')) $('dark-toggle').checked = STATE.isDark;
+            STATE.settings.dark = STATE.isDark;
+            localStorage.setItem('invoiceSettings', JSON.stringify(STATE.settings));
+        }
+
+        function initDark() {
+            STATE.isDark = STATE.settings.dark || false;
+            if (STATE.isDark) document.body.classList.add('dark');
+            $('dark-icon').textContent = STATE.isDark ? '☀️' : '🌙';
+            if ($('dark-toggle')) $('dark-toggle').checked = STATE.isDark;
+        }
+
+        // ============================================================
+        //  PRINT MODE & PREPARE
+        // ============================================================
+        function setPrintMode(mode) {
+            STATE.printMode = mode;
+            document.body.classList.remove('print-bw', 'print-color');
+            document.body.classList.add('print-' + mode);
+            document.querySelectorAll('.print-mode-btn').forEach(b => b.classList.remove('active'));
+            if (mode === 'bw') $('print-bw-btn').classList.add('active');
+            else $('print-color-btn').classList.add('active');
+        }
+
+        function prepareAndPrint() {
+            // Replace description textareas with divs for print
+            const descReplacements = [];
+            document.querySelectorAll('#items-body .desc').forEach(textarea => {
+                const parent = textarea.parentNode;
+                const content = textarea.value;
+                const div = document.createElement('div');
+                div.className = 'desc-print';
+                div.textContent = content;
+                descReplacements.push({ textarea, parent, div });
+                parent.replaceChild(div, textarea);
+            });
+
+            // HIDE PO # ROW COMPLETELY WHEN EMPTY
+            const poValue = $('inv-po').value.trim();
+            const poRow = document.getElementById('po-row');
+            if (poRow) {
+                if (poValue === '') {
+                    poRow.classList.add('po-row-hidden');
+                } else {
+                    poRow.classList.remove('po-row-hidden');
+                }
+            }
+
+            // Update watermark with invoice number
+            const invoiceNum = $('inv-num').value || 'INVOICE';
+            const watermarkEl = document.querySelector('.watermark-print');
+            if (watermarkEl) {
+                watermarkEl.textContent = invoiceNum;
+                watermarkEl.style.display = 'flex';
+                watermarkEl.style.position = 'fixed';
+                watermarkEl.style.top = '0';
+                watermarkEl.style.left = '0';
+                watermarkEl.style.width = '100%';
+                watermarkEl.style.height = '100%';
+                watermarkEl.style.display = 'flex';
+                watermarkEl.style.alignItems = 'center';
+                watermarkEl.style.justifyContent = 'center';
+                watermarkEl.style.pointerEvents = 'none';
+                watermarkEl.style.zIndex = '9999';
+                watermarkEl.style.opacity = '0.08';
+                watermarkEl.style.fontSize = '4rem';
+                watermarkEl.style.fontWeight = '900';
+                watermarkEl.style.color = '#1e293b';
+                watermarkEl.style.transform = 'rotate(-30deg)';
+                watermarkEl.style.fontFamily = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+                watermarkEl.style.letterSpacing = '4px';
+                watermarkEl.style.textTransform = 'uppercase';
+                watermarkEl.style.whiteSpace = 'nowrap';
+                watermarkEl.style.userSelect = 'none';
+                watermarkEl.style.WebkitUserSelect = 'none';
+            }
+
+            // Trigger print
+            window.print();
+
+            // Restore everything after print
+            setTimeout(() => {
+                descReplacements.forEach(({ textarea, parent, div }) => {
+                    parent.replaceChild(textarea, div);
+                });
+                if (poRow) {
+                    poRow.classList.remove('po-row-hidden');
+                }
+                if (watermarkEl) {
+                    watermarkEl.style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        function handlePrint() {
+            prepareAndPrint();
+        }
+
+        // ============================================================
+        //  LOGO
+        // ============================================================
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Logo too large. Max 2MB.', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                STATE.settings.logo = e.target.result;
+                localStorage.setItem('invoiceSettings', JSON.stringify(STATE.settings));
+                updateLogoDisplay();
+                showToast('Logo uploaded!', 'success');
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function removeLogo() {
+            STATE.settings.logo = null;
+            localStorage.setItem('invoiceSettings', JSON.stringify(STATE.settings));
+            updateLogoDisplay();
+            showToast('Logo removed', 'info');
+        }
+
+        function updateLogoDisplay() {
+            const logo = STATE.settings.logo;
+            const preview = $('logo-preview');
+            const display = $('logo-display');
+            if (logo) {
+                preview.innerHTML = `<img src="${logo}" alt="Logo" class="max-h-24 w-auto" />`;
+                display.innerHTML = `<img src="${logo}" alt="Logo" class="max-h-16 w-auto" />`;
+                display.style.display = 'flex';
+            } else {
+                preview.innerHTML = `
+              <div class="text-4xl mb-2">🖼️</div>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Click to upload logo</p>
+              <p class="text-xs text-slate-400 dark:text-slate-500">PNG, JPG, SVG (Max 2MB)</p>
+            `;
+                display.innerHTML = '';
+                display.style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        //  DISCOUNT SYMBOL
+        // ============================================================
+        function updateDiscountSymbol() {
+            const type = $('discount-type').value;
+            const symbolSpan = $('discount-symbol');
+            if (type === '%') {
+                symbolSpan.textContent = '%';
+            } else {
+                const curr = STATE.settings.currency || '$';
+                const symbolMap = { '$': '$', '₹': '₹', '€': '€', '£': '£', '¥': '¥', 'C$': 'C$', 'A$': 'A$' };
+                symbolSpan.textContent = symbolMap[curr] || curr;
+            }
+        }
+
+        // ============================================================
+        //  VIEWS
+        // ============================================================
+        function showView(view) {
+            ['dashboard', 'editor', 'settings'].forEach(v => {
+                const el = $(v + '-view');
+                if (el) el.classList.toggle('hidden', v !== view);
+            });
+            if (view === 'dashboard') renderDashboard();
+            if (view === 'settings') loadSettingsUI();
+        }
+
+        function confirmExit() {
+            if (confirm('Discard unsaved changes?')) showView('dashboard');
+        }
+
+        // ============================================================
+        //  DASHBOARD
+        // ============================================================
+        function getInvoices() {
+            try { return JSON.parse(localStorage.getItem('invoices') || '[]'); } catch { return []; }
+        }
+
+        function setInvoices(data) {
+            localStorage.setItem('invoices', JSON.stringify(data));
+        }
+
+        function renderDashboard() {
+            const invoices = getInvoices();
+            const filterStatus = $('filter-status').value;
+            const search = $('filter-search').value.toLowerCase();
+            let filtered = invoices.filter(inv => {
+                const matchStatus = filterStatus === 'all' || inv.status === filterStatus;
+                const matchSearch = inv.num.toLowerCase().includes(search) ||
+                    (inv.to || '').toLowerCase().includes(search) ||
+                    (inv.from || '').toLowerCase().includes(search);
+                return matchStatus && matchSearch;
+            });
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const list = $('invoices-list');
+            const empty = $('empty-state');
+
+            if (filtered.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+                $('invoice-count').textContent = `${invoices.length} invoices`;
+                return;
+            }
+            empty.classList.add('hidden');
+            $('invoice-count').textContent = `${invoices.length} invoices (${filtered.length} shown)`;
+
+            const curr = STATE.settings.currency || '$';
+            list.innerHTML = filtered.map(inv => {
+                const status = inv.status || 'draft';
+                const statusLabels = { draft: 'Draft', sent: 'Sent', paid: 'Paid', overdue: 'Overdue' };
+                const statusClass = 'status-' + status;
+                const total = inv.totals?.grand || '0.00';
+                const date = inv.date ? new Date(inv.date).toLocaleDateString() : '—';
+                return `
+              <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-xl transition slide-up flex flex-col" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h3 class="font-bold text-lg" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${inv.num || 'INV-000'}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${date}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[160px]" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${(inv.to || '').slice(0, 40)}</p>
+                  </div>
+                  <span class="status-badge ${statusClass}">${statusLabels[status] || status}</span>
+                </div>
+                <div class="flex justify-between items-end mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                  <span class="text-xl font-bold" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${curr}${total}</span>
+                  <div class="flex gap-2">
+                    <button onclick="editInvoice('${inv.id}')" class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400 text-sm font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Edit</button>
+                    <button onclick="deleteInvoice('${inv.id}')" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Delete</button>
+                  </div>
+                </div>
+              </div>
+            `;
+            }).join('');
+        }
+
+        function deleteInvoice(id) {
+            if (!confirm('Delete this invoice?')) return;
+            let invoices = getInvoices();
+            invoices = invoices.filter(i => i.id !== id);
+            setInvoices(invoices);
+            renderDashboard();
+            showToast('Invoice deleted', 'success');
+        }
+
+        // ============================================================
+        //  CREATE / EDIT
+        // ============================================================
+        function getDefaultDateTime() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset();
+            const local = new Date(now.getTime() - offset * 60000);
+            return local.toISOString().slice(0, 16);
+        }
+
+        function getDefaultDueDate() {
+            const d = new Date();
+            d.setDate(d.getDate() + 15);
+            return d.toISOString().slice(0, 10);
+        }
+
+        function createNewInvoice() {
+            STATE.currentId = 'inv_' + Date.now();
+            $('inv-num').value = 'INV-' + String(Date.now()).slice(-6);
+            $('inv-date').value = getDefaultDateTime();
+            $('inv-due').value = getDefaultDueDate();
+            $('inv-po').value = '';
+            $('bill-from').value = '';
+            $('bill-to').value = '';
+            $('discount-val').value = 0;
+            $('discount-type').value = '%';
+            $('cgst').value = STATE.settings.cgst || 0;
+            $('sgst').value = STATE.settings.sgst || 0;
+            $('invoice-status').value = 'draft';
+            $('items-body').innerHTML = '';
+            applyLayout();
+            addItem();
+            updateStatusDisplay();
+            updateNotesDisplay('');
+            updateLogoDisplay();
+            updateDiscountSymbol();
+            showView('editor');
+        }
+
+        function editInvoice(id) {
+            const invoices = getInvoices();
+            const inv = invoices.find(i => i.id === id);
+            if (!inv) { showToast('Invoice not found', 'error'); return; }
+            STATE.currentId = inv.id;
+            $('inv-num').value = inv.num || '';
+            $('inv-date').value = inv.date || getDefaultDateTime();
+            $('inv-due').value = inv.due || getDefaultDueDate();
+            $('inv-po').value = inv.po || '';
+            $('bill-from').value = inv.from || '';
+            $('bill-to').value = inv.to || '';
+            $('cgst').value = inv.cgst || STATE.settings.cgst || 0;
+            $('sgst').value = inv.sgst || STATE.settings.sgst || 0;
+            $('discount-val').value = inv.discountVal || 0;
+            $('discount-type').value = inv.discountType || '%';
+            $('invoice-status').value = inv.status || 'draft';
+            $('items-body').innerHTML = '';
+            applyLayout();
+            if (inv.items && inv.items.length) {
+                inv.items.forEach(i => addItem(i));
+            } else {
+                addItem();
+            }
+            updateStatusDisplay();
+            updateNotesDisplay(inv.notes || '');
+            updateLogoDisplay();
+            updateDiscountSymbol();
+            calculate();
+            showView('editor');
+        }
+
+        // ============================================================
+        //  ITEMS
+        // ============================================================
+        function addItem(data = { desc: '', qty: 1, rate: 0, taxable: 0 }) {
+            const row = document.createElement('tr');
+            row.className = 'fade-in';
+            row.innerHTML = `
+            <td class="col-desc">
+              <textarea class="desc" rows="2" placeholder="Item description" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${escapeHtml(data.desc)}</textarea>
+            </td>
+            <td class="col-qty text-right">
+              <input type="number" class="qty" value="${data.qty || 1}" onchange="calculate()" step="1" min="1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+            </td>
+            <td class="col-rate text-right">
+              <input type="number" class="rate" value="${data.rate || 0}" onchange="updateTaxable(this)" step="0.01" min="0" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+            </td>
+            <td class="col-taxable text-right">
+              <input type="number" class="taxable" value="${data.taxable || 0}" onchange="calculate()" step="0.01" min="0" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+            </td>
+            <td class="col-total text-right">
+              <span class="total-cell" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">0.00</span>
+            </td>
+            <td class="col-delete text-center no-print">
+              <button onclick="removeItem(this)" class="remove-btn" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">&times;</button>
+            </td>
+          `;
+            $('items-body').appendChild(row);
+            calculate();
+        }
+
+        function removeItem(btn) {
+            const row = btn.closest('tr');
+            if (qsa('#items-body tr').length <= 1) {
+                showToast('At least one item required', 'error');
+                return;
+            }
+            row.style.transition = 'all 0.2s';
+            row.style.opacity = '0';
+            row.style.transform = 'scale(0.95)';
+            setTimeout(() => { row.remove();
+                calculate(); }, 200);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // ============================================================
+        //  CALCULATIONS
+        // ============================================================
+        function updateTaxable(el) {
+            const row = el.closest('tr');
+            const rate = parseFloat(el.value) || 0;
+            const cgst = parseFloat($('cgst').value) || 0;
+            const sgst = parseFloat($('sgst').value) || 0;
+            const totalTax = 1 + ((cgst + sgst) / 100);
+            const taxable = totalTax > 0 ? rate / totalTax : 0;
+            const taxableInput = row.querySelector('.taxable');
+            if (taxableInput) taxableInput.value = taxable.toFixed(2);
+            calculate();
+        }
+
+        function calculate() {
+            let subtotal = 0;
+            const cgst = parseFloat($('cgst').value) || 0;
+            const sgst = parseFloat($('sgst').value) || 0;
+            const curr = STATE.settings.currency || '$';
+
+            qsa('#items-body tr').forEach(row => {
+                const q = parseFloat(row.querySelector('.qty').value) || 0;
+                const t = parseFloat(row.querySelector('.taxable').value) || 0;
+                const total = q * t;
+                const totalCell = row.querySelector('.total-cell');
+                if (totalCell) totalCell.textContent = total.toFixed(2);
+                subtotal += total;
+            });
+
+            const dVal = parseFloat($('discount-val').value) || 0;
+            const dType = $('discount-type').value;
+            const discAmt = dType === '%' ? (subtotal * dVal / 100) : dVal;
+            const net = Math.max(0, subtotal - discAmt);
+            const total = net + (net * (cgst + sgst) / 100);
+
+            $('subtotal').textContent = curr + subtotal.toFixed(2);
+            $('grand-total').textContent = curr + total.toFixed(2);
+        }
+
+        // ============================================================
+        //  NOTES
+        // ============================================================
+        function updateNotesDisplay(notes) {
+            const display = $('inv-notes-display');
+            const defaultNotes = STATE.settings.defaultNotes || '';
+            const combined = notes || defaultNotes;
+            if (combined && combined.trim()) {
+                display.textContent = combined;
+                display.style.display = 'block';
+            } else {
+                display.textContent = '';
+                display.style.display = 'block';
+            }
+        }
+
+        // ============================================================
+        //  SAVE
+        // ============================================================
+        function saveCurrentInvoice() {
+            const id = STATE.currentId;
+            if (!id) { showToast('No invoice loaded', 'error'); return; }
+
+            const items = qsa('#items-body tr').map(row => ({
+                desc: row.querySelector('.desc').value,
+                qty: row.querySelector('.qty').value,
+                rate: row.querySelector('.rate').value,
+                taxable: row.querySelector('.taxable').value,
+            }));
+
+            const notesText = $('inv-notes-display').textContent;
+
+            const data = {
+                id,
+                num: $('inv-num').value || 'INV-' + Date.now().toString().slice(-6),
+                date: $('inv-date').value || getDefaultDateTime(),
+                due: $('inv-due').value || getDefaultDueDate(),
+                po: $('inv-po').value || '',
+                from: $('bill-from').value,
+                to: $('bill-to').value,
+                notes: notesText,
+                cgst: $('cgst').value,
+                sgst: $('sgst').value,
+                discountVal: $('discount-val').value,
+                discountType: $('discount-type').value,
+                status: $('invoice-status').value,
+                items,
+                totals: {
+                    subtotal: $('subtotal').textContent,
+                    grand: $('grand-total').textContent,
+                },
+                updatedAt: new Date().toISOString(),
+            };
+
+            let invoices = getInvoices();
+            const idx = invoices.findIndex(i => i.id === id);
+            if (idx > -1) invoices[idx] = data;
+            else invoices.push(data);
+            setInvoices(invoices);
+            showToast('Invoice saved! ✓', 'success');
+            renderDashboard();
+        }
+
+        // ============================================================
+        //  LAYOUT
+        // ============================================================
+        function applyLayout() {
+            const layout = STATE.settings.layout || 'layout-formal';
+            const container = $('invoice-container');
+            LAYOUTS.forEach(l => container.classList.remove(l.id));
+            container.classList.add(layout);
+        }
+
+        function renderLayoutPreviews() {
+            const grid = $('layout-grid');
+            const current = STATE.settings.layout || 'layout-formal';
+            grid.innerHTML = LAYOUTS.map(l => `
+            <div class="layout-preview-card ${current === l.id ? 'active' : ''}" onclick="selectLayout('${l.id}')">
+              <div class="preview-box" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <div style="font-size: 1.5rem; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${l.icon}</div>
+                <div style="font-size: 0.65rem; font-weight: 700; margin-top: 2px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${l.label}</div>
+                <div style="font-size: 0.5rem; color: #94a3b8; margin-top: 2px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${l.id.replace('layout-', '')}</div>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        function selectLayout(id) {
+            STATE.settings.layout = id;
+            document.querySelectorAll('.layout-preview-card').forEach(el => el.classList.remove('active'));
+            const cards = document.querySelectorAll('.layout-preview-card');
+            const idx = LAYOUTS.findIndex(l => l.id === id);
+            if (cards[idx]) cards[idx].classList.add('active');
+            applyLayout();
+            localStorage.setItem('invoiceSettings', JSON.stringify(STATE.settings));
+            showToast('Layout changed to ' + LAYOUTS.find(l => l.id === id).label, 'success');
+        }
+
+        // ============================================================
+        //  UI HELPERS
+        // ============================================================
+        function updateStatusDisplay() {
+            const status = $('invoice-status').value;
+            const display = $('status-display');
+            const labels = { draft: 'Draft', sent: 'Sent', paid: 'Paid', overdue: 'Overdue' };
+            display.textContent = labels[status] || status;
+            display.className = 'status-badge status-' + status;
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target.id === 'invoice-status') updateStatusDisplay();
+        });
+
+        // ============================================================
+        //  SETTINGS
+        // ============================================================
+        function loadSettingsUI() {
+            const s = STATE.settings;
+            $('currency-select').value = s.currency || '$';
+            $('default-cgst').value = s.cgst || 0;
+            $('default-sgst').value = s.sgst || 0;
+            $('default-notes').value = s.defaultNotes || '';
+            if ($('dark-toggle')) $('dark-toggle').checked = s.dark || false;
+            updateLogoDisplay();
+            renderLayoutPreviews();
+        }
+
+        function saveSettings() {
+            STATE.settings = {
+                currency: $('currency-select').value,
+                cgst: parseFloat($('default-cgst').value) || 0,
+                sgst: parseFloat($('default-sgst').value) || 0,
+                layout: STATE.settings.layout || 'layout-formal',
+                dark: STATE.isDark,
+                logo: STATE.settings.logo,
+                defaultNotes: $('default-notes').value,
+            };
+            localStorage.setItem('invoiceSettings', JSON.stringify(STATE.settings));
+            applyLayout();
+            renderLayoutPreviews();
+            updateDiscountSymbol();
+            showToast('Settings saved!', 'success');
+            showView('dashboard');
+        }
+
+        // ============================================================
+        //  EXPORT / IMPORT
+        // ============================================================
+        function exportAllData() {
+            const data = {
+                invoices: getInvoices(),
+                settings: STATE.settings,
+                exportedAt: new Date().toISOString(),
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `proinvoice_backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Data exported!', 'success');
+        }
+
+        function importAllData() {
+            $('import-file').click();
+        }
+
+        function handleImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                try {
+                    const data = JSON.parse(ev.target.result);
+                    if (data.invoices) {
+                        setInvoices(data.invoices);
+                        if (data.settings) {
+                            STATE.settings = { ...STATE.settings, ...data.settings };
+                            localStorage.setItem('invoiceSettings', JSON.stringify(STATE.settings));
+                        }
+                        renderDashboard();
+                        showToast(`Imported ${data.invoices.length} invoices!`, 'success');
+                    } else {
+                        showToast('Invalid data file', 'error');
+                    }
+                } catch (err) {
+                    showToast('Failed to parse file', 'error');
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        }
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        function init() {
+            initDark();
+            applyLayout();
+            loadSettingsUI();
+            renderDashboard();
+            setPrintMode('bw');
+
+            const savedId = sessionStorage.getItem('proinvoice_current');
+            if (savedId) {
+                const invoices = getInvoices();
+                if (invoices.some(i => i.id === savedId)) {
+                    editInvoice(savedId);
+                    sessionStorage.removeItem('proinvoice_current');
+                    return;
+                }
+            }
+            showView('dashboard');
+        }
+
+        const origEdit = editInvoice;
+        editInvoice = function(id) {
+            sessionStorage.setItem('proinvoice_current', id);
+            origEdit(id);
+        };
+
+        const origSave = saveCurrentInvoice;
+        saveCurrentInvoice = function() {
+            origSave();
+            sessionStorage.removeItem('proinvoice_current');
+        };
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                if (!$('editor-view').classList.contains('hidden')) {
+                    e.preventDefault();
+                    saveCurrentInvoice();
+                }
+            }
+            if (e.key === 'Escape') {
+                if (!$('editor-view').classList.contains('hidden')) {
+                    confirmExit();
+                }
+            }
+        });
+
+        document.addEventListener('input', function(e) {
+            if (e.target.closest('#items-body') || e.target.id === 'cgst' || e.target.id === 'sgst' ||
+                e.target.id === 'discount-val' || e.target.id === 'discount-type') {
+                calculate();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
