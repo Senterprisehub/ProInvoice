@@ -12,14 +12,11 @@
         * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
-
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             background: #f1f5f9;
             transition: background 0.3s, color 0.3s;
         }
-
-        /* ===== DARK MODE ===== */
         body.dark {
             background: #0f172a;
             color: #e2e8f0;
@@ -64,7 +61,6 @@
         .invoice-paper * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
-
         .invoice-paper .watermark {
             position: absolute;
             right: 2rem;
@@ -80,7 +76,7 @@
         }
 
         /* ============================================================ */
-        /* PRINT STYLES */
+        /* PRINT STYLES – OPTIMIZED FOR SINGLE PAGE */
         /* ============================================================ */
         @media print {
             .no-print {
@@ -97,7 +93,7 @@
                 box-shadow: none !important;
                 border: none !important;
                 min-height: auto !important;
-                padding: 1.2rem !important;
+                padding: 0.5rem 0.7rem !important;
                 margin: 0 !important;
                 border-radius: 0 !important;
                 background: white !important;
@@ -112,15 +108,12 @@
             .invoice-paper .watermark {
                 opacity: 0.06 !important;
             }
-
             .logo-placeholder {
                 display: none !important;
             }
             .logo-container:not(:has(img)) {
                 display: none !important;
             }
-
-            /* ===== WATERMARK ===== */
             .watermark-print {
                 position: fixed !important;
                 top: 0 !important;
@@ -132,8 +125,8 @@
                 justify-content: center !important;
                 pointer-events: none !important;
                 z-index: 9999 !important;
-                opacity: 0.08 !important;
-                font-size: 4rem !important;
+                opacity: 0.07 !important;
+                font-size: 3rem !important;
                 font-weight: 900 !important;
                 color: #1e293b !important;
                 transform: rotate(-30deg) !important;
@@ -148,8 +141,6 @@
                 color: #e2e8f0 !important;
                 opacity: 0.06 !important;
             }
-
-            /* Hide calendar pickers and spinners */
             input[type="datetime-local"]::-webkit-calendar-picker-indicator,
             input[type="date"]::-webkit-calendar-picker-indicator,
             input[type="number"]::-webkit-inner-spin-button,
@@ -162,21 +153,17 @@
                 -moz-appearance: textfield !important;
                 appearance: textfield !important;
             }
-
-            /* ===== HIDE PLACEHOLDER TEXT IN PRINT ===== */
             .invoice-paper input::placeholder,
             .invoice-paper textarea::placeholder {
                 color: transparent !important;
                 opacity: 0 !important;
             }
-
-            /* ===== FORCE ALL INPUT VALUES TO BE VISIBLE ===== */
             .invoice-paper input,
             .invoice-paper textarea,
             .invoice-paper select {
                 border: none !important;
                 background: transparent !important;
-                padding: 2px 4px !important;
+                padding: 1px 3px !important;
                 color: black !important;
                 -webkit-appearance: none !important;
                 appearance: none !important;
@@ -195,43 +182,36 @@
                 display: inline-block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
-                line-height: 1.4 !important;
+                line-height: 1.3 !important;
                 text-indent: 0 !important;
                 vertical-align: middle !important;
             }
-
             .invoice-paper input[type="number"] {
                 text-align: right !important;
-                min-width: 50px !important;
+                min-width: 30px !important;
                 width: auto !important;
                 display: inline-block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
                 color: black !important;
             }
-
             .invoice-paper input[type="text"] {
                 text-align: left !important;
-                min-width: 50px !important;
+                min-width: 30px !important;
                 display: inline-block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
                 color: black !important;
             }
-
             .invoice-paper input[type="datetime-local"],
             .invoice-paper input[type="date"] {
                 text-align: right !important;
-                min-width: 100px !important;
+                min-width: 70px !important;
                 display: inline-block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
                 color: black !important;
             }
-
-            /* ============================================================ */
-            /* DESCRIPTION – SHOW ALL CONTENT */
-            /* ============================================================ */
             .invoice-paper textarea.desc {
                 display: none !important;
             }
@@ -239,73 +219,83 @@
                 display: block !important;
                 width: 100% !important;
                 height: auto !important;
-                min-height: 30px !important;
+                min-height: 16px !important;
                 max-height: none !important;
                 overflow: visible !important;
                 white-space: pre-wrap !important;
                 word-wrap: break-word !important;
                 word-break: break-word !important;
-                padding: 4px 6px !important;
+                padding: 1px 3px !important;
                 color: black !important;
-                font-size: inherit !important;
+                font-size: 7.5pt !important;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-                line-height: 1.6 !important;
+                line-height: 1.3 !important;
                 background: transparent !important;
                 border: none !important;
                 visibility: visible !important;
                 opacity: 1 !important;
             }
-
-            .invoice-paper table td.col-desc {
-                height: auto !important;
-                min-height: 40px !important;
-                max-height: none !important;
-                overflow: visible !important;
-                vertical-align: top !important;
-                padding: 6px 8px !important;
-                display: table-cell !important;
-                word-wrap: break-word !important;
-                white-space: normal !important;
-            }
-
-            .invoice-paper table tbody tr {
-                height: auto !important;
-                min-height: 40px !important;
-                max-height: none !important;
-                display: table-row !important;
-            }
-
-            /* ===== FROM/TO TEXTAREAS ===== */
             .invoice-paper .from-to-box textarea {
+                display: none !important;
+            }
+            .invoice-paper .from-to-print {
                 display: block !important;
                 width: 100% !important;
                 height: auto !important;
-                min-height: 30px !important;
+                min-height: 16px !important;
                 max-height: none !important;
                 overflow: visible !important;
                 white-space: pre-wrap !important;
                 word-wrap: break-word !important;
-                border: none !important;
-                background: transparent !important;
-                padding: 2px 4px !important;
+                word-break: break-word !important;
+                padding: 1px 3px !important;
                 color: black !important;
-                font-size: inherit !important;
+                font-size: 7pt !important;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-                line-height: 1.5 !important;
-                resize: none !important;
+                line-height: 1.3 !important;
+                background: transparent !important;
+                border: none !important;
                 visibility: visible !important;
                 opacity: 1 !important;
             }
-
-            /* ===== TABLE ===== */
+            .invoice-paper .from-to-box {
+                border: 1px solid #ccc !important;
+                padding: 0.2rem 0.4rem !important;
+                border-radius: 0 !important;
+                overflow: visible !important;
+                height: auto !important;
+                min-height: 16px !important;
+            }
+            .invoice-paper .from-to-box .from-to-heading {
+                font-size: 6pt !important;
+                margin-bottom: 1px !important;
+            }
+            .invoice-paper table td.col-desc {
+                height: auto !important;
+                min-height: 16px !important;
+                max-height: none !important;
+                overflow: visible !important;
+                vertical-align: top !important;
+                padding: 2px 3px !important;
+                display: table-cell !important;
+                word-wrap: break-word !important;
+                white-space: normal !important;
+            }
+            .invoice-paper table tbody tr {
+                height: auto !important;
+                min-height: 16px !important;
+                max-height: none !important;
+                display: table-row !important;
+            }
             .invoice-paper table {
                 width: 100% !important;
                 border-collapse: collapse !important;
                 border-spacing: 0 !important;
-                margin: 0.5rem 0 !important;
+                margin: 0.15rem 0 !important;
                 page-break-inside: avoid !important;
                 table-layout: fixed !important;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+                font-size: 7.5pt !important;
             }
             .invoice-paper table thead {
                 display: table-header-group !important;
@@ -317,34 +307,32 @@
                 display: table-row !important;
                 page-break-inside: avoid !important;
             }
-
             .invoice-paper table td,
             .invoice-paper table th {
                 border: 1px solid #ccc !important;
-                padding: 6px 8px !important;
+                padding: 2px 4px !important;
                 text-align: left !important;
                 vertical-align: middle !important;
                 background: white !important;
                 color: black !important;
-                font-size: 10.5pt !important;
+                font-size: 7.5pt !important;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
                 overflow: visible !important;
                 word-wrap: break-word !important;
                 white-space: normal !important;
-                line-height: 1.5 !important;
+                line-height: 1.2 !important;
                 height: auto !important;
-                min-height: 30px !important;
+                min-height: 16px !important;
                 max-height: none !important;
             }
-
             .invoice-paper table th {
                 background: #1e293b !important;
                 color: white !important;
                 font-weight: 600 !important;
+                font-size: 6.5pt !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-
             .invoice-paper table td.text-right,
             .invoice-paper table th.text-right {
                 text-align: right !important;
@@ -353,14 +341,12 @@
             .invoice-paper table th.text-center {
                 text-align: center !important;
             }
-
             .invoice-paper table td:last-child,
             .invoice-paper table th:last-child {
                 display: none !important;
             }
-
             .invoice-paper table .col-desc {
-                width: 34% !important;
+                width: 32% !important;
             }
             .invoice-paper table .col-qty {
                 width: 14% !important;
@@ -372,23 +358,22 @@
                 width: 16% !important;
             }
             .invoice-paper table .col-total {
-                width: 20% !important;
+                width: 22% !important;
             }
             .invoice-paper table .col-delete {
                 display: none !important;
             }
-
             .invoice-paper table td input,
             .invoice-paper table td textarea {
                 border: none !important;
                 background: transparent !important;
-                padding: 2px 4px !important;
+                padding: 1px 2px !important;
                 color: black !important;
                 font-size: inherit !important;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
                 font-weight: inherit !important;
                 width: 100% !important;
-                min-width: 30px !important;
+                min-width: 16px !important;
                 display: block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
@@ -398,118 +383,188 @@
                 resize: none !important;
                 overflow: visible !important;
                 white-space: pre-wrap !important;
-                line-height: 1.5 !important;
+                line-height: 1.2 !important;
                 text-align: inherit !important;
             }
-
             .invoice-paper table td input[type="number"] {
                 text-align: right !important;
-                min-width: 40px !important;
+                min-width: 24px !important;
                 width: 100% !important;
                 display: block !important;
             }
-
             .invoice-paper table td .total-cell {
                 font-weight: 600 !important;
                 display: inline-block !important;
-                min-width: 50px !important;
+                min-width: 30px !important;
                 text-align: right !important;
                 color: black !important;
-                padding: 2px 4px !important;
+                padding: 1px 2px !important;
                 visibility: visible !important;
                 opacity: 1 !important;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             }
-
-            /* ===== FROM/TO BOXES ===== */
-            .invoice-paper .from-to-box {
-                border: 1px solid #ccc !important;
-                padding: 0.6rem !important;
-                border-radius: 0 !important;
-            }
-
-            /* ============================================================ */
-            /* HIDE PO # ROW COMPLETELY WHEN EMPTY */
-            /* ============================================================ */
             .po-row-wrapper.po-hidden {
                 display: none !important;
             }
 
-            /* ===== DISCOUNT SECTION ===== */
-            .invoice-paper #discount-val,
-            .invoice-paper #discount-symbol,
-            .invoice-paper #cgst,
-            .invoice-paper #sgst {
+            /* ===== DISCOUNT FIX: show percentage in label, amount on right ===== */
+            .invoice-paper .discount-input-group {
+                display: none !important;
+            }
+            .invoice-paper .discount-display {
                 display: inline-block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
                 color: black !important;
-                border: none !important;
-                background: transparent !important;
-                padding: 2px 4px !important;
+                font-weight: 500 !important;
                 font-size: inherit !important;
-                font-weight: inherit !important;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            }
-            .invoice-paper #discount-symbol {
-                min-width: 1.2rem !important;
             }
             .invoice-paper #discount-type {
                 display: none !important;
             }
 
-            /* ============================================================ */
-            /* BOTTOM SECTION: NOTES LEFT, TOTALS RIGHT */
-            /* ============================================================ */
+            /* ===== BOTTOM SECTION: NOTES LEFT, TOTALS RIGHT ===== */
             .invoice-paper .bottom-section {
                 display: flex !important;
-                flex-wrap: wrap !important;
+                flex-wrap: nowrap !important;
                 justify-content: space-between !important;
                 align-items: flex-start !important;
-                gap: 1rem !important;
-                margin-top: 1rem !important;
+                gap: 0.3rem !important;
+                margin-top: 0.2rem !important;
                 border-top: 1px solid #ccc !important;
-                padding-top: 1rem !important;
+                padding-top: 0.2rem !important;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             }
             .invoice-paper .bottom-section .notes-col {
-                flex: 1 1 auto !important;
-                min-width: 200px !important;
-                max-width: 55% !important;
+                flex: 1 1 55% !important;
+                min-width: 140px !important;
+                max-width: 58% !important;
                 order: 1 !important;
             }
             .invoice-paper .bottom-section .totals-col {
-                flex: 0 0 auto !important;
-                width: 280px !important;
-                max-width: 45% !important;
+                flex: 0 0 40% !important;
+                width: 40% !important;
+                max-width: 42% !important;
                 order: 2 !important;
             }
             .invoice-paper .bottom-section .notes-col .notes-heading {
                 font-weight: 600 !important;
-                font-size: 10pt !important;
+                font-size: 6.5pt !important;
                 text-transform: uppercase !important;
                 letter-spacing: 0.05em !important;
-                margin-bottom: 4px !important;
+                margin-bottom: 1px !important;
                 color: #1e293b !important;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             }
             .invoice-paper .bottom-section .notes-col .notes-content {
                 white-space: pre-wrap !important;
                 word-wrap: break-word !important;
-                font-size: 9.5pt !important;
-                line-height: 1.5 !important;
-                padding: 4px 0 !important;
+                font-size: 6.5pt !important;
+                line-height: 1.3 !important;
+                padding: 1px 0 !important;
                 color: black !important;
                 border: none !important;
                 background: transparent !important;
-                min-height: 30px !important;
+                min-height: 16px !important;
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             }
             body.dark .invoice-paper .bottom-section .notes-col .notes-heading {
                 color: #e2e8f0 !important;
             }
 
-            /* ===== PRINT MODE ===== */
+            /* ===== TOTALS COLUMN – COMPACT ===== */
+            .invoice-paper .totals-col {
+                font-size: 7.5pt !important;
+            }
+            .invoice-paper .totals-col .totals-row {
+                display: flex !important;
+                justify-content: space-between !important;
+                padding: 1px 0 !important;
+                line-height: 1.3 !important;
+            }
+            .invoice-paper .totals-col .totals-row .totals-label {
+                font-weight: normal !important;
+            }
+            .invoice-paper .totals-col .totals-row .totals-value {
+                font-weight: 500 !important;
+            }
+            .invoice-paper .totals-col .tax-row {
+                display: flex !important;
+                justify-content: space-between !important;
+                padding: 1px 0 !important;
+                line-height: 1.3 !important;
+                font-size: 7pt !important;
+            }
+            .invoice-paper .totals-col .tax-row .tax-label {
+                font-weight: normal !important;
+            }
+            .invoice-paper .totals-col .tax-row .tax-amount {
+                font-weight: 500 !important;
+            }
+            .invoice-paper .totals-col .total-row {
+                font-weight: 700 !important;
+                font-size: 8.5pt !important;
+                border-top: 2px solid #333 !important;
+                padding-top: 3px !important;
+                margin-top: 1px !important;
+                display: flex !important;
+                justify-content: space-between !important;
+            }
+            .invoice-paper .totals-col .discount-row {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding: 1px 0 !important;
+                line-height: 1.3 !important;
+            }
+            .invoice-paper .totals-col .discount-row .discount-label {
+                font-weight: normal !important;
+            }
+            .invoice-paper .totals-col .discount-row .discount-display {
+                font-weight: 500 !important;
+            }
+
+            /* ===== HEADER COMPACT ===== */
+            .invoice-paper .invoice-header {
+                padding-bottom: 0.2rem !important;
+                margin-bottom: 0.2rem !important;
+                border-bottom-width: 1px !important;
+            }
+            .invoice-paper .invoice-header .logo-container img {
+                max-height: 30px !important;
+            }
+            .invoice-paper .invoice-header h1 {
+                font-size: 1.2rem !important;
+            }
+            .invoice-paper .invoice-header .header-row .header-label {
+                font-size: 6pt !important;
+            }
+            .invoice-paper .invoice-header .header-row .header-input {
+                font-size: 6.5pt !important;
+                padding: 1px 3px !important;
+                min-width: 60px !important;
+            }
+            .invoice-paper .invoice-header .header-row {
+                gap: 0.3rem !important;
+            }
+
+            /* ===== FROM/TO HEADING ===== */
+            .invoice-paper .from-to-heading {
+                font-size: 6pt !important;
+            }
+
+            /* ===== PAGE BREAK AVOID ===== */
+            .invoice-paper {
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+            }
+            .invoice-paper table {
+                page-break-inside: avoid !important;
+            }
+            .invoice-paper .bottom-section {
+                page-break-inside: avoid !important;
+            }
+
             body.print-bw .invoice-paper .bg-slate-800 {
                 background: #333 !important;
                 color: white !important;
@@ -529,10 +584,6 @@
             }
             body.print-color .invoice-paper img {
                 filter: none !important;
-            }
-
-            .invoice-paper {
-                page-break-after: avoid;
             }
         }
 
@@ -868,13 +919,13 @@
 
         .invoice-paper table th,
         .invoice-paper table td {
-            padding: 8px 6px;
+            padding: 6px 4px;
             vertical-align: middle;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
         .invoice-paper table th {
             font-weight: 600;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
@@ -890,10 +941,10 @@
         .invoice-paper table td input,
         .invoice-paper table td textarea {
             width: 100%;
-            padding: 6px 8px;
+            padding: 4px 6px;
             border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 0.875rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
             background: transparent;
             transition: border-color 0.2s;
             box-sizing: border-box;
@@ -915,18 +966,18 @@
         }
         .invoice-paper table td textarea {
             resize: vertical;
-            min-height: 44px;
+            min-height: 36px;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            line-height: 1.5;
+            line-height: 1.4;
         }
         .invoice-paper table td input[type="number"] {
             text-align: right;
         }
         .invoice-paper table td .total-cell {
             font-weight: 600;
-            padding: 6px 8px;
+            padding: 4px 6px;
             display: inline-block;
-            min-width: 60px;
+            min-width: 50px;
             text-align: right;
             color: #1e293b;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
@@ -956,7 +1007,7 @@
         .from-to-box {
             border: 1px solid #e2e8f0;
             border-radius: 0.75rem;
-            padding: 1rem;
+            padding: 0.8rem;
             transition: border-color 0.3s;
         }
         body.dark .from-to-box {
@@ -973,8 +1024,8 @@
             background: transparent;
             resize: vertical;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            font-size: 0.875rem;
-            min-height: 80px;
+            font-size: 0.8rem;
+            min-height: 60px;
         }
         .from-to-box textarea:focus {
             outline: none;
@@ -984,22 +1035,19 @@
             color: #e2e8f0;
         }
 
-        /* ============================================================ */
-        /* HEADER ROWS – each row in a flex container for easy hiding */
-        /* ============================================================ */
         .header-row {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
             width: 100%;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
         .header-row .header-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 500;
             color: #64748b;
             text-align: right;
-            min-width: 45px;
+            min-width: 40px;
             flex-shrink: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
@@ -1008,12 +1056,12 @@
         }
         .header-row .header-input {
             flex: 1;
-            min-width: 120px;
+            min-width: 100px;
             border: 1px solid #e2e8f0;
             border-radius: 0.5rem;
-            padding: 0.375rem 0.5rem;
+            padding: 0.25rem 0.4rem;
             text-align: right;
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             background: transparent;
             color: #1e293b;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
@@ -1035,18 +1083,15 @@
             display: none !important;
         }
 
-        /* ============================================================ */
-        /* BOTTOM SECTION – NOTES LEFT, TOTALS RIGHT (editor) */
-        /* ============================================================ */
         .bottom-section {
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             align-items: flex-start;
             gap: 1.5rem;
-            margin-top: 1.5rem;
+            margin-top: 1.2rem;
             border-top: 1px solid #e2e8f0;
-            padding-top: 1.5rem;
+            padding-top: 1.2rem;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
         body.dark .bottom-section {
@@ -1054,23 +1099,23 @@
         }
         .bottom-section .notes-col {
             flex: 1 1 auto;
-            min-width: 200px;
+            min-width: 180px;
             max-width: 55%;
             order: 1;
         }
         .bottom-section .totals-col {
             flex: 0 0 auto;
-            width: 280px;
+            width: 260px;
             max-width: 45%;
             order: 2;
         }
         .bottom-section .notes-col .notes-heading {
             font-weight: 600;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: #64748b;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
         body.dark .bottom-section .notes-col .notes-heading {
@@ -1079,16 +1124,153 @@
         .bottom-section .notes-col .notes-content {
             white-space: pre-wrap;
             word-wrap: break-word;
-            font-size: 0.875rem;
-            line-height: 1.6;
-            padding: 4px 0;
-            min-height: 60px;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            padding: 3px 0;
+            min-height: 50px;
             color: #1e293b;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
         body.dark .bottom-section .notes-col .notes-content {
             color: #e2e8f0;
         }
+
+        /* ============================================================ */
+        /* TOTALS COLUMN – WITH CGST/SGST DISPLAY FIXED */
+        /* ============================================================ */
+        .totals-col .totals-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            padding: 2px 0;
+        }
+        .totals-col .totals-row .totals-label {
+            font-weight: normal;
+            color: #475569;
+        }
+        body.dark .totals-col .totals-row .totals-label {
+            color: #94a3b8;
+        }
+        .totals-col .totals-row .totals-value {
+            font-weight: 500;
+            color: #1e293b;
+        }
+        body.dark .totals-col .totals-row .totals-value {
+            color: #e2e8f0;
+        }
+
+        /* Tax row: label on left with percentage in brackets, amount on right */
+        .totals-col .tax-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            padding: 2px 0;
+        }
+        .totals-col .tax-row .tax-label {
+            font-weight: normal;
+            color: #475569;
+        }
+        body.dark .totals-col .tax-row .tax-label {
+            color: #94a3b8;
+        }
+        .totals-col .tax-row .tax-amount {
+            font-weight: 500;
+            color: #1e293b;
+        }
+        body.dark .totals-col .tax-row .tax-amount {
+            color: #e2e8f0;
+        }
+
+        /* Discount row with label showing percentage and amount on right */
+        .totals-col .discount-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            padding: 2px 0;
+        }
+        .totals-col .discount-row .discount-label {
+            font-weight: normal;
+            color: #475569;
+        }
+        body.dark .totals-col .discount-row .discount-label {
+            color: #94a3b8;
+        }
+        .totals-col .discount-row .discount-input-group {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .totals-col .discount-row .discount-input-group input {
+            width: 45px;
+            padding: 2px 4px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            text-align: right;
+            font-size: 0.75rem;
+            background: transparent;
+            color: #1e293b;
+        }
+        body.dark .totals-col .discount-row .discount-input-group input {
+            border-color: #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .totals-col .discount-row .discount-input-group select {
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 0.7rem;
+            background: transparent;
+            color: #1e293b;
+        }
+        body.dark .totals-col .discount-row .discount-input-group select {
+            border-color: #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        /* Discount display (for print) - shows calculated amount on right */
+        .discount-display {
+            display: none;
+            font-weight: 500;
+            color: #1e293b;
+        }
+        body.dark .discount-display {
+            color: #e2e8f0;
+        }
+        @media print {
+            .discount-display {
+                display: inline-block !important;
+            }
+        }
+
+        .totals-col .total-row {
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 5px;
+            margin-top: 3px;
+            display: flex;
+            justify-content: space-between;
+        }
+        body.dark .totals-col .total-row {
+            border-color: #334155;
+        }
+        .totals-col .total-row .total-label {
+            font-weight: 700;
+        }
+        .totals-col .total-row .total-value {
+            font-weight: 700;
+            color: #2563eb;
+        }
+        body.dark .totals-col .total-row .total-value {
+            color: #60a5fa;
+        }
+
         @media (max-width: 640px) {
             .bottom-section {
                 flex-direction: column;
@@ -1103,14 +1285,11 @@
                 flex-wrap: wrap;
             }
             .header-row .header-label {
-                min-width: 40px;
+                min-width: 35px;
             }
             .header-row .header-input {
-                min-width: 80px;
+                min-width: 60px;
             }
-        }
-
-        @media (max-width: 640px) {
             .invoice-paper table .col-desc {
                 width: 28%;
             }
@@ -1131,15 +1310,15 @@
             }
             .invoice-paper table td input,
             .invoice-paper table td textarea {
-                font-size: 0.75rem;
-                padding: 4px 4px;
+                font-size: 0.7rem;
+                padding: 3px 3px;
             }
             .invoice-paper table th,
             .invoice-paper table td {
-                padding: 4px 3px;
+                padding: 3px 2px;
             }
             .invoice-paper .from-to-box textarea {
-                min-height: 60px;
+                min-height: 50px;
             }
             .invoice-paper .layout-formal,
             .invoice-paper .layout-corporate,
@@ -1149,10 +1328,14 @@
             .invoice-paper .layout-modern,
             .invoice-paper .layout-soft,
             .invoice-paper .layout-bold {
-                padding: 1rem;
+                padding: 0.8rem;
             }
             .invoice-paper table td input[type="number"] {
-                min-width: 35px;
+                min-width: 28px;
+            }
+            .totals-col .discount-row {
+                flex-wrap: wrap;
+                gap: 2px;
             }
         }
     </style>
@@ -1248,8 +1431,8 @@
                 <div class="watermark-print no-print" style="display:none;"></div>
 
                 <!-- HEADER -->
-                <div class="flex flex-col sm:flex-row flex-wrap justify-between items-start gap-4 mb-6 border-b-2 pb-4">
-                    <div class="flex items-start gap-4">
+                <div class="invoice-header flex flex-col sm:flex-row flex-wrap justify-between items-start gap-3 mb-4 border-b-2 pb-3">
+                    <div class="flex items-start gap-3">
                         <div id="logo-display" class="logo-container"></div>
                         <div>
                             <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white tracking-tight" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">INVOICE</h1>
@@ -1261,7 +1444,7 @@
                     </div>
 
                     <div class="w-full sm:w-auto">
-                        <div class="flex flex-col gap-1.5 w-full sm:w-[220px]">
+                        <div class="flex flex-col gap-1 w-full sm:w-[190px]">
                             <div class="header-row">
                                 <span class="header-label">Inv #</span>
                                 <input type="text" id="inv-num" placeholder="INV-000" class="header-input text-left" />
@@ -1283,15 +1466,15 @@
                 </div>
 
                 <!-- FROM & TO -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div class="from-to-box">
-                        <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                        <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
                             <span class="w-1 h-4 bg-blue-500 rounded-full"></span> From
                         </h3>
                         <textarea id="bill-from" placeholder="Your company name, address, tax ID…"></textarea>
                     </div>
                     <div class="from-to-box">
-                        <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                        <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
                             <span class="w-1 h-4 bg-blue-500 rounded-full"></span> Bill To
                         </h3>
                         <textarea id="bill-to" placeholder="Client name, address, email…"></textarea>
@@ -1315,42 +1498,60 @@
                     </table>
                 </div>
 
-                <button onclick="addItem()" class="no-print text-blue-600 font-semibold mb-6 hover:underline flex items-center justify-center sm:justify-start gap-1 w-full sm:w-auto" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <button onclick="addItem()" class="no-print text-blue-600 font-semibold mb-3 hover:underline flex items-center justify-center sm:justify-start gap-1 w-full sm:w-auto text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
                     + Add Item
                 </button>
 
-                <!-- BOTTOM SECTION -->
+                <!-- ============================================================ -->
+                <!-- BOTTOM SECTION: NOTES LEFT, TOTALS RIGHT -->
+                <!-- ============================================================ -->
                 <div class="bottom-section">
+                    <!-- Notes Column (Left) -->
                     <div class="notes-col">
                         <div class="notes-heading">Notes &amp; Terms</div>
                         <div id="inv-notes-display" class="notes-content"></div>
                     </div>
 
+                    <!-- Totals Column (Right) -->
                     <div class="totals-col">
-                        <div class="space-y-3 text-sm">
-                            <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Subtotal</span> <span id="subtotal" class="font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">$0.00</span></div>
-                            <div class="flex flex-wrap justify-between items-center gap-2">
-                                <span class="text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Discount</span>
-                                <div class="flex gap-1 items-center">
-                                    <input type="number" id="discount-val" onchange="calculate()" class="w-16 border p-1.5 rounded text-right dark:bg-slate-800 dark:border-slate-600" value="0" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
-                                    <span id="discount-symbol" class="text-sm font-medium w-5 text-center">%</span>
-                                    <select id="discount-type" onchange="updateDiscountSymbol(); calculate();" class="border p-1.5 rounded dark:bg-slate-800 dark:border-slate-600 no-print text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                        <div class="space-y-1 text-sm">
+                            <!-- Subtotal -->
+                            <div class="totals-row">
+                                <span class="totals-label">Subtotal</span>
+                                <span id="subtotal" class="totals-value">$0.00</span>
+                            </div>
+
+                            <!-- Discount – with percentage in label, amount on right -->
+                            <div class="discount-row">
+                                <span class="discount-label">Discount (<span id="discount-percent-label">0%</span>)</span>
+                                <div class="discount-input-group no-print">
+                                    <input type="number" id="discount-val" onchange="calculate()" value="0" step="0.01" min="0" />
+                                    <span id="discount-symbol" class="text-sm font-medium">%</span>
+                                    <select id="discount-type" onchange="updateDiscountSymbol(); calculate();" class="text-sm">
                                         <option value="%">%</option>
                                         <option value="flat">Flat</option>
                                     </select>
                                 </div>
+                                <!-- This span shows the calculated discount amount in print -->
+                                <span id="discount-display" class="discount-display">$0.00</span>
                             </div>
-                            <div class="flex justify-between items-center gap-2">
-                                <span class="text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">CGST (%)</span>
-                                <input type="number" id="cgst" onchange="calculate()" class="w-20 border p-1.5 rounded text-right dark:bg-slate-800 dark:border-slate-600" value="0" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+
+                            <!-- CGST - with percentage in label -->
+                            <div class="tax-row">
+                                <span class="tax-label">CGST (<span id="cgst-label">0</span>%)</span>
+                                <span class="tax-amount" id="cgst-amount">$0.00</span>
                             </div>
-                            <div class="flex justify-between items-center gap-2">
-                                <span class="text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">SGST (%)</span>
-                                <input type="number" id="sgst" onchange="calculate()" class="w-20 border p-1.5 rounded text-right dark:bg-slate-800 dark:border-slate-600" value="0" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+
+                            <!-- SGST - with percentage in label -->
+                            <div class="tax-row">
+                                <span class="tax-label">SGST (<span id="sgst-label">0</span>%)</span>
+                                <span class="tax-amount" id="sgst-amount">$0.00</span>
                             </div>
-                            <div class="flex justify-between font-bold text-base sm:text-lg pt-2 border-t border-slate-200 dark:border-slate-700">
-                                <span style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Total</span>
-                                <span id="grand-total" class="text-blue-600 dark:text-blue-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">$0.00</span>
+
+                            <!-- Total -->
+                            <div class="total-row">
+                                <span class="total-label">Total</span>
+                                <span id="grand-total" class="total-value">$0.00</span>
                             </div>
                         </div>
                     </div>
@@ -1462,9 +1663,28 @@
         ];
 
         // ============================================================
-        //  DOM REFS
+        //  SAFE ELEMENT RETRIEVAL
         // ============================================================
-        const $ = id => document.getElementById(id);
+        function getElement(id) {
+            const el = document.getElementById(id);
+            if (!el) {
+                console.warn(`Element with id "${id}" not found.`);
+            }
+            return el;
+        }
+
+        function requireElement(id) {
+            const el = getElement(id);
+            if (!el) {
+                throw new Error(`Required element "#${id}" not found in DOM.`);
+            }
+            return el;
+        }
+
+        // ============================================================
+        //  DOM REFS (using safe getters)
+        // ============================================================
+        const $ = id => getElement(id);
         const qs = (sel, ctx = document) => ctx.querySelector(sel);
         const qsa = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
@@ -1477,6 +1697,7 @@
             const el = $('toast');
             const icon = $('toast-icon');
             const msg = $('toast-message');
+            if (!el) return;
             el.className = 'toast';
             if (type === 'success') { el.classList.add('success');
                 icon.textContent = '✓'; } else if (type === 'error') { el.classList.add('error');
@@ -1494,8 +1715,10 @@
         function toggleDark() {
             STATE.isDark = !STATE.isDark;
             document.body.classList.toggle('dark', STATE.isDark);
-            $('dark-icon').textContent = STATE.isDark ? '☀️' : '🌙';
-            if ($('dark-toggle')) $('dark-toggle').checked = STATE.isDark;
+            const icon = $('dark-icon');
+            if (icon) icon.textContent = STATE.isDark ? '☀️' : '🌙';
+            const toggle = $('dark-toggle');
+            if (toggle) toggle.checked = STATE.isDark;
             STATE.settings.dark = STATE.isDark;
             localStorage.setItem('invoiceSettings', JSON.stringify(STATE.settings));
         }
@@ -1503,8 +1726,10 @@
         function initDark() {
             STATE.isDark = STATE.settings.dark || false;
             if (STATE.isDark) document.body.classList.add('dark');
-            $('dark-icon').textContent = STATE.isDark ? '☀️' : '🌙';
-            if ($('dark-toggle')) $('dark-toggle').checked = STATE.isDark;
+            const icon = $('dark-icon');
+            if (icon) icon.textContent = STATE.isDark ? '☀️' : '🌙';
+            const toggle = $('dark-toggle');
+            if (toggle) toggle.checked = STATE.isDark;
         }
 
         // ============================================================
@@ -1515,12 +1740,17 @@
             document.body.classList.remove('print-bw', 'print-color');
             document.body.classList.add('print-' + mode);
             document.querySelectorAll('.print-mode-btn').forEach(b => b.classList.remove('active'));
-            if (mode === 'bw') $('print-bw-btn').classList.add('active');
-            else $('print-color-btn').classList.add('active');
+            if (mode === 'bw') {
+                const btn = $('print-bw-btn');
+                if (btn) btn.classList.add('active');
+            } else {
+                const btn = $('print-color-btn');
+                if (btn) btn.classList.add('active');
+            }
         }
 
         function prepareAndPrint() {
-            // Replace description textareas with divs for print
+            // ===== 1. Replace description textareas with divs =====
             const descReplacements = [];
             document.querySelectorAll('#items-body .desc').forEach(textarea => {
                 const parent = textarea.parentNode;
@@ -1532,10 +1762,34 @@
                 parent.replaceChild(div, textarea);
             });
 
-            // HIDE PO # ROW COMPLETELY WHEN EMPTY
-            const poValue = $('inv-po').value.trim();
-            const poRow = document.getElementById('po-row');
-            if (poRow) {
+            // ===== 2. Replace From and To textareas with divs =====
+            const fromReplacements = [];
+            const toReplacements = [];
+            const fromTextarea = document.getElementById('bill-from');
+            const toTextarea = document.getElementById('bill-to');
+
+            if (fromTextarea) {
+                const parent = fromTextarea.parentNode;
+                const div = document.createElement('div');
+                div.className = 'from-to-print';
+                div.textContent = fromTextarea.value;
+                fromReplacements.push({ textarea: fromTextarea, parent, div });
+                parent.replaceChild(div, fromTextarea);
+            }
+            if (toTextarea) {
+                const parent = toTextarea.parentNode;
+                const div = document.createElement('div');
+                div.className = 'from-to-print';
+                div.textContent = toTextarea.value;
+                toReplacements.push({ textarea: toTextarea, parent, div });
+                parent.replaceChild(div, toTextarea);
+            }
+
+            // ===== 3. HIDE PO # ROW COMPLETELY WHEN EMPTY =====
+            const poInput = $('inv-po');
+            const poRow = $('po-row');
+            if (poInput && poRow) {
+                const poValue = poInput.value.trim();
                 if (poValue === '') {
                     poRow.classList.add('po-row-hidden');
                 } else {
@@ -1543,8 +1797,12 @@
                 }
             }
 
-            // Update watermark with invoice number
-            const invoiceNum = $('inv-num').value || 'INVOICE';
+            // ===== 4. Update discount display for print =====
+            updateDiscountDisplay();
+
+            // ===== 5. Update watermark with invoice number =====
+            const invNum = $('inv-num');
+            const invoiceNum = invNum ? invNum.value || 'INVOICE' : 'INVOICE';
             const watermarkEl = document.querySelector('.watermark-print');
             if (watermarkEl) {
                 watermarkEl.textContent = invoiceNum;
@@ -1559,8 +1817,8 @@
                 watermarkEl.style.justifyContent = 'center';
                 watermarkEl.style.pointerEvents = 'none';
                 watermarkEl.style.zIndex = '9999';
-                watermarkEl.style.opacity = '0.08';
-                watermarkEl.style.fontSize = '4rem';
+                watermarkEl.style.opacity = '0.07';
+                watermarkEl.style.fontSize = '3rem';
                 watermarkEl.style.fontWeight = '900';
                 watermarkEl.style.color = '#1e293b';
                 watermarkEl.style.transform = 'rotate(-30deg)';
@@ -1572,21 +1830,56 @@
                 watermarkEl.style.WebkitUserSelect = 'none';
             }
 
-            // Trigger print
+            // ===== 6. Trigger print =====
             window.print();
 
-            // Restore everything after print
+            // ===== 7. Restore everything after print =====
             setTimeout(() => {
+                // Restore description textareas
                 descReplacements.forEach(({ textarea, parent, div }) => {
                     parent.replaceChild(textarea, div);
                 });
+                // Restore From textarea
+                fromReplacements.forEach(({ textarea, parent, div }) => {
+                    parent.replaceChild(textarea, div);
+                });
+                // Restore To textarea
+                toReplacements.forEach(({ textarea, parent, div }) => {
+                    parent.replaceChild(textarea, div);
+                });
+                // Restore PO row visibility
                 if (poRow) {
                     poRow.classList.remove('po-row-hidden');
                 }
+                // Hide watermark
                 if (watermarkEl) {
                     watermarkEl.style.display = 'none';
                 }
             }, 1000);
+        }
+
+        function updateDiscountDisplay() {
+            const display = $('discount-display');
+            const percentLabel = $('discount-percent-label');
+            if (!display || !percentLabel) return;
+
+            const dVal = parseFloat($('discount-val').value) || 0;
+            const dType = $('discount-type').value;
+            const curr = STATE.settings.currency || '$';
+            const symbolMap = { '$': '$', '₹': '₹', '€': '€', '£': '£', '¥': '¥', 'C$': 'C$', 'A$': 'A$' };
+            const currencySymbol = symbolMap[curr] || curr;
+
+            // Update the percentage label
+            if (dType === '%') {
+                percentLabel.textContent = dVal + '%';
+            } else {
+                percentLabel.textContent = 'Flat';
+            }
+
+            // Update the display amount (calculated discount)
+            const subtotal = parseFloat($('subtotal').textContent.replace(/[^0-9.]/g, '')) || 0;
+            const discAmt = dType === '%' ? (subtotal * dVal / 100) : dVal;
+            display.textContent = currencySymbol + discAmt.toFixed(2);
         }
 
         function handlePrint() {
@@ -1626,17 +1919,21 @@
             const preview = $('logo-preview');
             const display = $('logo-display');
             if (logo) {
-                preview.innerHTML = `<img src="${logo}" alt="Logo" class="max-h-24 w-auto" />`;
-                display.innerHTML = `<img src="${logo}" alt="Logo" class="max-h-16 w-auto" />`;
-                display.style.display = 'flex';
+                if (preview) preview.innerHTML = `<img src="${logo}" alt="Logo" class="max-h-24 w-auto" />`;
+                if (display) {
+                    display.innerHTML = `<img src="${logo}" alt="Logo" class="max-h-16 w-auto" />`;
+                    display.style.display = 'flex';
+                }
             } else {
-                preview.innerHTML = `
+                if (preview) preview.innerHTML = `
               <div class="text-4xl mb-2">🖼️</div>
               <p class="text-sm text-slate-500 dark:text-slate-400">Click to upload logo</p>
               <p class="text-xs text-slate-400 dark:text-slate-500">PNG, JPG, SVG (Max 2MB)</p>
             `;
-                display.innerHTML = '';
-                display.style.display = 'none';
+                if (display) {
+                    display.innerHTML = '';
+                    display.style.display = 'none';
+                }
             }
         }
 
@@ -1644,15 +1941,18 @@
         //  DISCOUNT SYMBOL
         // ============================================================
         function updateDiscountSymbol() {
-            const type = $('discount-type').value;
+            const type = $('discount-type');
             const symbolSpan = $('discount-symbol');
-            if (type === '%') {
+            if (!type || !symbolSpan) return;
+            if (type.value === '%') {
                 symbolSpan.textContent = '%';
             } else {
                 const curr = STATE.settings.currency || '$';
                 const symbolMap = { '$': '$', '₹': '₹', '€': '€', '£': '£', '¥': '¥', 'C$': 'C$', 'A$': 'A$' };
                 symbolSpan.textContent = symbolMap[curr] || curr;
             }
+            // Also update the display
+            updateDiscountDisplay();
         }
 
         // ============================================================
@@ -1684,10 +1984,19 @@
 
         function renderDashboard() {
             const invoices = getInvoices();
-            const filterStatus = $('filter-status').value;
-            const search = $('filter-search').value.toLowerCase();
+            const filterStatus = $('filter-status');
+            const filterSearch = $('filter-search');
+            const list = $('invoices-list');
+            const empty = $('empty-state');
+            const count = $('invoice-count');
+
+            if (!list || !empty || !count) return;
+
+            const status = filterStatus ? filterStatus.value : 'all';
+            const search = filterSearch ? filterSearch.value.toLowerCase() : '';
+
             let filtered = invoices.filter(inv => {
-                const matchStatus = filterStatus === 'all' || inv.status === filterStatus;
+                const matchStatus = status === 'all' || inv.status === status;
                 const matchSearch = inv.num.toLowerCase().includes(search) ||
                     (inv.to || '').toLowerCase().includes(search) ||
                     (inv.from || '').toLowerCase().includes(search);
@@ -1695,17 +2004,14 @@
             });
             filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            const list = $('invoices-list');
-            const empty = $('empty-state');
-
             if (filtered.length === 0) {
                 list.innerHTML = '';
                 empty.classList.remove('hidden');
-                $('invoice-count').textContent = `${invoices.length} invoices`;
+                count.textContent = `${invoices.length} invoices`;
                 return;
             }
             empty.classList.add('hidden');
-            $('invoice-count').textContent = `${invoices.length} invoices (${filtered.length} shown)`;
+            count.textContent = `${invoices.length} invoices (${filtered.length} shown)`;
 
             const curr = STATE.settings.currency || '$';
             list.innerHTML = filtered.map(inv => {
@@ -1762,26 +2068,63 @@
         }
 
         function createNewInvoice() {
-            STATE.currentId = 'inv_' + Date.now();
-            $('inv-num').value = 'INV-' + String(Date.now()).slice(-6);
-            $('inv-date').value = getDefaultDateTime();
-            $('inv-due').value = getDefaultDueDate();
-            $('inv-po').value = '';
-            $('bill-from').value = '';
-            $('bill-to').value = '';
-            $('discount-val').value = 0;
-            $('discount-type').value = '%';
-            $('cgst').value = STATE.settings.cgst || 0;
-            $('sgst').value = STATE.settings.sgst || 0;
-            $('invoice-status').value = 'draft';
-            $('items-body').innerHTML = '';
-            applyLayout();
-            addItem();
-            updateStatusDisplay();
-            updateNotesDisplay('');
-            updateLogoDisplay();
-            updateDiscountSymbol();
-            showView('editor');
+            try {
+                // Reset state
+                STATE.currentId = 'inv_' + Date.now();
+
+                // Get all required elements
+                const elements = {
+                    invNum: requireElement('inv-num'),
+                    invDate: requireElement('inv-date'),
+                    invDue: requireElement('inv-due'),
+                    invPo: requireElement('inv-po'),
+                    billFrom: requireElement('bill-from'),
+                    billTo: requireElement('bill-to'),
+                    discountVal: requireElement('discount-val'),
+                    discountType: requireElement('discount-type'),
+                    status: requireElement('invoice-status'),
+                    itemsBody: requireElement('items-body'),
+                    container: requireElement('invoice-container'),
+                };
+
+                // Set values
+                elements.invNum.value = 'INV-' + String(Date.now()).slice(-6);
+                elements.invDate.value = getDefaultDateTime();
+                elements.invDue.value = getDefaultDueDate();
+                elements.invPo.value = '';
+                elements.billFrom.value = '';
+                elements.billTo.value = '';
+                elements.discountVal.value = 0;
+                elements.discountType.value = '%';
+                elements.status.value = 'draft';
+
+                // Clear items
+                elements.itemsBody.innerHTML = '';
+
+                // Apply layout
+                LAYOUTS.forEach(l => elements.container.classList.remove(l.id));
+                elements.container.classList.add(STATE.settings.layout || 'layout-formal');
+
+                // Add first item
+                addItem();
+
+                // Update UI
+                updateStatusDisplay();
+                updateNotesDisplay('');
+                updateLogoDisplay();
+                updateDiscountSymbol();
+                updateDiscountDisplay();
+
+                // Recalculate totals
+                calculate();
+
+                // Show editor
+                showView('editor');
+
+            } catch (e) {
+                console.error('Create invoice error:', e);
+                showToast('Error creating new invoice: ' + e.message, 'error');
+            }
         }
 
         function editInvoice(id) {
@@ -1789,19 +2132,36 @@
             const inv = invoices.find(i => i.id === id);
             if (!inv) { showToast('Invoice not found', 'error'); return; }
             STATE.currentId = inv.id;
-            $('inv-num').value = inv.num || '';
-            $('inv-date').value = inv.date || getDefaultDateTime();
-            $('inv-due').value = inv.due || getDefaultDueDate();
-            $('inv-po').value = inv.po || '';
-            $('bill-from').value = inv.from || '';
-            $('bill-to').value = inv.to || '';
-            $('cgst').value = inv.cgst || STATE.settings.cgst || 0;
-            $('sgst').value = inv.sgst || STATE.settings.sgst || 0;
-            $('discount-val').value = inv.discountVal || 0;
-            $('discount-type').value = inv.discountType || '%';
-            $('invoice-status').value = inv.status || 'draft';
-            $('items-body').innerHTML = '';
-            applyLayout();
+
+            const elements = {
+                invNum: requireElement('inv-num'),
+                invDate: requireElement('inv-date'),
+                invDue: requireElement('inv-due'),
+                invPo: requireElement('inv-po'),
+                billFrom: requireElement('bill-from'),
+                billTo: requireElement('bill-to'),
+                status: requireElement('invoice-status'),
+                itemsBody: requireElement('items-body'),
+                container: requireElement('invoice-container'),
+                discountVal: requireElement('discount-val'),
+                discountType: requireElement('discount-type'),
+            };
+
+            elements.invNum.value = inv.num || '';
+            elements.invDate.value = inv.date || getDefaultDateTime();
+            elements.invDue.value = inv.due || getDefaultDueDate();
+            elements.invPo.value = inv.po || '';
+            elements.billFrom.value = inv.from || '';
+            elements.billTo.value = inv.to || '';
+            elements.discountVal.value = inv.discountVal || 0;
+            elements.discountType.value = inv.discountType || '%';
+            elements.status.value = inv.status || 'draft';
+            elements.itemsBody.innerHTML = '';
+
+            // Apply layout
+            LAYOUTS.forEach(l => elements.container.classList.remove(l.id));
+            elements.container.classList.add(STATE.settings.layout || 'layout-formal');
+
             if (inv.items && inv.items.length) {
                 inv.items.forEach(i => addItem(i));
             } else {
@@ -1811,6 +2171,7 @@
             updateNotesDisplay(inv.notes || '');
             updateLogoDisplay();
             updateDiscountSymbol();
+            updateDiscountDisplay();
             calculate();
             showView('editor');
         }
@@ -1819,6 +2180,7 @@
         //  ITEMS
         // ============================================================
         function addItem(data = { desc: '', qty: 1, rate: 0, taxable: 0 }) {
+            const itemsBody = requireElement('items-body');
             const row = document.createElement('tr');
             row.className = 'fade-in';
             row.innerHTML = `
@@ -1841,13 +2203,13 @@
               <button onclick="removeItem(this)" class="remove-btn" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">&times;</button>
             </td>
           `;
-            $('items-body').appendChild(row);
+            itemsBody.appendChild(row);
             calculate();
         }
 
         function removeItem(btn) {
             const row = btn.closest('tr');
-            if (qsa('#items-body tr').length <= 1) {
+            if (document.querySelectorAll('#items-body tr').length <= 1) {
                 showToast('At least one item required', 'error');
                 return;
             }
@@ -1869,8 +2231,8 @@
         function updateTaxable(el) {
             const row = el.closest('tr');
             const rate = parseFloat(el.value) || 0;
-            const cgst = parseFloat($('cgst').value) || 0;
-            const sgst = parseFloat($('sgst').value) || 0;
+            const cgst = STATE.settings.cgst || 0;
+            const sgst = STATE.settings.sgst || 0;
             const totalTax = 1 + ((cgst + sgst) / 100);
             const taxable = totalTax > 0 ? rate / totalTax : 0;
             const taxableInput = row.querySelector('.taxable');
@@ -1880,11 +2242,11 @@
 
         function calculate() {
             let subtotal = 0;
-            const cgst = parseFloat($('cgst').value) || 0;
-            const sgst = parseFloat($('sgst').value) || 0;
+            const cgst = STATE.settings.cgst || 0;
+            const sgst = STATE.settings.sgst || 0;
             const curr = STATE.settings.currency || '$';
 
-            qsa('#items-body tr').forEach(row => {
+            document.querySelectorAll('#items-body tr').forEach(row => {
                 const q = parseFloat(row.querySelector('.qty').value) || 0;
                 const t = parseFloat(row.querySelector('.taxable').value) || 0;
                 const total = q * t;
@@ -1897,10 +2259,29 @@
             const dType = $('discount-type').value;
             const discAmt = dType === '%' ? (subtotal * dVal / 100) : dVal;
             const net = Math.max(0, subtotal - discAmt);
-            const total = net + (net * (cgst + sgst) / 100);
 
-            $('subtotal').textContent = curr + subtotal.toFixed(2);
-            $('grand-total').textContent = curr + total.toFixed(2);
+            // Calculate CGST and SGST amounts
+            const cgstAmount = net * (cgst / 100);
+            const sgstAmount = net * (sgst / 100);
+            const total = net + cgstAmount + sgstAmount;
+
+            // Update UI
+            const subtotalEl = $('subtotal');
+            const cgstLabel = $('cgst-label');
+            const sgstLabel = $('sgst-label');
+            const cgstAmountEl = $('cgst-amount');
+            const sgstAmountEl = $('sgst-amount');
+            const grandTotalEl = $('grand-total');
+
+            if (subtotalEl) subtotalEl.textContent = curr + subtotal.toFixed(2);
+            if (cgstLabel) cgstLabel.textContent = cgst;
+            if (sgstLabel) sgstLabel.textContent = sgst;
+            if (cgstAmountEl) cgstAmountEl.textContent = curr + cgstAmount.toFixed(2);
+            if (sgstAmountEl) sgstAmountEl.textContent = curr + sgstAmount.toFixed(2);
+            if (grandTotalEl) grandTotalEl.textContent = curr + total.toFixed(2);
+
+            // Update discount display
+            updateDiscountDisplay();
         }
 
         // ============================================================
@@ -1908,6 +2289,7 @@
         // ============================================================
         function updateNotesDisplay(notes) {
             const display = $('inv-notes-display');
+            if (!display) return;
             const defaultNotes = STATE.settings.defaultNotes || '';
             const combined = notes || defaultNotes;
             if (combined && combined.trim()) {
@@ -1926,14 +2308,15 @@
             const id = STATE.currentId;
             if (!id) { showToast('No invoice loaded', 'error'); return; }
 
-            const items = qsa('#items-body tr').map(row => ({
+            const items = document.querySelectorAll('#items-body tr');
+            const itemsData = Array.from(items).map(row => ({
                 desc: row.querySelector('.desc').value,
                 qty: row.querySelector('.qty').value,
                 rate: row.querySelector('.rate').value,
                 taxable: row.querySelector('.taxable').value,
             }));
 
-            const notesText = $('inv-notes-display').textContent;
+            const notesText = $('inv-notes-display') ? $('inv-notes-display').textContent : '';
 
             const data = {
                 id,
@@ -1944,14 +2327,16 @@
                 from: $('bill-from').value,
                 to: $('bill-to').value,
                 notes: notesText,
-                cgst: $('cgst').value,
-                sgst: $('sgst').value,
+                cgst: STATE.settings.cgst || 0,
+                sgst: STATE.settings.sgst || 0,
                 discountVal: $('discount-val').value,
                 discountType: $('discount-type').value,
                 status: $('invoice-status').value,
-                items,
+                items: itemsData,
                 totals: {
                     subtotal: $('subtotal').textContent,
+                    cgstAmount: $('cgst-amount') ? $('cgst-amount').textContent : '0.00',
+                    sgstAmount: $('sgst-amount') ? $('sgst-amount').textContent : '0.00',
                     grand: $('grand-total').textContent,
                 },
                 updatedAt: new Date().toISOString(),
@@ -1972,12 +2357,15 @@
         function applyLayout() {
             const layout = STATE.settings.layout || 'layout-formal';
             const container = $('invoice-container');
-            LAYOUTS.forEach(l => container.classList.remove(l.id));
-            container.classList.add(layout);
+            if (container) {
+                LAYOUTS.forEach(l => container.classList.remove(l.id));
+                container.classList.add(layout);
+            }
         }
 
         function renderLayoutPreviews() {
             const grid = $('layout-grid');
+            if (!grid) return;
             const current = STATE.settings.layout || 'layout-formal';
             grid.innerHTML = LAYOUTS.map(l => `
             <div class="layout-preview-card ${current === l.id ? 'active' : ''}" onclick="selectLayout('${l.id}')">
@@ -2005,11 +2393,13 @@
         //  UI HELPERS
         // ============================================================
         function updateStatusDisplay() {
-            const status = $('invoice-status').value;
+            const status = $('invoice-status');
             const display = $('status-display');
-            const labels = { draft: 'Draft', sent: 'Sent', paid: 'Paid', overdue: 'Overdue' };
-            display.textContent = labels[status] || status;
-            display.className = 'status-badge status-' + status;
+            if (status && display) {
+                const labels = { draft: 'Draft', sent: 'Sent', paid: 'Paid', overdue: 'Overdue' };
+                display.textContent = labels[status.value] || status.value;
+                display.className = 'status-badge status-' + status.value;
+            }
         }
 
         document.addEventListener('change', function(e) {
@@ -2021,29 +2411,42 @@
         // ============================================================
         function loadSettingsUI() {
             const s = STATE.settings;
-            $('currency-select').value = s.currency || '$';
-            $('default-cgst').value = s.cgst || 0;
-            $('default-sgst').value = s.sgst || 0;
-            $('default-notes').value = s.defaultNotes || '';
-            if ($('dark-toggle')) $('dark-toggle').checked = s.dark || false;
+            const currSelect = $('currency-select');
+            const defCgst = $('default-cgst');
+            const defSgst = $('default-sgst');
+            const defNotes = $('default-notes');
+            const darkToggle = $('dark-toggle');
+
+            if (currSelect) currSelect.value = s.currency || '$';
+            if (defCgst) defCgst.value = s.cgst || 0;
+            if (defSgst) defSgst.value = s.sgst || 0;
+            if (defNotes) defNotes.value = s.defaultNotes || '';
+            if (darkToggle) darkToggle.checked = s.dark || false;
+
             updateLogoDisplay();
             renderLayoutPreviews();
         }
 
         function saveSettings() {
+            const currSelect = $('currency-select');
+            const defCgst = $('default-cgst');
+            const defSgst = $('default-sgst');
+            const defNotes = $('default-notes');
+
             STATE.settings = {
-                currency: $('currency-select').value,
-                cgst: parseFloat($('default-cgst').value) || 0,
-                sgst: parseFloat($('default-sgst').value) || 0,
+                currency: currSelect ? currSelect.value : '$',
+                cgst: defCgst ? parseFloat(defCgst.value) || 0 : 0,
+                sgst: defSgst ? parseFloat(defSgst.value) || 0 : 0,
                 layout: STATE.settings.layout || 'layout-formal',
                 dark: STATE.isDark,
                 logo: STATE.settings.logo,
-                defaultNotes: $('default-notes').value,
+                defaultNotes: defNotes ? defNotes.value : '',
             };
             localStorage.setItem('invoiceSettings', JSON.stringify(STATE.settings));
             applyLayout();
             renderLayoutPreviews();
             updateDiscountSymbol();
+            updateDiscountDisplay();
             showToast('Settings saved!', 'success');
             showView('dashboard');
         }
@@ -2068,7 +2471,8 @@
         }
 
         function importAllData() {
-            $('import-file').click();
+            const fileInput = $('import-file');
+            if (fileInput) fileInput.click();
         }
 
         function handleImport(e) {
@@ -2133,24 +2537,30 @@
 
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                if (!$('editor-view').classList.contains('hidden')) {
+                if (!document.getElementById('editor-view').classList.contains('hidden')) {
                     e.preventDefault();
                     saveCurrentInvoice();
                 }
             }
             if (e.key === 'Escape') {
-                if (!$('editor-view').classList.contains('hidden')) {
+                if (!document.getElementById('editor-view').classList.contains('hidden')) {
                     confirmExit();
                 }
             }
         });
 
         document.addEventListener('input', function(e) {
-            if (e.target.closest('#items-body') || e.target.id === 'cgst' || e.target.id === 'sgst' ||
-                e.target.id === 'discount-val' || e.target.id === 'discount-type') {
+            if (e.target.closest('#items-body') || e.target.id === 'discount-val' || e.target.id === 'discount-type') {
                 calculate();
             }
         });
+
+        // Override the original addItem to include discount display update
+        const origAddItem = addItem;
+        addItem = function(data) {
+            origAddItem(data);
+            updateDiscountDisplay();
+        };
 
         init();
     </script>
