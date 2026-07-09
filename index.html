@@ -76,7 +76,21 @@
         }
 
         /* ============================================================ */
-        /* PRINT STYLES – WITH FIXES FOR PO# AND PDF FILENAME */
+        /* PRINT SIZE CONTROL - CSS VARIABLE */
+        /* ============================================================ */
+        :root {
+            --print-zoom: 1;
+        }
+        .print-scale-wrapper {
+            /* This wrapper will be scaled in print */
+            transform: scale(var(--print-zoom));
+            transform-origin: top center;
+            width: 100%;
+            transition: none;
+        }
+
+        /* ============================================================ */
+        /* PRINT STYLES – WITH SCALING SUPPORT */
         /* ============================================================ */
         @media print {
             .no-print {
@@ -140,6 +154,14 @@
             body.dark .watermark-print {
                 color: #e2e8f0 !important;
                 opacity: 0.06 !important;
+            }
+
+            /* ===== PRINT SCALING – ACTIVE HERE ===== */
+            .print-scale-wrapper {
+                transform: scale(var(--print-zoom, 1));
+                transform-origin: top center;
+                width: calc(100% / var(--print-zoom, 1));
+                margin: 0 auto;
             }
 
             /* ===== AGGRESSIVE CALENDAR PICKER HIDE ===== */
@@ -913,6 +935,86 @@
             color: #e2e8f0;
         }
 
+        /* ===== PRINT SIZE SLIDER STYLES ===== */
+        .print-size-control input[type="range"] {
+            width: 80px;
+            height: 4px;
+            background: #cbd5e1;
+            border-radius: 2px;
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none;
+            transition: background 0.2s;
+        }
+        body.dark .print-size-control input[type="range"] {
+            background: #334155;
+        }
+        .print-size-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #2563eb;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .print-size-control input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        .print-size-control input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: #2563eb;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .print-size-control input[type="range"]::-moz-range-track {
+            height: 4px;
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+        body.dark .print-size-control input[type="range"]::-moz-range-track {
+            background: #334155;
+        }
+        .print-size-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+        }
+        body.dark .print-size-control {
+            background: #1e293b;
+            border-color: #334155;
+        }
+        .print-size-control .size-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #64748b;
+            white-space: nowrap;
+        }
+        body.dark .print-size-control .size-label {
+            color: #94a3b8;
+        }
+        .print-size-control .size-value {
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            min-width: 2.5rem;
+            text-align: center;
+            color: #1e293b;
+        }
+        body.dark .print-size-control .size-value {
+            color: #e2e8f0;
+        }
+
         /* ============================================================ */
         /* EDITOR STYLES (unchanged) */
         /* ============================================================ */
@@ -1399,6 +1501,13 @@
             .po-row-wrapper.po-hidden {
                 display: none !important;
             }
+            .print-size-control {
+                padding: 0.2rem 0.5rem;
+                gap: 0.3rem;
+            }
+            .print-size-control input[type="range"] {
+                width: 60px;
+            }
         }
     </style>
 </head>
@@ -1478,6 +1587,14 @@
                         <option value="overdue">⚠️ Overdue</option>
                     </select>
                     <button onclick="saveCurrentInvoice()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg font-semibold transition shadow shadow-green-600/20 text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">💾 Save</button>
+
+                    <!-- ===== NEW PRINT SIZE CONTROL ===== -->
+                    <div class="print-size-control no-print">
+                        <span class="size-label">Size</span>
+                        <input type="range" id="print-size-slider" min="60" max="150" value="100" step="5" />
+                        <span id="print-size-label" class="size-value">100%</span>
+                    </div>
+
                     <div class="flex gap-1 border rounded-lg p-1 bg-slate-100 dark:bg-slate-700">
                         <button onclick="setPrintMode('bw')" id="print-bw-btn" class="print-mode-btn active">⚫</button>
                         <button onclick="setPrintMode('color')" id="print-color-btn" class="print-mode-btn">🎨</button>
@@ -1492,124 +1609,127 @@
                 <!-- WATERMARK FOR PRINT -->
                 <div class="watermark-print no-print" style="display:none;"></div>
 
-                <!-- HEADER -->
-                <div class="invoice-header">
-                    <div class="header-left">
-                        <div id="logo-display" class="logo-container"></div>
-                        <div>
-                            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white tracking-tight" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">INVOICE</h1>
-                            <div class="flex items-center gap-3 mt-1 no-print">
-                                <span class="text-sm text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Status:</span>
-                                <span id="status-display" class="status-badge status-draft">Draft</span>
-                            </div>
-                        </div>
-                    </div>
+                <!-- PRINT SCALE WRAPPER -->
+                <div class="print-scale-wrapper">
 
-                    <div class="header-right">
-                        <div class="header-row">
-                            <span class="header-label">Inv #</span>
-                            <input type="text" id="inv-num" placeholder="INV-000" class="header-input text-left" />
-                        </div>
-                        <div class="header-row">
-                            <span class="header-label">Date</span>
-                            <input type="datetime-local" id="inv-date" class="header-input" />
-                        </div>
-                        <div class="header-row">
-                            <span class="header-label">Due</span>
-                            <input type="date" id="inv-due" class="header-input" />
-                        </div>
-                        <!-- PO # row with conditional hiding -->
-                        <div class="header-row po-row-wrapper" id="po-row">
-                            <span class="header-label">PO #</span>
-                            <input type="text" id="inv-po" placeholder="Optional" class="header-input text-left" />
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FROM & TO -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div class="from-to-box">
-                        <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
-                            <span class="w-1 h-4 bg-blue-500 rounded-full"></span> From
-                        </h3>
-                        <textarea id="bill-from" placeholder="Your company name, address, tax ID…" oninput="syncFromTo()"></textarea>
-                        <div class="from-to-display" id="bill-from-display"></div>
-                    </div>
-                    <div class="from-to-box">
-                        <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
-                            <span class="w-1 h-4 bg-blue-500 rounded-full"></span> Bill To
-                        </h3>
-                        <textarea id="bill-to" placeholder="Client name, address, email…" oninput="syncFromTo()"></textarea>
-                        <div class="from-to-display" id="bill-to-display"></div>
-                    </div>
-                </div>
-
-                <!-- ITEMS TABLE -->
-                <div class="overflow-x-auto">
-                    <table>
-                        <thead class="bg-slate-800 text-white">
-                            <tr>
-                                <th class="col-desc text-left rounded-l-lg">Description</th>
-                                <th class="col-qty text-right">Qty</th>
-                                <th class="col-rate text-right">Rate</th>
-                                <th class="col-taxable text-right">Taxable</th>
-                                <th class="col-total text-right">Total</th>
-                                <th class="col-delete text-center rounded-r-lg no-print"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="items-body" class="divide-y divide-slate-200 dark:divide-slate-700"></tbody>
-                    </table>
-                </div>
-
-                <button onclick="addItem()" class="no-print text-blue-600 font-semibold mb-3 hover:underline flex items-center justify-center sm:justify-start gap-1 w-full sm:w-auto text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
-                    + Add Item
-                </button>
-
-                <!-- BOTTOM SECTION -->
-                <div class="bottom-section">
-                    <div class="notes-col">
-                        <div class="notes-heading">Notes &amp; Terms</div>
-                        <div id="inv-notes-display" class="notes-content"></div>
-                    </div>
-
-                    <div class="totals-col">
-                        <div class="space-y-1 text-sm">
-                            <div class="totals-row">
-                                <span class="totals-label">Subtotal</span>
-                                <span id="subtotal" class="totals-value">$0.00</span>
-                            </div>
-
-                            <div class="discount-row">
-                                <span class="discount-label">Discount (<span id="discount-percent-label">0%</span>)</span>
-                                <div class="discount-input-group no-print">
-                                    <input type="number" id="discount-val" onchange="calculate()" value="0" step="0.01" min="0" />
-                                    <span id="discount-symbol" class="text-sm font-medium">%</span>
-                                    <select id="discount-type" onchange="updateDiscountSymbol(); calculate();" class="text-sm">
-                                        <option value="%">%</option>
-                                        <option value="flat">Flat</option>
-                                    </select>
+                    <!-- HEADER -->
+                    <div class="invoice-header">
+                        <div class="header-left">
+                            <div id="logo-display" class="logo-container"></div>
+                            <div>
+                                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white tracking-tight" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">INVOICE</h1>
+                                <div class="flex items-center gap-3 mt-1 no-print">
+                                    <span class="text-sm text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Status:</span>
+                                    <span id="status-display" class="status-badge status-draft">Draft</span>
                                 </div>
-                                <span id="discount-display" class="discount-display">$0.00</span>
                             </div>
+                        </div>
 
-                            <div class="tax-row">
-                                <span class="tax-label">CGST (<span id="cgst-label">0</span>%)</span>
-                                <span class="tax-amount" id="cgst-amount">$0.00</span>
+                        <div class="header-right">
+                            <div class="header-row">
+                                <span class="header-label">Inv #</span>
+                                <input type="text" id="inv-num" placeholder="INV-000" class="header-input text-left" />
                             </div>
-
-                            <div class="tax-row">
-                                <span class="tax-label">SGST (<span id="sgst-label">0</span>%)</span>
-                                <span class="tax-amount" id="sgst-amount">$0.00</span>
+                            <div class="header-row">
+                                <span class="header-label">Date</span>
+                                <input type="datetime-local" id="inv-date" class="header-input" />
                             </div>
-
-                            <div class="total-row">
-                                <span class="total-label">Total</span>
-                                <span id="grand-total" class="total-value">$0.00</span>
+                            <div class="header-row">
+                                <span class="header-label">Due</span>
+                                <input type="date" id="inv-due" class="header-input" />
+                            </div>
+                            <div class="header-row po-row-wrapper" id="po-row">
+                                <span class="header-label">PO #</span>
+                                <input type="text" id="inv-po" placeholder="Optional" class="header-input text-left" />
                             </div>
                         </div>
                     </div>
-                </div>
 
+                    <!-- FROM & TO -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="from-to-box">
+                            <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                                <span class="w-1 h-4 bg-blue-500 rounded-full"></span> From
+                            </h3>
+                            <textarea id="bill-from" placeholder="Your company name, address, tax ID…" oninput="syncFromTo()"></textarea>
+                            <div class="from-to-display" id="bill-from-display"></div>
+                        </div>
+                        <div class="from-to-box">
+                            <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                                <span class="w-1 h-4 bg-blue-500 rounded-full"></span> Bill To
+                            </h3>
+                            <textarea id="bill-to" placeholder="Client name, address, email…" oninput="syncFromTo()"></textarea>
+                            <div class="from-to-display" id="bill-to-display"></div>
+                        </div>
+                    </div>
+
+                    <!-- ITEMS TABLE -->
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead class="bg-slate-800 text-white">
+                                <tr>
+                                    <th class="col-desc text-left rounded-l-lg">Description</th>
+                                    <th class="col-qty text-right">Qty</th>
+                                    <th class="col-rate text-right">Rate</th>
+                                    <th class="col-taxable text-right">Taxable</th>
+                                    <th class="col-total text-right">Total</th>
+                                    <th class="col-delete text-center rounded-r-lg no-print"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="items-body" class="divide-y divide-slate-200 dark:divide-slate-700"></tbody>
+                        </table>
+                    </div>
+
+                    <button onclick="addItem()" class="no-print text-blue-600 font-semibold mb-3 hover:underline flex items-center justify-center sm:justify-start gap-1 w-full sm:w-auto text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                        + Add Item
+                    </button>
+
+                    <!-- BOTTOM SECTION -->
+                    <div class="bottom-section">
+                        <div class="notes-col">
+                            <div class="notes-heading">Notes &amp; Terms</div>
+                            <div id="inv-notes-display" class="notes-content"></div>
+                        </div>
+
+                        <div class="totals-col">
+                            <div class="space-y-1 text-sm">
+                                <div class="totals-row">
+                                    <span class="totals-label">Subtotal</span>
+                                    <span id="subtotal" class="totals-value">$0.00</span>
+                                </div>
+
+                                <div class="discount-row">
+                                    <span class="discount-label">Discount (<span id="discount-percent-label">0%</span>)</span>
+                                    <div class="discount-input-group no-print">
+                                        <input type="number" id="discount-val" onchange="calculate()" value="0" step="0.01" min="0" />
+                                        <span id="discount-symbol" class="text-sm font-medium">%</span>
+                                        <select id="discount-type" onchange="updateDiscountSymbol(); calculate();" class="text-sm">
+                                            <option value="%">%</option>
+                                            <option value="flat">Flat</option>
+                                        </select>
+                                    </div>
+                                    <span id="discount-display" class="discount-display">$0.00</span>
+                                </div>
+
+                                <div class="tax-row">
+                                    <span class="tax-label">CGST (<span id="cgst-label">0</span>%)</span>
+                                    <span class="tax-amount" id="cgst-amount">$0.00</span>
+                                </div>
+
+                                <div class="tax-row">
+                                    <span class="tax-label">SGST (<span id="sgst-label">0</span>%)</span>
+                                    <span class="tax-amount" id="sgst-amount">$0.00</span>
+                                </div>
+
+                                <div class="total-row">
+                                    <span class="total-label">Total</span>
+                                    <span id="grand-total" class="total-value">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- End print-scale-wrapper -->
             </div>
         </div>
 
@@ -1714,6 +1834,24 @@
             { id: 'layout-soft', label: 'Soft', icon: '🌸' },
             { id: 'layout-bold', label: 'Bold', icon: '⚡' },
         ];
+
+        // ============================================================
+        //  PRINT SIZE CONTROL
+        // ============================================================
+        const slider = document.getElementById('print-size-slider');
+        const label = document.getElementById('print-size-label');
+
+        if (slider && label) {
+            // Set initial value
+            document.body.style.setProperty('--print-zoom', '1');
+
+            slider.addEventListener('input', function() {
+                const val = parseInt(this.value);
+                const zoom = val / 100;
+                label.textContent = val + '%';
+                document.body.style.setProperty('--print-zoom', zoom);
+            });
+        }
 
         // ============================================================
         //  SAFE ELEMENT RETRIEVAL
@@ -1828,7 +1966,7 @@
         }
 
         // ============================================================
-        //  PRINT MODE & PREPARE – FIXED FOR PO# AND PDF FILENAME
+        //  PRINT MODE & PREPARE
         // ============================================================
         function setPrintMode(mode) {
             STATE.printMode = mode;
@@ -1862,8 +2000,7 @@
                 if (poValue === '') {
                     poRow.classList.add('po-hidden');
                     poRow.classList.add('po-row-hidden');
-                    // Force hide with style
-                    poRow.style.display = 'none !important';
+                    poRow.style.display = 'none';
                 } else {
                     poRow.classList.remove('po-hidden');
                     poRow.classList.remove('po-row-hidden');
