@@ -2,23 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>ProInvoice | Professional Billing</title>
 
-    <!-- ============ PWA META ============ -->
-    <link rel="manifest" href="manifest.json" />
+    <!-- ============================================================ -->
+    <!-- PWA META — manifest injected at runtime (no manifest.json)   -->
+    <!-- ============================================================ -->
     <meta name="theme-color" content="#0f172a" />
     <meta name="description" content="ProInvoice — create, manage, and print professional invoices. Works offline." />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="ProInvoice" />
-    <link rel="icon" href="icon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="icon-192.png" />
-    <!-- =================================== -->
+    <link rel="icon" id="favicon" />
+    <link rel="apple-touch-icon" id="apple-icon" />
+    <link rel="manifest" id="manifest-link" />
 
-    <script src="https://cdn.tailwindcss.com">
+    <script>
+    /* ------------------------------------------------------------ */
+    /* PWA MANIFEST + ICON INJECTION (before anything else loads)   */
+    /* ------------------------------------------------------------ */
+    (function () {
+        const svgIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <rect width="512" height="512" rx="96" fill="#0f172a"/>
+                <circle cx="120" cy="120" r="20" fill="#3b82f6"/>
+                <text x="256" y="340" font-family="Inter,system-ui,sans-serif"
+                      font-size="200" font-weight="900" fill="#ffffff"
+                      text-anchor="middle" letter-spacing="-6">PI</text>
+            </svg>`;
+
+        const svgDataUri = 'data:image/svg+xml;base64,' +
+            btoa(unescape(encodeURIComponent(svgIcon)));
+
+        // Inject favicon + apple-touch-icon
+        const fav = document.getElementById('favicon');
+        const apple = document.getElementById('apple-icon');
+        if (fav) fav.href = svgDataUri;
+        if (apple) apple.href = svgDataUri;
+
+        // Build manifest in-memory
+        const startPath = location.pathname.replace(/\/[^\/]*$/, '/') || '/';
+        const manifest = {
+            id: startPath,
+            name: 'ProInvoice | Professional Billing',
+            short_name: 'ProInvoice',
+            description: 'Create, manage, and print professional invoices. Works offline.',
+            start_url: location.pathname + location.search,
+            scope: startPath,
+            display: 'standalone',
+            display_override: ['standalone', 'minimal-ui'],
+            orientation: 'any',
+            background_color: '#0f172a',
+            theme_color: '#0f172a',
+            lang: 'en',
+            dir: 'ltr',
+            icons: [
+                { src: svgDataUri, sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+                { src: svgDataUri, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
+                { src: svgDataUri, sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' }
+            ],
+            shortcuts: [
+                {
+                    name: 'New Invoice',
+                    short_name: 'New',
+                    url: location.pathname + '?action=new',
+                    icons: [{ src: svgDataUri, sizes: '192x192' }]
+                },
+                {
+                    name: 'Dashboard',
+                    short_name: 'Dashboard',
+                    url: location.pathname
+                }
+            ]
+        };
+
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(blob);
+        const link = document.getElementById('manifest-link');
+        if (link) link.href = manifestUrl;
+    })();
     </script>
+    <!-- ============================================================ -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <style>
         /* ===== GLOBAL FONT RESET ===== */
@@ -46,21 +113,11 @@
             color: #e2e8f0;
             border-color: #334155;
         }
-        body.dark .bg-white {
-            background: #1e293b !important;
-        }
-        body.dark .text-slate-800 {
-            color: #f1f5f9 !important;
-        }
-        body.dark .text-slate-600 {
-            color: #94a3b8 !important;
-        }
-        body.dark .border-slate-300 {
-            border-color: #334155 !important;
-        }
-        body.dark .bg-slate-50 {
-            background: #0f172a !important;
-        }
+        body.dark .bg-white { background: #1e293b !important; }
+        body.dark .text-slate-800 { color: #f1f5f9 !important; }
+        body.dark .text-slate-600 { color: #94a3b8 !important; }
+        body.dark .border-slate-300 { border-color: #334155 !important; }
+        body.dark .bg-slate-50 { background: #0f172a !important; }
 
         .invoice-paper {
             min-height: 800px;
@@ -69,10 +126,6 @@
             position: relative;
             margin: 0 auto;
             max-width: 100%;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-        }
-        .invoice-paper * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
         .invoice-paper .watermark {
             position: absolute;
@@ -84,16 +137,9 @@
             pointer-events: none;
             letter-spacing: 0.1em;
         }
-        body.dark .invoice-paper .watermark {
-            color: rgba(255, 255, 255, 0.04);
-        }
+        body.dark .invoice-paper .watermark { color: rgba(255, 255, 255, 0.04); }
 
-        /* ============================================================ */
-        /* PRINT SIZE CONTROL - CSS VARIABLE */
-        /* ============================================================ */
-        :root {
-            --print-zoom: 1;
-        }
+        :root { --print-zoom: 1; }
         .print-scale-wrapper {
             transform: scale(var(--print-zoom));
             transform-origin: top center;
@@ -101,19 +147,13 @@
             transition: none;
         }
 
-        /* ============================================================ */
-        /* PRINT STYLES – WITH SCALING SUPPORT */
-        /* ============================================================ */
         @media print {
-            .no-print {
-                display: none !important;
-            }
+            .no-print { display: none !important; }
             body {
                 background: white !important;
                 color: black !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             }
             .invoice-paper {
                 box-shadow: none !important;
@@ -126,26 +166,14 @@
                 max-width: 100% !important;
                 overflow: visible !important;
                 position: relative !important;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             }
-            .invoice-paper * {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            }
-            .invoice-paper .watermark {
-                opacity: 0.06 !important;
-            }
-            .logo-placeholder {
-                display: none !important;
-            }
-            .logo-container:not(:has(img)) {
-                display: none !important;
-            }
+            .invoice-paper .watermark { opacity: 0.06 !important; }
+            .logo-placeholder { display: none !important; }
+            .logo-container:not(:has(img)) { display: none !important; }
             .watermark-print {
                 position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
+                top: 0 !important; left: 0 !important;
+                width: 100% !important; height: 100% !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
@@ -156,27 +184,18 @@
                 font-weight: 900 !important;
                 color: #1e293b !important;
                 transform: rotate(-30deg) !important;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
                 letter-spacing: 4px !important;
                 text-transform: uppercase !important;
                 white-space: nowrap !important;
                 user-select: none !important;
-                -webkit-user-select: none !important;
             }
-            body.dark .watermark-print {
-                color: #e2e8f0 !important;
-                opacity: 0.06 !important;
-            }
-
             .print-scale-wrapper {
                 transform: scale(var(--print-zoom, 1));
                 transform-origin: top center;
                 width: calc(100% / var(--print-zoom, 1));
                 margin: 0 auto;
             }
-
-            input[type="datetime-local"],
-            input[type="date"] {
+            input[type="datetime-local"], input[type="date"] {
                 -webkit-appearance: none !important;
                 appearance: none !important;
                 background: transparent !important;
@@ -184,62 +203,26 @@
                 padding: 1px 3px !important;
                 color: black !important;
                 font-size: inherit !important;
-                font-family: inherit !important;
             }
             input[type="datetime-local"]::-webkit-calendar-picker-indicator,
             input[type="date"]::-webkit-calendar-picker-indicator,
-            input[type="datetime-local"]::-moz-calendar-picker-indicator,
-            input[type="date"]::-moz-calendar-picker-indicator,
-            input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper,
-            input[type="date"]::-webkit-datetime-edit-fields-wrapper,
-            input[type="datetime-local"]::-webkit-datetime-edit-text,
-            input[type="date"]::-webkit-datetime-edit-text,
-            input[type="datetime-local"]::-webkit-datetime-edit-month-field,
-            input[type="date"]::-webkit-datetime-edit-month-field,
-            input[type="datetime-local"]::-webkit-datetime-edit-day-field,
-            input[type="date"]::-webkit-datetime-edit-day-field,
-            input[type="datetime-local"]::-webkit-datetime-edit-year-field,
-            input[type="date"]::-webkit-datetime-edit-year-field,
             input[type="datetime-local"]::-webkit-inner-spin-button,
             input[type="date"]::-webkit-inner-spin-button,
             input[type="datetime-local"]::-webkit-clear-button,
             input[type="date"]::-webkit-clear-button {
-                display: none !important;
-                opacity: 0 !important;
+                display: none !important; opacity: 0 !important;
                 pointer-events: none !important;
-                -webkit-appearance: none !important;
-                appearance: none !important;
-                background: transparent !important;
-                color: transparent !important;
-                width: 0 !important;
-                height: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: 0 !important;
-                min-width: 0 !important;
-                max-width: 0 !important;
-                overflow: hidden !important;
-                visibility: hidden !important;
+                width: 0 !important; height: 0 !important;
             }
             input[type="number"]::-webkit-inner-spin-button,
             input[type="number"]::-webkit-outer-spin-button {
                 display: none !important;
-                opacity: 0 !important;
-                pointer-events: none !important;
-                -webkit-appearance: none !important;
-                appearance: none !important;
             }
-            input[type="number"] {
-                -moz-appearance: textfield !important;
-                appearance: textfield !important;
-            }
-
+            input[type="number"] { -moz-appearance: textfield !important; }
             .invoice-paper input::placeholder,
             .invoice-paper textarea::placeholder {
-                color: transparent !important;
-                opacity: 0 !important;
+                color: transparent !important; opacity: 0 !important;
             }
-
             .invoice-paper .invoice-header {
                 display: flex !important;
                 flex-wrap: wrap !important;
@@ -260,8 +243,6 @@
             }
             .invoice-paper .invoice-header .header-left h1 {
                 font-size: 1.2rem !important;
-                margin: 0 !important;
-                padding: 0 !important;
             }
             .invoice-paper .invoice-header .header-right {
                 display: flex !important;
@@ -293,25 +274,11 @@
                 color: black !important;
                 border: none !important;
                 background: transparent !important;
-                display: inline-block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
                 width: auto !important;
                 font-weight: 500 !important;
-                -webkit-appearance: none !important;
-                appearance: none !important;
             }
-            .invoice-paper .invoice-header .header-right .header-row .header-input.text-left {
-                text-align: left !important;
-            }
-
             .invoice-paper .po-row-wrapper.po-hidden,
-            .invoice-paper .po-row-wrapper.po-hidden .header-row,
-            .invoice-paper .po-row-wrapper.po-hidden .header-label,
-            .invoice-paper .po-row-wrapper.po-hidden .header-input {
-                display: none !important;
-            }
-
+            .invoice-paper .po-row-wrapper.po-hidden * { display: none !important; }
             .invoice-paper .from-to-box {
                 border: 1px solid #ccc !important;
                 padding: 0.15rem 0.3rem !important;
@@ -327,9 +294,7 @@
                 color: #1e293b !important;
                 font-weight: 600 !important;
             }
-            .invoice-paper .from-to-box textarea {
-                display: none !important;
-            }
+            .invoice-paper .from-to-box textarea { display: none !important; }
             .invoice-paper .from-to-display {
                 display: block !important;
                 padding: 1px 3px !important;
@@ -337,48 +302,23 @@
                 font-size: 7pt !important;
                 line-height: 1.3 !important;
                 color: black !important;
-                border: none !important;
-                background: transparent !important;
                 white-space: pre-wrap !important;
                 word-wrap: break-word !important;
-            }
-
-            .invoice-paper table td.col-desc {
-                height: auto !important;
-                min-height: 16px !important;
-                max-height: none !important;
-                overflow: visible !important;
-                vertical-align: top !important;
-                padding: 2px 3px !important;
-                display: table-cell !important;
-                word-wrap: break-word !important;
-                white-space: normal !important;
-            }
-            .invoice-paper table tbody tr {
-                height: auto !important;
-                min-height: 16px !important;
-                max-height: none !important;
-                display: table-row !important;
             }
             .invoice-paper table {
                 width: 100% !important;
                 border-collapse: collapse !important;
-                border-spacing: 0 !important;
                 margin: 0.1rem 0 !important;
                 page-break-inside: avoid !important;
                 table-layout: fixed !important;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
                 font-size: 7.5pt !important;
             }
-            .invoice-paper table thead {
-                display: table-header-group !important;
-            }
-            .invoice-paper table tbody {
-                display: table-row-group !important;
-            }
+            .invoice-paper table thead { display: table-header-group !important; }
+            .invoice-paper table tbody { display: table-row-group !important; }
             .invoice-paper table tr {
                 display: table-row !important;
                 page-break-inside: avoid !important;
+                height: auto !important;
             }
             .invoice-paper table td,
             .invoice-paper table th {
@@ -389,14 +329,12 @@
                 background: white !important;
                 color: black !important;
                 font-size: 7.5pt !important;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
                 overflow: visible !important;
                 word-wrap: break-word !important;
                 white-space: normal !important;
                 line-height: 1.2 !important;
                 height: auto !important;
                 min-height: 16px !important;
-                max-height: none !important;
             }
             .invoice-paper table th {
                 background: #1e293b !important;
@@ -407,40 +345,19 @@
                 print-color-adjust: exact !important;
             }
             .invoice-paper table td.text-right,
-            .invoice-paper table th.text-right {
-                text-align: right !important;
-            }
+            .invoice-paper table th.text-right { text-align: right !important; }
             .invoice-paper table td.text-center,
-            .invoice-paper table th.text-center {
-                text-align: center !important;
-            }
+            .invoice-paper table th.text-center { text-align: center !important; }
             .invoice-paper table td:last-child,
-            .invoice-paper table th:last-child {
-                display: none !important;
-            }
-            .invoice-paper table .col-desc {
-                width: 32% !important;
-            }
-            .invoice-paper table .col-qty {
-                width: 14% !important;
-            }
-            .invoice-paper table .col-rate {
-                width: 16% !important;
-            }
-            .invoice-paper table .col-taxable {
-                width: 16% !important;
-            }
-            .invoice-paper table .col-total {
-                width: 22% !important;
-            }
-            .invoice-paper table .col-delete {
-                display: none !important;
-            }
-
+            .invoice-paper table th:last-child { display: none !important; }
+            .invoice-paper table .col-desc { width: 32% !important; }
+            .invoice-paper table .col-qty { width: 14% !important; }
+            .invoice-paper table .col-rate { width: 16% !important; }
+            .invoice-paper table .col-taxable { width: 16% !important; }
+            .invoice-paper table .col-total { width: 22% !important; }
+            .invoice-paper table .col-delete { display: none !important; }
             .invoice-paper table td input,
-            .invoice-paper table td textarea {
-                display: none !important;
-            }
+            .invoice-paper table td textarea { display: none !important; }
             .invoice-paper table td .desc-display {
                 display: block !important;
                 padding: 1px 3px !important;
@@ -448,8 +365,6 @@
                 font-size: 7.5pt !important;
                 line-height: 1.3 !important;
                 color: black !important;
-                border: none !important;
-                background: transparent !important;
                 white-space: pre-wrap !important;
                 word-wrap: break-word !important;
             }
@@ -471,28 +386,15 @@
                 text-align: right !important;
                 color: black !important;
                 padding: 1px 2px !important;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             }
-
-            /* Hide item selector in print */
-            .invoice-paper .item-selector {
-                display: none !important;
-            }
-
-            .invoice-paper .discount-input-group {
-                display: none !important;
-            }
+            .invoice-paper .item-selector { display: none !important; }
+            .invoice-paper .discount-input-group { display: none !important; }
             .invoice-paper .discount-display {
                 display: inline-block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
                 color: black !important;
                 font-weight: 500 !important;
             }
-            .invoice-paper #discount-type {
-                display: none !important;
-            }
-
+            .invoice-paper #discount-type { display: none !important; }
             .invoice-paper .bottom-section {
                 display: flex !important;
                 flex-wrap: nowrap !important;
@@ -502,7 +404,6 @@
                 margin-top: 0.15rem !important;
                 border-top: 1px solid #ccc !important;
                 padding-top: 0.15rem !important;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             }
             .invoice-paper .bottom-section .notes-col {
                 flex: 1 1 55% !important;
@@ -520,58 +421,26 @@
                 font-weight: 600 !important;
                 font-size: 6pt !important;
                 text-transform: uppercase !important;
-                letter-spacing: 0.05em !important;
                 margin-bottom: 1px !important;
                 color: #1e293b !important;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             }
             .invoice-paper .bottom-section .notes-col .notes-content {
                 white-space: pre-wrap !important;
                 word-wrap: break-word !important;
                 font-size: 6pt !important;
                 line-height: 1.3 !important;
-                padding: 1px 0 !important;
                 color: black !important;
-                border: none !important;
-                background: transparent !important;
                 min-height: 16px !important;
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
             }
-            body.dark .invoice-paper .bottom-section .notes-col .notes-heading {
-                color: #e2e8f0 !important;
-            }
-
-            .invoice-paper .totals-col {
-                font-size: 7.5pt !important;
-            }
-            .invoice-paper .totals-col .totals-row {
-                display: flex !important;
-                justify-content: space-between !important;
-                padding: 1px 0 !important;
-                line-height: 1.3 !important;
-            }
-            .invoice-paper .totals-col .totals-row .totals-label {
-                font-weight: normal !important;
-                color: #1e293b !important;
-            }
-            .invoice-paper .totals-col .totals-row .totals-value {
-                font-weight: 500 !important;
-                color: #1e293b !important;
-            }
-            .invoice-paper .totals-col .tax-row {
+            .invoice-paper .totals-col { font-size: 7.5pt !important; }
+            .invoice-paper .totals-col .totals-row,
+            .invoice-paper .totals-col .tax-row,
+            .invoice-paper .totals-col .discount-row {
                 display: flex !important;
                 justify-content: space-between !important;
                 padding: 1px 0 !important;
                 line-height: 1.3 !important;
                 font-size: 7pt !important;
-            }
-            .invoice-paper .totals-col .tax-row .tax-label {
-                font-weight: normal !important;
-                color: #1e293b !important;
-            }
-            .invoice-paper .totals-col .tax-row .tax-amount {
-                font-weight: 500 !important;
-                color: #1e293b !important;
             }
             .invoice-paper .totals-col .total-row {
                 font-weight: 700 !important;
@@ -582,1162 +451,447 @@
                 display: flex !important;
                 justify-content: space-between !important;
             }
-            .invoice-paper .totals-col .total-row .total-label {
-                font-weight: 700 !important;
-                color: #1e293b !important;
-            }
-            .invoice-paper .totals-col .total-row .total-value {
-                font-weight: 700 !important;
-                color: #1e293b !important;
-            }
-            .invoice-paper .totals-col .discount-row {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                padding: 1px 0 !important;
-                line-height: 1.3 !important;
-            }
-            .invoice-paper .totals-col .discount-row .discount-label {
-                font-weight: normal !important;
-                color: #1e293b !important;
-            }
-            .invoice-paper .totals-col .discount-row .discount-display {
-                font-weight: 500 !important;
-                color: #1e293b !important;
-            }
-
-            .invoice-paper {
-                page-break-after: avoid !important;
-                page-break-inside: avoid !important;
-            }
-            .invoice-paper table {
-                page-break-inside: avoid !important;
-            }
-            .invoice-paper .bottom-section {
-                page-break-inside: avoid !important;
-            }
-
-            body.print-bw .invoice-paper .bg-slate-800 {
-                background: #333 !important;
-                color: white !important;
-            }
-            body.print-bw .invoice-paper .status-badge {
-                background: #666 !important;
-                color: white !important;
-            }
-            body.print-bw .invoice-paper {
-                filter: grayscale(1) !important;
-            }
-            body.print-bw .invoice-paper img {
-                filter: grayscale(1) !important;
-            }
-            body.print-color .invoice-paper {
-                filter: none !important;
-            }
-            body.print-color .invoice-paper img {
-                filter: none !important;
-            }
+            .invoice-paper { page-break-after: avoid !important; page-break-inside: avoid !important; }
+            body.print-bw .invoice-paper { filter: grayscale(1) !important; }
+            body.print-bw .invoice-paper .bg-slate-800 { background: #333 !important; color: white !important; }
+            body.print-color .invoice-paper { filter: none !important; }
         }
 
-        /* ============================================================ */
         /* LAYOUTS */
-        /* ============================================================ */
-        .layout-formal {
-            border: 2px solid #1e293b;
-            padding: 1.5rem;
-            box-shadow: 10px 10px 0px #1e293b;
-        }
-        .layout-corporate {
-            border: 1px solid #e2e8f0;
-            border-top: 6px solid #1e3a8a;
-            padding: 1.5rem;
-        }
-        .layout-remittance {
-            border: 1px solid #94a3b8;
-            border-left: 10px solid #1e293b;
-            padding: 1.5rem;
-        }
-        .layout-minimal {
-            border: none;
-            padding: 1.5rem;
-            background: #fafafa;
-        }
-        body.dark .layout-minimal {
-            background: #1e293b;
-        }
+        .layout-formal { border: 2px solid #1e293b; padding: 1.5rem; box-shadow: 10px 10px 0px #1e293b; }
+        .layout-corporate { border: 1px solid #e2e8f0; border-top: 6px solid #1e3a8a; padding: 1.5rem; }
+        .layout-remittance { border: 1px solid #94a3b8; border-left: 10px solid #1e293b; padding: 1.5rem; }
+        .layout-minimal { border: none; padding: 1.5rem; background: #fafafa; }
+        body.dark .layout-minimal { background: #1e293b; }
         .layout-elegant {
-            border: 1px solid #d4af37;
-            border-radius: 20px;
-            padding: 1.5rem;
+            border: 1px solid #d4af37; border-radius: 20px; padding: 1.5rem;
             background: linear-gradient(135deg, #fefcf3 0%, #f8f4e8 100%);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
         body.dark .layout-elegant {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             border-color: #d4af37;
         }
-        .layout-elegant h1 {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            letter-spacing: 2px;
-        }
         .layout-modern {
-            border: none;
-            padding: 1.5rem;
+            border: none; padding: 1.5rem;
             background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); border-radius: 24px;
         }
-        body.dark .layout-modern {
-            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-        }
-        .layout-modern .bg-slate-800 {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-        }
+        body.dark .layout-modern { background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); }
         .layout-soft {
-            border: none;
-            padding: 1.5rem;
-            background: #fdf6f0;
-            border-radius: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+            border: none; padding: 1.5rem; background: #fdf6f0;
+            border-radius: 30px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
         }
-        body.dark .layout-soft {
-            background: #1a1a2e;
-        }
-        .layout-soft .bg-slate-800 {
-            background: #d4a373;
-        }
-        .layout-bold {
-            border: 4px solid #0f172a;
-            padding: 1.5rem;
-            background: white;
-            box-shadow: 12px 12px 0px #0f172a;
-        }
-        body.dark .layout-bold {
-            border-color: #e2e8f0;
-            box-shadow: 12px 12px 0px #e2e8f0;
-            background: #1e293b;
-        }
-        .layout-bold h1 {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            font-weight: 800;
-            letter-spacing: -2px;
-        }
+        body.dark .layout-soft { background: #1a1a2e; }
+        .layout-bold { border: 4px solid #0f172a; padding: 1.5rem; background: white; box-shadow: 12px 12px 0px #0f172a; }
+        body.dark .layout-bold { border-color: #e2e8f0; box-shadow: 12px 12px 0px #e2e8f0; background: #1e293b; }
 
         .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            background: #0f172a;
-            color: white;
+            position: fixed; bottom: 2rem; right: 2rem;
+            padding: 1rem 1.5rem; border-radius: 12px;
+            background: #0f172a; color: white;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            z-index: 9999;
-            transform: translateY(100px);
-            opacity: 0;
+            z-index: 9999; transform: translateY(100px); opacity: 0;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            max-width: 400px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            max-width: 400px; font-weight: 500;
+            display: flex; align-items: center; gap: 0.75rem;
         }
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        .toast.success {
-            background: #065f46;
-        }
-        .toast.error {
-            background: #991b1b;
-        }
-        .toast.info {
-            background: #1e3a8a;
-        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: #065f46; }
+        .toast.error { background: #991b1b; }
+        .toast.info { background: #1e3a8a; }
 
         .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
+            padding: 0.25rem 0.75rem; border-radius: 9999px;
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
             letter-spacing: 0.05em;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
         }
-        .status-draft {
-            background: #e2e8f0;
-            color: #475569;
-        }
-        .status-sent {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .status-paid {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .status-overdue {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        body.dark .status-draft {
-            background: #334155;
-            color: #94a3b8;
-        }
-        body.dark .status-sent {
-            background: #1e3a8a;
-            color: #93c5fd;
-        }
-        body.dark .status-paid {
-            background: #065f46;
-            color: #6ee7b7;
-        }
-        body.dark .status-overdue {
-            background: #7f1d1d;
-            color: #fca5a5;
-        }
+        .status-draft { background: #e2e8f0; color: #475569; }
+        .status-sent { background: #dbeafe; color: #1e40af; }
+        .status-paid { background: #d1fae5; color: #065f46; }
+        .status-overdue { background: #fee2e2; color: #991b1b; }
+        body.dark .status-draft { background: #334155; color: #94a3b8; }
+        body.dark .status-sent { background: #1e3a8a; color: #93c5fd; }
+        body.dark .status-paid { background: #065f46; color: #6ee7b7; }
+        body.dark .status-overdue { background: #7f1d1d; color: #fca5a5; }
 
         .layout-preview-card {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 3px solid transparent;
-            border-radius: 16px;
-            overflow: hidden;
+            cursor: pointer; transition: all 0.3s ease;
+            border: 3px solid transparent; border-radius: 16px; overflow: hidden;
         }
-        .layout-preview-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-        }
-        .layout-preview-card.active {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
-        }
+        .layout-preview-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1); }
+        .layout-preview-card.active { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2); }
         .layout-preview-card .preview-box {
-            height: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #64748b;
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 0.5rem;
-            text-align: center;
-            line-height: 1.4;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            height: 120px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 600; color: #64748b;
+            background: #f8fafc; border-radius: 12px; padding: 0.5rem;
+            text-align: center; line-height: 1.4;
         }
-        body.dark .layout-preview-card .preview-box {
-            background: #1e293b;
-            color: #94a3b8;
-        }
+        body.dark .layout-preview-card .preview-box { background: #1e293b; color: #94a3b8; }
 
         .logo-upload-area {
-            border: 2px dashed #cbd5e1;
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            border: 2px dashed #cbd5e1; border-radius: 12px;
+            padding: 1.5rem; text-align: center; cursor: pointer;
+            transition: all 0.3s; min-height: 120px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
         }
-        .logo-upload-area:hover {
-            border-color: #2563eb;
-            background: #f8fafc;
-        }
-        body.dark .logo-upload-area {
-            border-color: #334155;
-        }
-        body.dark .logo-upload-area:hover {
-            border-color: #60a5fa;
-            background: #1e293b;
-        }
-        .logo-upload-area img {
-            max-height: 80px;
-            max-width: 100%;
-            object-fit: contain;
-        }
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .logo-container img {
-            max-height: 60px;
-            max-width: 120px;
-            object-fit: contain;
-        }
+        .logo-upload-area:hover { border-color: #2563eb; background: #f8fafc; }
+        body.dark .logo-upload-area { border-color: #334155; }
+        body.dark .logo-upload-area:hover { border-color: #60a5fa; background: #1e293b; }
+        .logo-upload-area img { max-height: 80px; max-width: 100%; object-fit: contain; }
+        .logo-container { display: flex; align-items: center; gap: 1rem; }
+        .logo-container img { max-height: 60px; max-width: 120px; object-fit: contain; }
         .logo-placeholder {
-            width: 60px;
-            height: 60px;
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            font-size: 0.7rem;
+            width: 60px; height: 60px; border: 2px dashed #cbd5e1;
+            border-radius: 8px; display: flex; align-items: center;
+            justify-content: center; color: #94a3b8; font-size: 0.7rem;
         }
 
         .print-mode-btn {
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            padding: 0.4rem 0.8rem; border-radius: 8px;
+            font-size: 0.75rem; font-weight: 600;
+            transition: all 0.2s; border: 2px solid transparent;
         }
         .print-mode-btn.active {
-            border-color: #2563eb;
-            background: #dbeafe;
-            color: #1e40af;
+            border-color: #2563eb; background: #dbeafe; color: #1e40af;
         }
         body.dark .print-mode-btn.active {
-            background: #1e3a8a;
-            color: #93c5fd;
-            border-color: #60a5fa;
+            background: #1e3a8a; color: #93c5fd; border-color: #60a5fa;
         }
-        .print-mode-btn:hover {
-            transform: scale(1.02);
-        }
+        .print-mode-btn:hover { transform: scale(1.02); }
 
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            appearance: none;
-            margin: 0;
+            -webkit-appearance: none; appearance: none; margin: 0;
         }
-        input[type="number"] {
-            -moz-appearance: textfield;
-            appearance: textfield;
-        }
+        input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
         input[type="datetime-local"]::-webkit-calendar-picker-indicator,
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            opacity: 0.5;
-        }
+        input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; }
         input[type="datetime-local"]:hover::-webkit-calendar-picker-indicator,
-        input[type="date"]:hover::-webkit-calendar-picker-indicator {
-            opacity: 1;
-        }
+        input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
         body.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
-        body.dark input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-        }
+        body.dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
 
         #discount-symbol {
-            min-width: 1.2rem;
-            font-weight: 600;
-            color: #1e293b;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            min-width: 1.2rem; font-weight: 600; color: #1e293b;
         }
-        body.dark #discount-symbol {
-            color: #e2e8f0;
-        }
+        body.dark #discount-symbol { color: #e2e8f0; }
 
-        /* ===== PRINT SIZE SLIDER ===== */
+        .print-size-control {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.25rem 0.75rem; border-radius: 0.5rem;
+            background: #f1f5f9; border: 1px solid #e2e8f0;
+        }
+        body.dark .print-size-control { background: #1e293b; border-color: #334155; }
         .print-size-control input[type="range"] {
-            width: 80px;
-            height: 4px;
-            background: #cbd5e1;
-            border-radius: 2px;
-            -webkit-appearance: none;
-            appearance: none;
-            outline: none;
-            transition: background 0.2s;
+            width: 80px; height: 4px; background: #cbd5e1;
+            border-radius: 2px; -webkit-appearance: none; appearance: none; outline: none;
         }
-        body.dark .print-size-control input[type="range"] {
-            background: #334155;
-        }
+        body.dark .print-size-control input[type="range"] { background: #334155; }
         .print-size-control input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 14px;
-            height: 14px;
-            background: #2563eb;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 2px solid white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-        .print-size-control input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
+            -webkit-appearance: none; appearance: none;
+            width: 14px; height: 14px; background: #2563eb;
+            border-radius: 50%; cursor: pointer;
+            border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         .print-size-control input[type="range"]::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-            background: #2563eb;
-            border-radius: 50%;
-            cursor: pointer;
+            width: 14px; height: 14px; background: #2563eb;
+            border-radius: 50%; cursor: pointer;
             border: 2px solid white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-        .print-size-control input[type="range"]::-moz-range-track {
-            height: 4px;
-            background: #cbd5e1;
-            border-radius: 2px;
-        }
-        body.dark .print-size-control input[type="range"]::-moz-range-track {
-            background: #334155;
-        }
-        .print-size-control {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.5rem;
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-        }
-        body.dark .print-size-control {
-            background: #1e293b;
-            border-color: #334155;
         }
         .print-size-control .size-label {
-            font-size: 0.65rem;
-            font-weight: 600;
-            color: #64748b;
-            white-space: nowrap;
+            font-size: 0.65rem; font-weight: 600; color: #64748b; white-space: nowrap;
         }
-        body.dark .print-size-control .size-label {
-            color: #94a3b8;
-        }
+        body.dark .print-size-control .size-label { color: #94a3b8; }
         .print-size-control .size-value {
-            font-size: 0.7rem;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            min-width: 2.5rem;
-            text-align: center;
-            color: #1e293b;
+            font-size: 0.7rem; font-weight: 600;
+            font-variant-numeric: tabular-nums; min-width: 2.5rem;
+            text-align: center; color: #1e293b;
         }
-        body.dark .print-size-control .size-value {
-            color: #e2e8f0;
-        }
+        body.dark .print-size-control .size-value { color: #e2e8f0; }
 
-        /* ============================================================ */
-        /* EDITOR STYLES */
-        /* ============================================================ */
         .invoice-paper table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            width: 100%; border-collapse: collapse; table-layout: fixed;
         }
-        .invoice-paper table .col-desc {
-            width: 34%;
-        }
-        .invoice-paper table .col-qty {
-            width: 14%;
-        }
-        .invoice-paper table .col-rate {
-            width: 16%;
-        }
-        .invoice-paper table .col-taxable {
-            width: 16%;
-        }
-        .invoice-paper table .col-total {
-            width: 20%;
-        }
-        .invoice-paper table .col-delete {
-            width: 4%;
-        }
-
+        .invoice-paper table .col-desc { width: 34%; }
+        .invoice-paper table .col-qty { width: 14%; }
+        .invoice-paper table .col-rate { width: 16%; }
+        .invoice-paper table .col-taxable { width: 16%; }
+        .invoice-paper table .col-total { width: 20%; }
+        .invoice-paper table .col-delete { width: 4%; }
         .invoice-paper table th,
-        .invoice-paper table td {
-            padding: 6px 4px;
-            vertical-align: middle;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-        }
+        .invoice-paper table td { padding: 6px 4px; vertical-align: middle; }
         .invoice-paper table th {
-            font-weight: 600;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
+            font-weight: 600; font-size: 0.65rem;
+            text-transform: uppercase; letter-spacing: 0.04em;
         }
         .invoice-paper table td.text-right,
-        .invoice-paper table th.text-right {
-            text-align: right;
-        }
+        .invoice-paper table th.text-right { text-align: right; }
         .invoice-paper table td.text-center,
-        .invoice-paper table th.text-center {
-            text-align: center;
-        }
-
+        .invoice-paper table th.text-center { text-align: center; }
         .invoice-paper table td input,
         .invoice-paper table td textarea {
-            width: 100%;
-            padding: 4px 6px;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            background: transparent;
-            transition: border-color 0.2s;
-            box-sizing: border-box;
-            color: #1e293b;
-            min-width: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            width: 100%; padding: 4px 6px;
+            border: 1px solid #e2e8f0; border-radius: 4px;
+            font-size: 0.8rem; background: transparent;
+            transition: border-color 0.2s; box-sizing: border-box;
+            color: #1e293b; min-width: 0;
         }
         body.dark .invoice-paper table td input,
         body.dark .invoice-paper table td textarea {
-            border-color: #334155;
-            background: #0f172a;
-            color: #e2e8f0;
+            border-color: #334155; background: #0f172a; color: #e2e8f0;
         }
         .invoice-paper table td input:focus,
         .invoice-paper table td textarea:focus {
-            border-color: #3b82f6;
-            outline: none;
+            border-color: #3b82f6; outline: none;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
         .invoice-paper table td textarea {
-            resize: vertical;
-            min-height: 36px;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            line-height: 1.4;
+            resize: vertical; min-height: 36px; line-height: 1.4;
         }
-        .invoice-paper table td input[type="number"] {
-            text-align: right;
-        }
+        .invoice-paper table td input[type="number"] { text-align: right; }
         .invoice-paper table td .total-cell {
-            font-weight: 600;
-            padding: 4px 6px;
-            display: inline-block;
-            min-width: 50px;
-            text-align: right;
-            color: #1e293b;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-weight: 600; padding: 4px 6px;
+            display: inline-block; min-width: 50px;
+            text-align: right; color: #1e293b;
         }
-        body.dark .invoice-paper table td .total-cell {
-            color: #e2e8f0;
-        }
+        body.dark .invoice-paper table td .total-cell { color: #e2e8f0; }
         .invoice-paper table td .remove-btn {
-            background: none;
-            border: none;
-            color: #ef4444;
-            font-size: 1.25rem;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: background 0.2s;
-            line-height: 1;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            background: none; border: none; color: #ef4444;
+            font-size: 1.25rem; cursor: pointer; padding: 4px 8px;
+            border-radius: 4px; transition: background 0.2s; line-height: 1;
         }
-        .invoice-paper table td .remove-btn:hover {
-            background: #fef2f2;
-        }
-        body.dark .invoice-paper table td .remove-btn:hover {
-            background: #7f1d1d;
-        }
+        .invoice-paper table td .remove-btn:hover { background: #fef2f2; }
+        body.dark .invoice-paper table td .remove-btn:hover { background: #7f1d1d; }
 
-        /* Display spans hidden in editor, shown in print */
-        .qty-display,
-        .rate-display,
-        .taxable-display,
-        .desc-display,
-        .from-to-display {
-            display: none;
-        }
+        .qty-display, .rate-display, .taxable-display,
+        .desc-display, .from-to-display { display: none; }
 
         .from-to-box {
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
-            padding: 0.8rem;
-            transition: border-color 0.3s;
-            position: relative;
+            border: 1px solid #e2e8f0; border-radius: 0.75rem;
+            padding: 0.8rem; transition: border-color 0.3s; position: relative;
         }
-        body.dark .from-to-box {
-            border-color: #334155;
-        }
+        body.dark .from-to-box { border-color: #334155; }
         .from-to-box:focus-within {
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         .from-to-box textarea {
-            width: 100%;
-            padding: 0;
-            border: none;
-            background: transparent;
-            resize: vertical;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            font-size: 0.8rem;
-            min-height: 60px;
+            width: 100%; padding: 0; border: none;
+            background: transparent; resize: vertical;
+            font-size: 0.8rem; min-height: 60px;
         }
-        .from-to-box textarea:focus {
-            outline: none;
-            box-shadow: none;
-        }
-        body.dark .from-to-box textarea {
-            color: #e2e8f0;
-        }
+        .from-to-box textarea:focus { outline: none; box-shadow: none; }
+        body.dark .from-to-box textarea { color: #e2e8f0; }
 
-        /* Business dropdown inside from-to-box */
         .business-selector {
-            width: 100%;
-            padding: 6px 8px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            background: transparent;
-            color: #1e293b;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            margin-bottom: 6px;
-            cursor: pointer;
+            width: 100%; padding: 6px 8px;
+            border: 1px solid #e2e8f0; border-radius: 6px;
+            font-size: 0.75rem; background: transparent;
+            color: #1e293b; margin-bottom: 6px; cursor: pointer;
         }
         body.dark .business-selector {
-            border-color: #334155;
-            background: #0f172a;
-            color: #e2e8f0;
+            border-color: #334155; background: #0f172a; color: #e2e8f0;
         }
         .business-selector:focus {
-            border-color: #3b82f6;
-            outline: none;
+            border-color: #3b82f6; outline: none;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        .business-selector option {
-            background: white;
-            color: #1e293b;
-        }
-        body.dark .business-selector option {
-            background: #1e293b;
-            color: #e2e8f0;
-        }
+        .business-selector option { background: white; color: #1e293b; }
+        body.dark .business-selector option { background: #1e293b; color: #e2e8f0; }
 
         .invoice-header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 0.5rem;
-            padding-bottom: 0.8rem;
-            margin-bottom: 0.8rem;
+            display: flex; flex-wrap: wrap; justify-content: space-between;
+            align-items: flex-start; gap: 0.5rem;
+            padding-bottom: 0.8rem; margin-bottom: 0.8rem;
             border-bottom: 2px solid #e2e8f0;
         }
-        body.dark .invoice-header {
-            border-color: #334155;
-        }
-        .invoice-header .header-left {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.8rem;
-        }
+        body.dark .invoice-header { border-color: #334155; }
+        .invoice-header .header-left { display: flex; align-items: flex-start; gap: 0.8rem; }
         .invoice-header .header-right {
-            display: flex;
-            flex-direction: column;
-            gap: 0.2rem;
-            align-items: flex-end;
+            display: flex; flex-direction: column; gap: 0.2rem; align-items: flex-end;
         }
         .invoice-header .header-right .header-row {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            width: 100%;
-            justify-content: flex-end;
+            display: flex; align-items: center; gap: 0.4rem;
+            width: 100%; justify-content: flex-end;
         }
         .invoice-header .header-right .header-row .header-label {
-            font-size: 0.65rem;
-            font-weight: 500;
-            color: #64748b;
-            text-align: right;
-            min-width: 40px;
-            flex-shrink: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-size: 0.65rem; font-weight: 500; color: #64748b;
+            text-align: right; min-width: 40px; flex-shrink: 0;
         }
-        body.dark .invoice-header .header-right .header-row .header-label {
-            color: #94a3b8;
-        }
+        body.dark .invoice-header .header-right .header-row .header-label { color: #94a3b8; }
         .invoice-header .header-right .header-row .header-input {
-            flex: 0 1 auto;
-            min-width: 100px;
-            width: 130px;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
-            padding: 0.25rem 0.4rem;
-            text-align: right;
-            font-size: 0.8rem;
-            background: transparent;
-            color: #1e293b;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            flex: 0 1 auto; min-width: 100px; width: 130px;
+            border: 1px solid #e2e8f0; border-radius: 0.5rem;
+            padding: 0.25rem 0.4rem; text-align: right;
+            font-size: 0.8rem; background: transparent; color: #1e293b;
         }
         body.dark .invoice-header .header-right .header-row .header-input {
-            border-color: #334155;
-            background: #0f172a;
-            color: #e2e8f0;
+            border-color: #334155; background: #0f172a; color: #e2e8f0;
         }
         .invoice-header .header-right .header-row .header-input:focus {
-            border-color: #3b82f6;
-            outline: none;
+            border-color: #3b82f6; outline: none;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
-        .invoice-header .header-right .header-row .header-input.text-left {
-            text-align: left;
-        }
+        .invoice-header .header-right .header-row .header-input.text-left { text-align: left; }
 
-        .po-row-wrapper.po-hidden {
-            display: none !important;
-        }
+        .po-row-wrapper.po-hidden { display: none !important; }
 
         .bottom-section {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 1.5rem;
-            margin-top: 1.2rem;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 1.2rem;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            display: flex; flex-wrap: wrap; justify-content: space-between;
+            align-items: flex-start; gap: 1.5rem;
+            margin-top: 1.2rem; border-top: 1px solid #e2e8f0; padding-top: 1.2rem;
         }
-        body.dark .bottom-section {
-            border-color: #334155;
-        }
-        .bottom-section .notes-col {
-            flex: 1 1 auto;
-            min-width: 180px;
-            max-width: 55%;
-            order: 1;
-        }
-        .bottom-section .totals-col {
-            flex: 0 0 auto;
-            width: 260px;
-            max-width: 45%;
-            order: 2;
-        }
+        body.dark .bottom-section { border-color: #334155; }
+        .bottom-section .notes-col { flex: 1 1 auto; min-width: 180px; max-width: 55%; order: 1; }
+        .bottom-section .totals-col { flex: 0 0 auto; width: 260px; max-width: 45%; order: 2; }
         .bottom-section .notes-col .notes-heading {
-            font-weight: 600;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #64748b;
-            margin-bottom: 3px;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-weight: 600; font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: 0.05em; color: #64748b; margin-bottom: 3px;
         }
-        body.dark .bottom-section .notes-col .notes-heading {
-            color: #94a3b8;
-        }
+        body.dark .bottom-section .notes-col .notes-heading { color: #94a3b8; }
         .bottom-section .notes-col .notes-content {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-size: 0.8rem;
-            line-height: 1.5;
-            padding: 3px 0;
-            min-height: 50px;
-            color: #1e293b;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            white-space: pre-wrap; word-wrap: break-word;
+            font-size: 0.8rem; line-height: 1.5;
+            padding: 3px 0; min-height: 50px; color: #1e293b;
         }
-        body.dark .bottom-section .notes-col .notes-content {
-            color: #e2e8f0;
-        }
+        body.dark .bottom-section .notes-col .notes-content { color: #e2e8f0; }
 
-        .totals-col .totals-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            line-height: 1.4;
-            padding: 2px 0;
-        }
-        .totals-col .totals-row .totals-label {
-            font-weight: normal;
-            color: #475569;
-        }
-        body.dark .totals-col .totals-row .totals-label {
-            color: #94a3b8;
-        }
-        .totals-col .totals-row .totals-value {
-            font-weight: 500;
-            color: #1e293b;
-        }
-        body.dark .totals-col .totals-row .totals-value {
-            color: #e2e8f0;
-        }
-
-        .totals-col .tax-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            line-height: 1.4;
-            padding: 2px 0;
-        }
-        .totals-col .tax-row .tax-label {
-            font-weight: normal;
-            color: #475569;
-        }
-        body.dark .totals-col .tax-row .tax-label {
-            color: #94a3b8;
-        }
-        .totals-col .tax-row .tax-amount {
-            font-weight: 500;
-            color: #1e293b;
-        }
-        body.dark .totals-col .tax-row .tax-amount {
-            color: #e2e8f0;
-        }
-
+        .totals-col .totals-row,
+        .totals-col .tax-row,
         .totals-col .discount-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            line-height: 1.4;
-            padding: 2px 0;
+            display: flex; justify-content: space-between;
+            font-size: 0.85rem; line-height: 1.4; padding: 2px 0;
         }
+        .totals-col .discount-row { align-items: center; }
+        .totals-col .totals-row .totals-label,
+        .totals-col .tax-row .tax-label,
         .totals-col .discount-row .discount-label {
-            font-weight: normal;
-            color: #475569;
+            font-weight: normal; color: #475569;
         }
-        body.dark .totals-col .discount-row .discount-label {
-            color: #94a3b8;
-        }
+        body.dark .totals-col .totals-row .totals-label,
+        body.dark .totals-col .tax-row .tax-label,
+        body.dark .totals-col .discount-row .discount-label { color: #94a3b8; }
+        .totals-col .totals-row .totals-value,
+        .totals-col .tax-row .tax-amount { font-weight: 500; color: #1e293b; }
+        body.dark .totals-col .totals-row .totals-value,
+        body.dark .totals-col .tax-row .tax-amount { color: #e2e8f0; }
         .totals-col .discount-row .discount-input-group {
-            display: flex;
-            align-items: center;
-            gap: 3px;
+            display: flex; align-items: center; gap: 3px;
         }
         .totals-col .discount-row .discount-input-group input {
-            width: 45px;
-            padding: 2px 4px;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            text-align: right;
-            font-size: 0.75rem;
-            background: transparent;
-            color: #1e293b;
+            width: 45px; padding: 2px 4px;
+            border: 1px solid #e2e8f0; border-radius: 4px;
+            text-align: right; font-size: 0.75rem;
+            background: transparent; color: #1e293b;
         }
         body.dark .totals-col .discount-row .discount-input-group input {
-            border-color: #334155;
-            background: #0f172a;
-            color: #e2e8f0;
+            border-color: #334155; background: #0f172a; color: #e2e8f0;
         }
         .totals-col .discount-row .discount-input-group select {
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            padding: 2px 4px;
-            font-size: 0.7rem;
-            background: transparent;
-            color: #1e293b;
+            border: 1px solid #e2e8f0; border-radius: 4px;
+            padding: 2px 4px; font-size: 0.7rem;
+            background: transparent; color: #1e293b;
         }
         body.dark .totals-col .discount-row .discount-input-group select {
-            border-color: #334155;
-            background: #0f172a;
-            color: #e2e8f0;
+            border-color: #334155; background: #0f172a; color: #e2e8f0;
         }
-
-        .discount-display {
-            display: none;
-            font-weight: 500;
-            color: #1e293b;
-        }
-        body.dark .discount-display {
-            color: #e2e8f0;
-        }
-
+        .discount-display { display: none; font-weight: 500; color: #1e293b; }
+        body.dark .discount-display { color: #e2e8f0; }
         .totals-col .total-row {
-            font-weight: 700;
-            font-size: 0.95rem;
+            font-weight: 700; font-size: 0.95rem;
             border-top: 2px solid #e2e8f0;
-            padding-top: 5px;
-            margin-top: 3px;
-            display: flex;
-            justify-content: space-between;
+            padding-top: 5px; margin-top: 3px;
+            display: flex; justify-content: space-between;
         }
-        body.dark .totals-col .total-row {
-            border-color: #334155;
-        }
-        .totals-col .total-row .total-label {
-            font-weight: 700;
-        }
-        .totals-col .total-row .total-value {
-            font-weight: 700;
-            color: #2563eb;
-        }
-        body.dark .totals-col .total-row .total-value {
-            color: #60a5fa;
-        }
+        body.dark .totals-col .total-row { border-color: #334155; }
+        .totals-col .total-row .total-label { font-weight: 700; }
+        .totals-col .total-row .total-value { font-weight: 700; color: #2563eb; }
+        body.dark .totals-col .total-row .total-value { color: #60a5fa; }
 
-        /* ============================================================ */
-        /* ITEMS MANAGEMENT STYLES */
-        /* ============================================================ */
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        .items-table { width: 100%; border-collapse: collapse; }
         .items-table th {
-            text-align: left;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #64748b;
+            text-align: left; padding: 0.5rem 0.75rem;
+            font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: 0.05em; color: #64748b;
             border-bottom: 2px solid #e2e8f0;
         }
-        body.dark .items-table th {
-            color: #94a3b8;
-            border-color: #334155;
-        }
+        body.dark .items-table th { color: #94a3b8; border-color: #334155; }
         .items-table td {
-            padding: 0.5rem 0.75rem;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 0.5rem 0.75rem; border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
         }
-        body.dark .items-table td {
-            border-color: #1e293b;
-        }
-        .items-table tr:hover td {
-            background: #f8fafc;
-        }
-        body.dark .items-table tr:hover td {
-            background: #0f172a;
-        }
-        .items-table .item-name {
-            font-weight: 500;
-        }
-        .items-table .item-rate {
-            font-weight: 600;
-            color: #2563eb;
-        }
-        body.dark .items-table .item-rate {
-            color: #60a5fa;
-        }
-
-        .items-table td .item-actions {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+        body.dark .items-table td { border-color: #1e293b; }
+        .items-table tr:hover td { background: #f8fafc; }
+        body.dark .items-table tr:hover td { background: #0f172a; }
+        .items-table .item-name { font-weight: 500; }
+        .items-table .item-rate { font-weight: 600; color: #2563eb; }
+        body.dark .items-table .item-rate { color: #60a5fa; }
+        .items-table td .item-actions { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
         .items-table td .item-actions button {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            padding: 2px 8px; border-radius: 4px;
+            font-size: 0.7rem; font-weight: 500;
+            border: none; cursor: pointer; transition: background 0.2s;
         }
-        .items-table td .item-actions .edit-item-btn {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .items-table td .item-actions .edit-item-btn:hover {
-            background: #bfdbfe;
-        }
-        body.dark .items-table td .item-actions .edit-item-btn {
-            background: #1e3a8a;
-            color: #93c5fd;
-        }
-        body.dark .items-table td .item-actions .edit-item-btn:hover {
-            background: #1e40af;
-        }
-        .items-table td .item-actions .delete-item-btn {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .items-table td .item-actions .delete-item-btn:hover {
-            background: #fecaca;
-        }
-        body.dark .items-table td .item-actions .delete-item-btn {
-            background: #7f1d1d;
-            color: #fca5a5;
-        }
-        body.dark .items-table td .item-actions .delete-item-btn:hover {
-            background: #991b1b;
-        }
+        .items-table td .item-actions .edit-item-btn { background: #dbeafe; color: #1e40af; }
+        .items-table td .item-actions .edit-item-btn:hover { background: #bfdbfe; }
+        body.dark .items-table td .item-actions .edit-item-btn { background: #1e3a8a; color: #93c5fd; }
+        .items-table td .item-actions .delete-item-btn { background: #fee2e2; color: #991b1b; }
+        .items-table td .item-actions .delete-item-btn:hover { background: #fecaca; }
+        body.dark .items-table td .item-actions .delete-item-btn { background: #7f1d1d; color: #fca5a5; }
 
-        /* Item selector dropdown in invoice */
         .item-selector {
-            width: 100%;
-            padding: 4px 6px;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            background: transparent;
-            color: #1e293b;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-            margin-bottom: 4px;
+            width: 100%; padding: 4px 6px;
+            border: 1px solid #e2e8f0; border-radius: 4px;
+            font-size: 0.75rem; background: transparent;
+            color: #1e293b; margin-bottom: 4px;
         }
-        body.dark .item-selector {
-            border-color: #334155;
-            background: #0f172a;
-            color: #e2e8f0;
-        }
+        body.dark .item-selector { border-color: #334155; background: #0f172a; color: #e2e8f0; }
 
-        /* Business Management styles */
         .business-card {
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1rem;
-            transition: all 0.2s;
-            background: white;
+            border: 1px solid #e2e8f0; border-radius: 12px;
+            padding: 1rem; transition: all 0.2s; background: white;
         }
-        body.dark .business-card {
-            border-color: #334155;
-            background: #1e293b;
-        }
-        .business-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        }
-        body.dark .business-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-        .business-card .business-name {
-            font-weight: 700;
-            font-size: 1.05rem;
-        }
-        .business-card .business-address {
-            color: #64748b;
-            font-size: 0.85rem;
-            white-space: pre-wrap;
-        }
-        body.dark .business-card .business-address {
-            color: #94a3b8;
-        }
-        .business-card .business-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
+        body.dark .business-card { border-color: #334155; background: #1e293b; }
+        .business-card:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); }
+        .business-card .business-name { font-weight: 700; font-size: 1.05rem; }
+        .business-card .business-address { color: #64748b; font-size: 0.85rem; white-space: pre-wrap; }
+        body.dark .business-card .business-address { color: #94a3b8; }
+        .business-card .business-actions { display: flex; gap: 8px; margin-top: 8px; }
         .business-card .business-actions button {
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            padding: 4px 12px; border-radius: 6px;
+            font-size: 0.7rem; font-weight: 500;
+            border: none; cursor: pointer; transition: background 0.2s;
         }
-        .business-card .business-actions .edit-business-btn {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .business-card .business-actions .edit-business-btn:hover {
-            background: #bfdbfe;
-        }
-        body.dark .business-card .business-actions .edit-business-btn {
-            background: #1e3a8a;
-            color: #93c5fd;
-        }
-        body.dark .business-card .business-actions .edit-business-btn:hover {
-            background: #1e40af;
-        }
-        .business-card .business-actions .delete-business-btn {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .business-card .business-actions .delete-business-btn:hover {
-            background: #fecaca;
-        }
-        body.dark .business-card .business-actions .delete-business-btn {
-            background: #7f1d1d;
-            color: #fca5a5;
-        }
-        body.dark .business-card .business-actions .delete-business-btn:hover {
-            background: #991b1b;
-        }
+        .business-card .business-actions .edit-business-btn { background: #dbeafe; color: #1e40af; }
+        .business-card .business-actions .delete-business-btn { background: #fee2e2; color: #991b1b; }
+        body.dark .business-card .business-actions .edit-business-btn { background: #1e3a8a; color: #93c5fd; }
+        body.dark .business-card .business-actions .delete-business-btn { background: #7f1d1d; color: #fca5a5; }
 
         @media (max-width: 640px) {
-            .bottom-section {
-                flex-direction: column;
-            }
+            .bottom-section { flex-direction: column; }
             .bottom-section .notes-col,
-            .bottom-section .totals-col {
-                max-width: 100%;
-                width: 100%;
-                order: unset;
-            }
-            .invoice-header .header-right .header-row .header-input {
-                min-width: 70px;
-                width: 100px;
-            }
-            .invoice-header .header-right .header-row .header-label {
-                min-width: 30px;
-                font-size: 0.6rem;
-            }
-            .invoice-paper table .col-desc {
-                width: 28%;
-            }
-            .invoice-paper table .col-qty {
-                width: 16%;
-            }
-            .invoice-paper table .col-rate {
-                width: 16%;
-            }
-            .invoice-paper table .col-taxable {
-                width: 16%;
-            }
-            .invoice-paper table .col-total {
-                width: 16%;
-            }
-            .invoice-paper table .col-delete {
-                width: 8%;
-            }
+            .bottom-section .totals-col { max-width: 100%; width: 100%; order: unset; }
+            .invoice-header .header-right .header-row .header-input { min-width: 70px; width: 100px; }
+            .invoice-header .header-right .header-row .header-label { min-width: 30px; font-size: 0.6rem; }
+            .invoice-paper table .col-desc { width: 28%; }
+            .invoice-paper table .col-qty { width: 16%; }
+            .invoice-paper table .col-rate { width: 16%; }
+            .invoice-paper table .col-taxable { width: 16%; }
+            .invoice-paper table .col-total { width: 16%; }
+            .invoice-paper table .col-delete { width: 8%; }
             .invoice-paper table td input,
-            .invoice-paper table td textarea {
-                font-size: 0.7rem;
-                padding: 3px 3px;
-            }
+            .invoice-paper table td textarea { font-size: 0.7rem; padding: 3px 3px; }
             .invoice-paper table th,
-            .invoice-paper table td {
-                padding: 3px 2px;
-            }
-            .invoice-paper .from-to-box textarea {
-                min-height: 50px;
-            }
-            .invoice-paper .layout-formal,
-            .invoice-paper .layout-corporate,
-            .invoice-paper .layout-remittance,
-            .invoice-paper .layout-minimal,
-            .invoice-paper .layout-elegant,
-            .invoice-paper .layout-modern,
-            .invoice-paper .layout-soft,
-            .invoice-paper .layout-bold {
-                padding: 0.8rem;
-            }
-            .invoice-paper table td input[type="number"] {
-                min-width: 28px;
-            }
-            .totals-col .discount-row {
-                flex-wrap: wrap;
-                gap: 2px;
-            }
-            .invoice-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .invoice-header .header-right {
-                align-items: stretch;
-            }
-            .invoice-header .header-right .header-row {
-                justify-content: space-between;
-            }
-            .po-row-wrapper.po-hidden {
-                display: none !important;
-            }
-            .print-size-control {
-                padding: 0.2rem 0.5rem;
-                gap: 0.3rem;
-            }
-            .print-size-control input[type="range"] {
-                width: 60px;
-            }
-            .items-table {
-                font-size: 0.8rem;
-            }
-            .items-table th,
-            .items-table td {
-                padding: 0.3rem 0.4rem;
-            }
-            .business-card {
-                padding: 0.75rem;
-            }
+            .invoice-paper table td { padding: 3px 2px; }
+            .invoice-header { flex-direction: column; align-items: stretch; }
+            .invoice-header .header-right { align-items: stretch; }
+            .invoice-header .header-right .header-row { justify-content: space-between; }
+            .print-size-control { padding: 0.2rem 0.5rem; gap: 0.3rem; }
+            .print-size-control input[type="range"] { width: 60px; }
+            .items-table { font-size: 0.8rem; }
+            .items-table th, .items-table td { padding: 0.3rem 0.4rem; }
         }
     </style>
 </head>
@@ -1750,22 +904,21 @@
     </div>
 
     <!-- Nav -->
-    <nav class="bg-slate-900 text-white p-3 shadow-lg sticky top-0 z-50 no-print" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+    <nav class="bg-slate-900 text-white p-3 shadow-lg sticky top-0 z-50 no-print">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
-            <h1 class="text-xl font-extrabold tracking-tight cursor-pointer flex items-center gap-2" onclick="showView('dashboard')" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+            <h1 class="text-xl font-extrabold tracking-tight cursor-pointer flex items-center gap-2" onclick="showView('dashboard')">
                 <span class="bg-blue-500 w-2 h-2 rounded-full inline-block"></span>
                 ProInvoice
             </h1>
             <div class="flex flex-wrap items-center gap-2">
                 <div class="flex gap-1">
-                    <button onclick="showView('dashboard')" class="px-3 py-1 rounded-lg hover:bg-slate-700 transition text-sm font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Dashboard</button>
-                    <button onclick="showView('settings')" class="px-3 py-1 rounded-lg hover:bg-slate-700 transition text-sm font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Settings</button>
+                    <button onclick="showView('dashboard')" class="px-3 py-1 rounded-lg hover:bg-slate-700 transition text-sm font-medium">Dashboard</button>
+                    <button onclick="showView('settings')" class="px-3 py-1 rounded-lg hover:bg-slate-700 transition text-sm font-medium">Settings</button>
                 </div>
-                <!-- PWA INSTALL BUTTON -->
-                <button id="install-btn" onclick="installPWA()" class="hidden no-print px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition" title="Install ProInvoice" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <button id="install-btn" onclick="installPWA()" class="hidden px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition" title="Install ProInvoice">
                     ⤓ Install
                 </button>
-                <button onclick="toggleDark()" class="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 transition flex items-center justify-center text-sm" title="Toggle dark mode" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <button onclick="toggleDark()" class="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 transition flex items-center justify-center text-sm" title="Toggle dark mode">
                     <span id="dark-icon">🌙</span>
                 </button>
             </div>
@@ -1773,54 +926,54 @@
     </nav>
 
     <!-- Main -->
-    <main class="max-w-7xl mx-auto p-3 md:p-6" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+    <main class="max-w-7xl mx-auto p-3 md:p-6">
 
         <!-- DASHBOARD -->
         <div id="dashboard-view" class="space-y-6">
             <div class="flex flex-wrap justify-between items-center gap-3">
                 <div>
-                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Invoices</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm" id="invoice-count" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">0 invoices</p>
+                    <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Invoices</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm" id="invoice-count">0 invoices</p>
                 </div>
-                <button onclick="createNewInvoice()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-600/20 transition flex items-center gap-2 text-sm md:text-base" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <button onclick="createNewInvoice()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-600/20 transition flex items-center gap-2 text-sm md:text-base">
                     <span class="text-xl leading-none">+</span> New Invoice
                 </button>
             </div>
 
             <div class="flex flex-wrap gap-3 no-print">
-                <select id="filter-status" onchange="renderDashboard()" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[120px]" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <select id="filter-status" onchange="renderDashboard()" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[120px]">
                     <option value="all">All Status</option>
                     <option value="draft">Draft</option>
                     <option value="sent">Sent</option>
                     <option value="paid">Paid</option>
                     <option value="overdue">Overdue</option>
                 </select>
-                <input type="text" id="filter-search" oninput="renderDashboard()" placeholder="Search invoice..." class="border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[140px]" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
-                <button onclick="renderDashboard()" class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-3 py-1.5" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">⟳</button>
+                <input type="text" id="filter-search" oninput="renderDashboard()" placeholder="Search invoice..." class="border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[140px]" />
+                <button onclick="renderDashboard()" class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 px-3 py-1.5">⟳</button>
             </div>
 
             <div id="invoices-list" class="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"></div>
             <div id="empty-state" class="hidden text-center py-16">
                 <div class="text-6xl mb-4">📄</div>
-                <p class="text-slate-500 dark:text-slate-400 text-lg" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">No invoices yet</p>
-                <button onclick="createNewInvoice()" class="mt-4 text-blue-600 font-semibold hover:underline" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Create your first invoice →</button>
+                <p class="text-slate-500 dark:text-slate-400 text-lg">No invoices yet</p>
+                <button onclick="createNewInvoice()" class="mt-4 text-blue-600 font-semibold hover:underline">Create your first invoice →</button>
             </div>
         </div>
 
         <!-- EDITOR -->
         <div id="editor-view" class="hidden">
             <div class="flex flex-wrap justify-between items-center mb-6 no-print gap-3">
-                <button onclick="confirmExit()" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <button onclick="confirmExit()" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 text-sm">
                     ← Back
                 </button>
                 <div class="flex flex-wrap gap-2 items-center">
-                    <select id="invoice-status" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg px-2 py-1.5 text-sm font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    <select id="invoice-status" class="border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-lg px-2 py-1.5 text-sm font-medium">
                         <option value="draft">📄 Draft</option>
                         <option value="sent">✉️ Sent</option>
                         <option value="paid">✅ Paid</option>
                         <option value="overdue">⚠️ Overdue</option>
                     </select>
-                    <button onclick="saveCurrentInvoice()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg font-semibold transition shadow shadow-green-600/20 text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">💾 Save</button>
+                    <button onclick="saveCurrentInvoice()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg font-semibold transition shadow shadow-green-600/20 text-sm">💾 Save</button>
 
                     <div class="print-size-control no-print">
                         <span class="size-label">Size</span>
@@ -1832,7 +985,7 @@
                         <button onclick="setPrintMode('bw')" id="print-bw-btn" class="print-mode-btn active">⚫</button>
                         <button onclick="setPrintMode('color')" id="print-color-btn" class="print-mode-btn">🎨</button>
                     </div>
-                    <button onclick="prepareAndPrint()" class="bg-slate-800 hover:bg-black text-white px-3 py-1.5 rounded-lg font-semibold transition text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">🖨️</button>
+                    <button onclick="prepareAndPrint()" class="bg-slate-800 hover:bg-black text-white px-3 py-1.5 rounded-lg font-semibold transition text-sm">🖨️</button>
                 </div>
             </div>
 
@@ -1850,9 +1003,9 @@
                         <div class="header-left">
                             <div id="logo-display" class="logo-container"></div>
                             <div>
-                                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white tracking-tight" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">INVOICE</h1>
+                                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white tracking-tight">INVOICE</h1>
                                 <div class="flex items-center gap-3 mt-1 no-print">
-                                    <span class="text-sm text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Status:</span>
+                                    <span class="text-sm text-slate-500 dark:text-slate-400">Status:</span>
                                     <span id="status-display" class="status-badge status-draft">Draft</span>
                                 </div>
                             </div>
@@ -1881,10 +1034,9 @@
                     <!-- FROM & TO -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div class="from-to-box">
-                            <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                            <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2">
                                 <span class="w-1 h-4 bg-blue-500 rounded-full"></span> From
                             </h3>
-                            <!-- Business Dropdown -->
                             <select id="business-selector" class="business-selector no-print" onchange="applyBusinessToFrom()">
                                 <option value="">— Select Business Profile —</option>
                             </select>
@@ -1892,7 +1044,7 @@
                             <div class="from-to-display" id="bill-from-display"></div>
                         </div>
                         <div class="from-to-box">
-                            <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                            <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2">
                                 <span class="w-1 h-4 bg-blue-500 rounded-full"></span> Bill To
                             </h3>
                             <textarea id="bill-to" placeholder="Client name, address, email…" oninput="syncFromTo()"></textarea>
@@ -1917,7 +1069,7 @@
                         </table>
                     </div>
 
-                    <button onclick="addItem()" class="no-print text-blue-600 font-semibold mb-3 hover:underline flex items-center justify-center sm:justify-start gap-1 w-full sm:w-auto text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    <button onclick="addItem()" class="no-print text-blue-600 font-semibold mb-3 hover:underline flex items-center justify-center sm:justify-start gap-1 w-full sm:w-auto text-sm">
                         + Add Item
                     </button>
 
@@ -1971,53 +1123,51 @@
         </div>
 
         <!-- SETTINGS -->
-        <div id="settings-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
-            <h2 class="text-2xl font-extrabold mb-6 flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">⚙️ Settings</h2>
+        <div id="settings-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl">
+            <h2 class="text-2xl font-extrabold mb-6 flex items-center gap-2">⚙️ Settings</h2>
 
-            <!-- Business Management Button -->
             <div class="mb-4">
-                <button onclick="showView('business-management')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold transition shadow shadow-emerald-600/20 flex items-center justify-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <button onclick="showView('business-management')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-semibold transition shadow shadow-emerald-600/20 flex items-center justify-center gap-2">
                     🏢 Business Management
                 </button>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center">Manage your business profiles for quick invoice filling</p>
             </div>
 
-            <!-- Items Management Button -->
             <div class="mb-8">
-                <button onclick="showView('items-management')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold transition shadow shadow-indigo-600/20 flex items-center justify-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <button onclick="showView('items-management')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold transition shadow shadow-indigo-600/20 flex items-center justify-center gap-2">
                     📦 Items Management
                 </button>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 text-center">Manage your product/service items for quick invoice entry</p>
             </div>
 
             <div class="mb-8">
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Company Logo</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Company Logo</label>
                 <div id="logo-upload-area" class="logo-upload-area" onclick="document.getElementById('logo-input').click()">
                     <div id="logo-preview">
                         <div class="text-4xl mb-2">🖼️</div>
-                        <p class="text-sm text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Click to upload logo</p>
-                        <p class="text-xs text-slate-400 dark:text-slate-500" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">PNG, JPG, SVG (Max 2MB)</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Click to upload logo</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500">PNG, JPG, SVG (Max 2MB)</p>
                     </div>
                     <input type="file" id="logo-input" accept="image/*" class="hidden" onchange="handleLogoUpload(event)" />
                 </div>
-                <button onclick="removeLogo()" class="mt-2 text-sm text-red-500 hover:text-red-700 dark:hover:text-red-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Remove Logo</button>
+                <button onclick="removeLogo()" class="mt-2 text-sm text-red-500 hover:text-red-700 dark:hover:text-red-400">Remove Logo</button>
             </div>
 
             <div class="mb-8">
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Invoice Layout</label>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Invoice Layout</label>
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="layout-grid"></div>
             </div>
 
             <div class="mb-8 border-t pt-6 dark:border-slate-700">
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Default Notes &amp; Terms</label>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mb-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">These will appear on all new invoices. Leave empty to hide.</p>
-                <textarea id="default-notes" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-3 rounded-xl mt-1 resize-y" rows="4" placeholder="Payment terms: Net 15&#10;Thank you for your business!" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;"></textarea>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Default Notes &amp; Terms</label>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">These will appear on all new invoices. Leave empty to hide.</p>
+                <textarea id="default-notes" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-3 rounded-xl mt-1 resize-y" rows="4" placeholder="Payment terms: Net 15&#10;Thank you for your business!"></textarea>
             </div>
 
             <div class="space-y-5 border-t pt-6 dark:border-slate-700">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Currency</label>
-                    <select id="currency-select" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-2.5 rounded-xl mt-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Currency</label>
+                    <select id="currency-select" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-2.5 rounded-xl mt-1">
                         <option value="$">USD ($)</option>
                         <option value="₹">INR (₹)</option>
                         <option value="€">EUR (€)</option>
@@ -2029,26 +1179,26 @@
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Default CGST (%)</label>
-                        <input type="number" id="default-cgst" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-2.5 rounded-xl mt-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Default CGST (%)</label>
+                        <input type="number" id="default-cgst" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-2.5 rounded-xl mt-1" />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Default SGST (%)</label>
-                        <input type="number" id="default-sgst" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-2.5 rounded-xl mt-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Default SGST (%)</label>
+                        <input type="number" id="default-sgst" class="w-full border dark:border-slate-600 dark:bg-slate-700 p-2.5 rounded-xl mt-1" />
                     </div>
                 </div>
                 <div class="flex items-center gap-3 pt-2">
                     <input type="checkbox" id="dark-toggle" onchange="toggleDark()" class="w-5 h-5 rounded" />
-                    <label for="dark-toggle" class="text-sm font-medium text-slate-700 dark:text-slate-300" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Enable Dark Mode</label>
+                    <label for="dark-toggle" class="text-sm font-medium text-slate-700 dark:text-slate-300">Enable Dark Mode</label>
                 </div>
-                <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition shadow shadow-blue-600/20 mt-4" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <button onclick="saveSettings()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition shadow shadow-blue-600/20 mt-4">
                     💾 Save Settings
                 </button>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button onclick="exportAllData()" class="w-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-2.5 rounded-xl font-medium transition text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    <button onclick="exportAllData()" class="w-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-2.5 rounded-xl font-medium transition text-sm">
                         📤 Export All Data
                     </button>
-                    <button onclick="importAllData()" class="w-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-2.5 rounded-xl font-medium transition text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                    <button onclick="importAllData()" class="w-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-2.5 rounded-xl font-medium transition text-sm">
                         📥 Import Data
                     </button>
                 </div>
@@ -2056,46 +1206,42 @@
             </div>
         </div>
 
-        <!-- ============================================================ -->
         <!-- ITEMS MANAGEMENT VIEW -->
-        <!-- ============================================================ -->
-        <div id="items-management-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+        <div id="items-management-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-extrabold flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">📦 Items Management</h2>
-                <button onclick="showView('settings')" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <h2 class="text-2xl font-extrabold flex items-center gap-2">📦 Items Management</h2>
+                <button onclick="showView('settings')" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 text-sm">
                     ← Back to Settings
                 </button>
             </div>
 
-            <!-- Add / Edit Item Form -->
             <div class="bg-slate-50 dark:bg-slate-700/30 p-4 rounded-xl mb-6">
-                <h3 class="text-sm font-semibold mb-3" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" id="item-form-title">Add New Item</h3>
+                <h3 class="text-sm font-semibold mb-3" id="item-form-title">Add New Item</h3>
                 <input type="hidden" id="edit-item-id" value="" />
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Item Name</label>
-                        <input type="text" id="new-item-name" placeholder="e.g., Afrezza 8U" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Item Name</label>
+                        <input type="text" id="new-item-name" placeholder="e.g., Afrezza 8U" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm" />
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Description</label>
-                        <textarea id="new-item-desc" placeholder="e.g., With inhaler device" rows="2" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm resize-y" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;"></textarea>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Description</label>
+                        <textarea id="new-item-desc" placeholder="e.g., With inhaler device" rows="2" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm resize-y"></textarea>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Rate (₹)</label>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Rate (₹)</label>
                         <div class="flex gap-2">
-                            <input type="number" id="new-item-rate" placeholder="4599" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" step="0.01" min="0" />
-                            <button onclick="saveItem()" id="item-save-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition text-sm whitespace-nowrap" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Add</button>
-                            <button onclick="cancelEditItem()" id="item-cancel-btn" class="hidden bg-slate-300 hover:bg-slate-400 text-slate-800 px-4 py-2 rounded-lg font-semibold transition text-sm whitespace-nowrap" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Cancel</button>
+                            <input type="number" id="new-item-rate" placeholder="4599" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm" step="0.01" min="0" />
+                            <button onclick="saveItem()" id="item-save-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition text-sm whitespace-nowrap">Add</button>
+                            <button onclick="cancelEditItem()" id="item-cancel-btn" class="hidden bg-slate-300 hover:bg-slate-400 text-slate-800 px-4 py-2 rounded-lg font-semibold transition text-sm whitespace-nowrap">Cancel</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Items List -->
             <div>
                 <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-semibold" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Saved Items</h3>
-                    <span id="items-count" class="text-xs text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">0 items</span>
+                    <h3 class="text-sm font-semibold">Saved Items</h3>
+                    <span id="items-count" class="text-xs text-slate-500 dark:text-slate-400">0 items</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="items-table">
@@ -2107,62 +1253,54 @@
                                 <th class="text-center w-24">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="items-list-body">
-                            <!-- Items will be rendered here -->
-                        </tbody>
+                        <tbody id="items-list-body"></tbody>
                     </table>
                 </div>
-                <div id="items-empty" class="text-center py-8 text-slate-500 dark:text-slate-400 text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <div id="items-empty" class="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">
                     No items saved yet. Add your first item above.
                 </div>
             </div>
         </div>
 
-        <!-- ============================================================ -->
         <!-- BUSINESS MANAGEMENT VIEW -->
-        <!-- ============================================================ -->
-        <div id="business-management-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+        <div id="business-management-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-extrabold flex items-center gap-2" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">🏢 Business Management</h2>
-                <button onclick="showView('settings')" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <h2 class="text-2xl font-extrabold flex items-center gap-2">🏢 Business Management</h2>
+                <button onclick="showView('settings')" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 text-sm">
                     ← Back to Settings
                 </button>
             </div>
 
-            <!-- Add / Edit Business Form -->
             <div class="bg-slate-50 dark:bg-slate-700/30 p-4 rounded-xl mb-6">
-                <h3 class="text-sm font-semibold mb-3" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" id="business-form-title">Add New Business</h3>
+                <h3 class="text-sm font-semibold mb-3" id="business-form-title">Add New Business</h3>
                 <input type="hidden" id="edit-business-id" value="" />
                 <div class="grid grid-cols-1 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Business Name *</label>
-                        <input type="text" id="new-business-name" placeholder="e.g., Acme Corporation" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Business Name *</label>
+                        <input type="text" id="new-business-name" placeholder="e.g., Acme Corporation" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm" />
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Address</label>
-                        <input type="text" id="new-business-address" placeholder="123 Main St, City, State, ZIP" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Address</label>
+                        <input type="text" id="new-business-address" placeholder="123 Main St, City, State, ZIP" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm" />
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Additional Details (Tax ID, Phone, Email, etc.)</label>
-                        <textarea id="new-business-desc" placeholder="GST: 22AAAAA0000A1Z1&#10;Phone: +91 98765 43210&#10;Email: info@acme.com" rows="3" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm resize-y" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;"></textarea>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Additional Details (Tax ID, Phone, Email, etc.)</label>
+                        <textarea id="new-business-desc" placeholder="GST: 22AAAAA0000A1Z1&#10;Phone: +91 98765 43210&#10;Email: info@acme.com" rows="3" class="w-full border dark:border-slate-600 dark:bg-slate-800 p-2 rounded-lg text-sm resize-y"></textarea>
                     </div>
                     <div class="flex gap-2 mt-1">
-                        <button onclick="saveBusiness()" id="business-save-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold transition text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Add Business</button>
-                        <button onclick="cancelEditBusiness()" id="business-cancel-btn" class="hidden bg-slate-300 hover:bg-slate-400 text-slate-800 px-5 py-2 rounded-lg font-semibold transition text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Cancel</button>
+                        <button onclick="saveBusiness()" id="business-save-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold transition text-sm">Add Business</button>
+                        <button onclick="cancelEditBusiness()" id="business-cancel-btn" class="hidden bg-slate-300 hover:bg-slate-400 text-slate-800 px-5 py-2 rounded-lg font-semibold transition text-sm">Cancel</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Businesses List -->
             <div>
                 <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-sm font-semibold" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Saved Businesses</h3>
-                    <span id="businesses-count" class="text-xs text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">0 businesses</span>
+                    <h3 class="text-sm font-semibold">Saved Businesses</h3>
+                    <span id="businesses-count" class="text-xs text-slate-500 dark:text-slate-400">0 businesses</span>
                 </div>
-                <div id="businesses-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Businesses rendered here -->
-                </div>
-                <div id="businesses-empty" class="text-center py-8 text-slate-500 dark:text-slate-400 text-sm" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+                <div id="businesses-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div id="businesses-empty" class="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">
                     No businesses saved yet. Add your first business above.
                 </div>
             </div>
@@ -2176,13 +1314,9 @@
         // ============================================================
         const STATE = {
             settings: JSON.parse(localStorage.getItem('invoiceSettings') || JSON.stringify({
-                currency: '$',
-                cgst: 0,
-                sgst: 0,
-                layout: 'layout-formal',
-                dark: false,
-                logo: null,
-                defaultNotes: ''
+                currency: '$', cgst: 0, sgst: 0,
+                layout: 'layout-formal', dark: false,
+                logo: null, defaultNotes: ''
             })),
             currentId: null,
             isDark: false,
@@ -2206,53 +1340,31 @@
         function getItems() {
             try { return JSON.parse(localStorage.getItem('savedItems') || '[]'); } catch { return []; }
         }
-
-        function setItems(items) {
-            localStorage.setItem('savedItems', JSON.stringify(items));
-        }
+        function setItems(items) { localStorage.setItem('savedItems', JSON.stringify(items)); }
 
         function saveItem() {
             const nameInput = document.getElementById('new-item-name');
             const descInput = document.getElementById('new-item-desc');
             const rateInput = document.getElementById('new-item-rate');
             const editId = document.getElementById('edit-item-id').value;
-
             const name = nameInput.value.trim();
             const desc = descInput.value.trim();
             const rate = parseFloat(rateInput.value);
 
-            if (!name) {
-                showToast('Please enter an item name.', 'error');
-                return;
-            }
-            if (isNaN(rate) || rate < 0) {
-                showToast('Please enter a valid rate.', 'error');
-                return;
-            }
+            if (!name) { showToast('Please enter an item name.', 'error'); return; }
+            if (isNaN(rate) || rate < 0) { showToast('Please enter a valid rate.', 'error'); return; }
 
             let items = getItems();
-
             if (editId) {
-                // Edit existing
                 const idx = items.findIndex(i => i.id === editId);
                 if (idx > -1) {
                     items[idx] = { ...items[idx], name, description: desc, rate };
                     showToast('Item updated successfully!', 'success');
-                } else {
-                    showToast('Item not found.', 'error');
-                    return;
-                }
+                } else { showToast('Item not found.', 'error'); return; }
             } else {
-                // Add new
-                items.push({
-                    id: 'item_' + Date.now(),
-                    name: name,
-                    description: desc,
-                    rate: rate
-                });
+                items.push({ id: 'item_' + Date.now(), name, description: desc, rate });
                 showToast('Item added successfully!', 'success');
             }
-
             setItems(items);
             renderItemsList();
             clearItemForm();
@@ -2262,20 +1374,16 @@
             const items = getItems();
             const item = items.find(i => i.id === id);
             if (!item) { showToast('Item not found', 'error'); return; }
-
             document.getElementById('edit-item-id').value = item.id;
             document.getElementById('new-item-name').value = item.name;
             document.getElementById('new-item-desc').value = item.description || '';
             document.getElementById('new-item-rate').value = item.rate;
-
             document.getElementById('item-form-title').textContent = 'Edit Item';
             document.getElementById('item-save-btn').textContent = 'Update';
             document.getElementById('item-cancel-btn').classList.remove('hidden');
         }
 
-        function cancelEditItem() {
-            clearItemForm();
-        }
+        function cancelEditItem() { clearItemForm(); }
 
         function clearItemForm() {
             document.getElementById('edit-item-id').value = '';
@@ -2301,16 +1409,9 @@
             const tbody = document.getElementById('items-list-body');
             const empty = document.getElementById('items-empty');
             const count = document.getElementById('items-count');
-
             if (count) count.textContent = items.length + ' items';
-
-            if (items.length === 0) {
-                tbody.innerHTML = '';
-                empty.classList.remove('hidden');
-                return;
-            }
+            if (items.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
             empty.classList.add('hidden');
-
             const curr = STATE.settings.currency || '$';
             tbody.innerHTML = items.map(item => `
             <tr>
@@ -2333,48 +1434,25 @@
         function getBusinesses() {
             try { return JSON.parse(localStorage.getItem('businesses') || '[]'); } catch { return []; }
         }
-
-        function setBusinesses(businesses) {
-            localStorage.setItem('businesses', JSON.stringify(businesses));
-        }
+        function setBusinesses(b) { localStorage.setItem('businesses', JSON.stringify(b)); }
 
         function saveBusiness() {
-            const nameInput = document.getElementById('new-business-name');
-            const addressInput = document.getElementById('new-business-address');
-            const descInput = document.getElementById('new-business-desc');
+            const name = document.getElementById('new-business-name').value.trim();
+            const address = document.getElementById('new-business-address').value.trim();
+            const desc = document.getElementById('new-business-desc').value.trim();
             const editId = document.getElementById('edit-business-id').value;
-
-            const name = nameInput.value.trim();
-            const address = addressInput.value.trim();
-            const desc = descInput.value.trim();
-
-            if (!name) {
-                showToast('Please enter a business name.', 'error');
-                return;
-            }
-
+            if (!name) { showToast('Please enter a business name.', 'error'); return; }
             let businesses = getBusinesses();
-
             if (editId) {
                 const idx = businesses.findIndex(b => b.id === editId);
                 if (idx > -1) {
                     businesses[idx] = { ...businesses[idx], name, address, description: desc };
                     showToast('Business updated successfully!', 'success');
-                } else {
-                    showToast('Business not found.', 'error');
-                    return;
-                }
+                } else { showToast('Business not found.', 'error'); return; }
             } else {
-                businesses.push({
-                    id: 'biz_' + Date.now(),
-                    name: name,
-                    address: address,
-                    description: desc,
-                    createdAt: new Date().toISOString()
-                });
+                businesses.push({ id: 'biz_' + Date.now(), name, address, description: desc, createdAt: new Date().toISOString() });
                 showToast('Business added successfully!', 'success');
             }
-
             setBusinesses(businesses);
             renderBusinessesList();
             populateBusinessDropdown();
@@ -2385,20 +1463,16 @@
             const businesses = getBusinesses();
             const biz = businesses.find(b => b.id === id);
             if (!biz) { showToast('Business not found', 'error'); return; }
-
             document.getElementById('edit-business-id').value = biz.id;
             document.getElementById('new-business-name').value = biz.name;
             document.getElementById('new-business-address').value = biz.address || '';
             document.getElementById('new-business-desc').value = biz.description || '';
-
             document.getElementById('business-form-title').textContent = 'Edit Business';
             document.getElementById('business-save-btn').textContent = 'Update';
             document.getElementById('business-cancel-btn').classList.remove('hidden');
         }
 
-        function cancelEditBusiness() {
-            clearBusinessForm();
-        }
+        function cancelEditBusiness() { clearBusinessForm(); }
 
         function clearBusinessForm() {
             document.getElementById('edit-business-id').value = '';
@@ -2425,16 +1499,9 @@
             const list = document.getElementById('businesses-list');
             const empty = document.getElementById('businesses-empty');
             const count = document.getElementById('businesses-count');
-
             if (count) count.textContent = businesses.length + ' businesses';
-
-            if (businesses.length === 0) {
-                list.innerHTML = '';
-                empty.classList.remove('hidden');
-                return;
-            }
+            if (businesses.length === 0) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
             empty.classList.add('hidden');
-
             list.innerHTML = businesses.map(biz => `
             <div class="business-card">
               <div class="business-name">${escapeHtml(biz.name)}</div>
@@ -2448,9 +1515,6 @@
           `).join('');
         }
 
-        // ============================================================
-        //  BUSINESS DROPDOWN IN FROM SECTION
-        // ============================================================
         function populateBusinessDropdown() {
             const dropdown = document.getElementById('business-selector');
             if (!dropdown) return;
@@ -2463,10 +1527,7 @@
                 opt.textContent = biz.name;
                 dropdown.appendChild(opt);
             });
-            // Restore selected value if still valid
-            if (currentVal && businesses.some(b => b.id === currentVal)) {
-                dropdown.value = currentVal;
-            }
+            if (currentVal && businesses.some(b => b.id === currentVal)) dropdown.value = currentVal;
         }
 
         function applyBusinessToFrom() {
@@ -2474,12 +1535,9 @@
             const fromTextarea = document.getElementById('bill-from');
             const selectedId = dropdown.value;
             if (!selectedId) return;
-
             const businesses = getBusinesses();
             const biz = businesses.find(b => b.id === selectedId);
             if (!biz) return;
-
-            // Build the "From" text: Name, Address, Description (if any)
             let parts = [biz.name];
             if (biz.address) parts.push(biz.address);
             if (biz.description) parts.push(biz.description);
@@ -2489,124 +1547,100 @@
         }
 
         // ============================================================
-        //  MODIFIED ADD ITEM – WITH ITEM SELECTOR
+        //  ADD ITEM
         // ============================================================
         function addItem(data = { desc: '', qty: 1, rate: 0, taxable: 0 }) {
             const itemsBody = requireElement('items-body');
             const row = document.createElement('tr');
-            row.className = 'fade-in';
-
             const savedItems = getItems();
             let optionsHtml = '<option value="">— Select Saved Item —</option>';
             savedItems.forEach(item => {
                 optionsHtml += `<option value="${item.id}">${escapeHtml(item.name)}</option>`;
             });
-
             const descValue = escapeHtml(data.desc);
             const qtyValue = data.qty || 1;
             const rateValue = data.rate || 0;
             const taxableValue = data.taxable || 0;
-
             row.innerHTML = `
             <td class="col-desc">
-              <select class="item-selector" onchange="onItemSelect(this)">
-                ${optionsHtml}
-              </select>
-              <textarea class="desc" rows="2" placeholder="Item description" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" oninput="updateDescDisplay(this)">${descValue}</textarea>
+              <select class="item-selector" onchange="onItemSelect(this)">${optionsHtml}</select>
+              <textarea class="desc" rows="2" placeholder="Item description" oninput="updateDescDisplay(this)">${descValue}</textarea>
               <div class="desc-display">${descValue}</div>
             </td>
             <td class="col-qty text-right">
-              <input type="number" class="qty" value="${qtyValue}" onchange="calculate()" step="1" min="1" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+              <input type="number" class="qty" value="${qtyValue}" onchange="calculate()" step="1" min="1" />
               <span class="qty-display">${qtyValue}</span>
             </td>
             <td class="col-rate text-right">
-              <input type="number" class="rate" value="${rateValue}" onchange="updateTaxable(this)" step="0.01" min="0" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+              <input type="number" class="rate" value="${rateValue}" onchange="updateTaxable(this)" step="0.01" min="0" />
               <span class="rate-display">${rateValue}</span>
             </td>
             <td class="col-taxable text-right">
-              <input type="number" class="taxable" value="${taxableValue}" onchange="calculate()" step="0.01" min="0" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;" />
+              <input type="number" class="taxable" value="${taxableValue}" onchange="calculate()" step="0.01" min="0" />
               <span class="taxable-display">${taxableValue}</span>
             </td>
             <td class="col-total text-right">
-              <span class="total-cell" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">0.00</span>
+              <span class="total-cell">0.00</span>
             </td>
             <td class="col-delete text-center no-print">
-              <button onclick="removeItem(this)" class="remove-btn" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">&times;</button>
-            </td>
-          `;
+              <button onclick="removeItem(this)" class="remove-btn">&times;</button>
+            </td>`;
             itemsBody.appendChild(row);
-
             if (data.desc) {
                 const matchingItem = savedItems.find(item =>
-                    item.description === data.desc || item.name === data.desc
-                );
+                    item.description === data.desc || item.name === data.desc);
                 if (matchingItem) {
                     const select = row.querySelector('.item-selector');
                     if (select) select.value = matchingItem.id;
                 }
             }
-
             calculate();
         }
 
-        // ============================================================
-        //  ITEM SELECT HANDLER
-        // ============================================================
         function onItemSelect(select) {
             const row = select.closest('tr');
             const descTextarea = row.querySelector('.desc');
             const rateInput = row.querySelector('.rate');
             const displayDiv = row.querySelector('.desc-display');
-
             const itemId = select.value;
             if (!itemId) return;
-
-            const items = getItems();
-            const item = items.find(i => i.id === itemId);
+            const item = getItems().find(i => i.id === itemId);
             if (!item) return;
-
             let fullDesc = item.name;
             if (item.description) fullDesc += '\n' + item.description;
             descTextarea.value = fullDesc;
             if (displayDiv) displayDiv.textContent = fullDesc;
-
             rateInput.value = item.rate;
             updateTaxable(rateInput);
             calculate();
         }
 
         // ============================================================
-        //  SAFE ELEMENT RETRIEVAL
+        //  SAFE ELEMENTS
         // ============================================================
         function getElement(id) {
             const el = document.getElementById(id);
-            if (!el) console.warn(`Element with id "${id}" not found.`);
+            if (!el) console.warn(`Element #${id} not found.`);
             return el;
         }
-
         function requireElement(id) {
             const el = getElement(id);
-            if (!el) throw new Error(`Required element "#${id}" not found in DOM.`);
+            if (!el) throw new Error(`Required element #${id} not found.`);
             return el;
         }
-
         const $ = id => getElement(id);
 
         // ============================================================
         //  TOAST
         // ============================================================
         let toastTimer = null;
-
         function showToast(message, type = 'info') {
-            const el = $('toast');
-            const icon = $('toast-icon');
-            const msg = $('toast-message');
+            const el = $('toast'); const icon = $('toast-icon'); const msg = $('toast-message');
             if (!el) return;
             el.className = 'toast';
-            if (type === 'success') { el.classList.add('success');
-                icon.textContent = '✓'; } else if (type === 'error') { el.classList.add('error');
-                icon.textContent = '✕'; } else { el.classList.add('info');
-                icon.textContent = 'ℹ'; }
+            if (type === 'success') { el.classList.add('success'); icon.textContent = '✓'; }
+            else if (type === 'error') { el.classList.add('error'); icon.textContent = '✕'; }
+            else { el.classList.add('info'); icon.textContent = 'ℹ'; }
             msg.textContent = message;
             clearTimeout(toastTimer);
             requestAnimationFrame(() => { el.classList.add('show'); });
@@ -2625,6 +1659,7 @@
             if (toggle) toggle.checked = STATE.isDark;
             STATE.settings.dark = STATE.isDark;
             localStorage.setItem('invoiceSettings', JSON.stringify(STATE.settings));
+            updateThemeColor();
         }
 
         function initDark() {
@@ -2637,54 +1672,45 @@
         }
 
         // ============================================================
-        //  SYNC FUNCTIONS
+        //  SYNC
         // ============================================================
         function syncFromTo() {
-            const fromTextarea = $('bill-from');
-            const fromDisplay = $('bill-from-display');
-            const toTextarea = $('bill-to');
-            const toDisplay = $('bill-to-display');
-
-            if (fromTextarea && fromDisplay) fromDisplay.textContent = fromTextarea.value;
-            if (toTextarea && toDisplay) toDisplay.textContent = toTextarea.value;
+            const from = $('bill-from'), fromD = $('bill-from-display');
+            const to = $('bill-to'), toD = $('bill-to-display');
+            if (from && fromD) fromD.textContent = from.value;
+            if (to && toD) toD.textContent = to.value;
         }
 
         function syncAllDesc() {
             document.querySelectorAll('#items-body tr').forEach(row => {
-                const textarea = row.querySelector('.desc');
-                const displayDiv = row.querySelector('.desc-display');
-                if (textarea && displayDiv) displayDiv.textContent = textarea.value;
-                const qtyInput = row.querySelector('.qty');
-                const qtyDisplay = row.querySelector('.qty-display');
-                if (qtyInput && qtyDisplay) qtyDisplay.textContent = qtyInput.value || '0';
-                const rateInput = row.querySelector('.rate');
-                const rateDisplay = row.querySelector('.rate-display');
-                if (rateInput && rateDisplay) rateDisplay.textContent = rateInput.value || '0';
-                const taxableInput = row.querySelector('.taxable');
-                const taxableDisplay = row.querySelector('.taxable-display');
-                if (taxableInput && taxableDisplay) taxableDisplay.textContent = taxableInput.value || '0';
+                const t = row.querySelector('.desc'); const d = row.querySelector('.desc-display');
+                if (t && d) d.textContent = t.value;
+                const q = row.querySelector('.qty'); const qd = row.querySelector('.qty-display');
+                if (q && qd) qd.textContent = q.value || '0';
+                const r = row.querySelector('.rate'); const rd = row.querySelector('.rate-display');
+                if (r && rd) rd.textContent = r.value || '0';
+                const tx = row.querySelector('.taxable'); const td = row.querySelector('.taxable-display');
+                if (tx && td) td.textContent = tx.value || '0';
             });
         }
 
         // ============================================================
-        //  PRINT MODE & PREPARE
+        //  PRINT
         // ============================================================
         function setPrintMode(mode) {
             STATE.printMode = mode;
             document.body.classList.remove('print-bw', 'print-color');
             document.body.classList.add('print-' + mode);
             document.querySelectorAll('.print-mode-btn').forEach(b => b.classList.remove('active'));
-            if (mode === 'bw') { const btn = $('print-bw-btn'); if (btn) btn.classList.add('active'); } else { const btn = $(
-                    'print-color-btn'); if (btn) btn.classList.add('active'); }
+            const btn = mode === 'bw' ? $('print-bw-btn') : $('print-color-btn');
+            if (btn) btn.classList.add('active');
         }
 
         function prepareAndPrint() {
             syncFromTo();
             syncAllDesc();
             updateDiscountDisplay();
-
-            const poInput = $('inv-po');
-            const poRow = $('po-row');
+            const poInput = $('inv-po'), poRow = $('po-row');
             if (poInput && poRow) {
                 if (poInput.value.trim() === '') {
                     poRow.classList.add('po-hidden');
@@ -2694,20 +1720,16 @@
                     poRow.style.display = '';
                 }
             }
-
             const invNum = $('inv-num');
             const invoiceNumber = invNum ? invNum.value || 'INVOICE' : 'INVOICE';
             document.title = invoiceNumber;
-
             const watermarkEl = document.querySelector('.watermark-print');
             if (watermarkEl) {
                 watermarkEl.textContent = invoiceNumber;
                 watermarkEl.style.display = 'flex';
                 watermarkEl.style.position = 'fixed';
-                watermarkEl.style.top = '0';
-                watermarkEl.style.left = '0';
-                watermarkEl.style.width = '100%';
-                watermarkEl.style.height = '100%';
+                watermarkEl.style.top = '0'; watermarkEl.style.left = '0';
+                watermarkEl.style.width = '100%'; watermarkEl.style.height = '100%';
                 watermarkEl.style.alignItems = 'center';
                 watermarkEl.style.justifyContent = 'center';
                 watermarkEl.style.pointerEvents = 'none';
@@ -2723,13 +1745,10 @@
                 watermarkEl.style.userSelect = 'none';
                 watermarkEl.style.WebkitUserSelect = 'none';
             }
-
             window.print();
-
             setTimeout(() => {
                 document.title = 'ProInvoice | Professional Billing';
-                if (poRow) { poRow.classList.remove('po-hidden');
-                    poRow.style.display = ''; }
+                if (poRow) { poRow.classList.remove('po-hidden'); poRow.style.display = ''; }
                 if (watermarkEl) watermarkEl.style.display = 'none';
             }, 1000);
         }
@@ -2738,16 +1757,13 @@
             const display = $('discount-display');
             const percentLabel = $('discount-percent-label');
             if (!display || !percentLabel) return;
-
             const dVal = parseFloat($('discount-val').value) || 0;
             const dType = $('discount-type').value;
             const curr = STATE.settings.currency || '$';
-            const symbolMap = { '$': '$', '₹': '₹', '€': '€', '£': '£', '¥': '¥', 'C$': 'C$', 'A$': 'A$' };
+            const symbolMap = { '$':'$','₹':'₹','€':'€','£':'£','¥':'¥','C$':'C$','A$':'A$' };
             const currencySymbol = symbolMap[curr] || curr;
-
             if (dType === '%') percentLabel.textContent = dVal + '%';
             else percentLabel.textContent = 'Flat';
-
             const subtotal = parseFloat($('subtotal').textContent.replace(/[^0-9.]/g, '')) || 0;
             const discAmt = dType === '%' ? (subtotal * dVal / 100) : dVal;
             display.textContent = currencySymbol + discAmt.toFixed(2);
@@ -2759,10 +1775,7 @@
         function handleLogoUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-            if (file.size > 2 * 1024 * 1024) {
-                showToast('Logo too large. Max 2MB.', 'error');
-                return;
-            }
+            if (file.size > 2 * 1024 * 1024) { showToast('Logo too large. Max 2MB.', 'error'); return; }
             const reader = new FileReader();
             reader.onload = function(e) {
                 STATE.settings.logo = e.target.result;
@@ -2793,27 +1806,21 @@
                 }
             } else {
                 if (preview) preview.innerHTML = `
-              <div class="text-4xl mb-2">🖼️</div>
-              <p class="text-sm text-slate-500 dark:text-slate-400">Click to upload logo</p>
-              <p class="text-xs text-slate-400 dark:text-slate-500">PNG, JPG, SVG (Max 2MB)</p>
-            `;
-                if (display) { display.innerHTML = '';
-                    display.style.display = 'none'; }
+                    <div class="text-4xl mb-2">🖼️</div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Click to upload logo</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500">PNG, JPG, SVG (Max 2MB)</p>`;
+                if (display) { display.innerHTML = ''; display.style.display = 'none'; }
             }
         }
 
-        // ============================================================
-        //  DISCOUNT SYMBOL
-        // ============================================================
         function updateDiscountSymbol() {
             const type = $('discount-type');
             const symbolSpan = $('discount-symbol');
             if (!type || !symbolSpan) return;
-            if (type.value === '%') {
-                symbolSpan.textContent = '%';
-            } else {
+            if (type.value === '%') symbolSpan.textContent = '%';
+            else {
                 const curr = STATE.settings.currency || '$';
-                const symbolMap = { '$': '$', '₹': '₹', '€': '€', '£': '£', '¥': '¥', 'C$': 'C$', 'A$': 'A$' };
+                const symbolMap = { '$':'$','₹':'₹','€':'€','£':'£','¥':'¥','C$':'C$','A$':'A$' };
                 symbolSpan.textContent = symbolMap[curr] || curr;
             }
             updateDiscountDisplay();
@@ -2829,11 +1836,8 @@
             });
             if (view === 'dashboard') renderDashboard();
             if (view === 'settings') loadSettingsUI();
-            if (view === 'items-management') { renderItemsList();
-                clearItemForm(); }
-            if (view === 'business-management') { renderBusinessesList();
-                populateBusinessDropdown();
-                clearBusinessForm(); }
+            if (view === 'items-management') { renderItemsList(); clearItemForm(); }
+            if (view === 'business-management') { renderBusinessesList(); populateBusinessDropdown(); clearBusinessForm(); }
         }
 
         function confirmExit() {
@@ -2846,10 +1850,7 @@
         function getInvoices() {
             try { return JSON.parse(localStorage.getItem('invoices') || '[]'); } catch { return []; }
         }
-
-        function setInvoices(data) {
-            localStorage.setItem('invoices', JSON.stringify(data));
-        }
+        function setInvoices(data) { localStorage.setItem('invoices', JSON.stringify(data)); }
 
         function renderDashboard() {
             const invoices = getInvoices();
@@ -2858,12 +1859,10 @@
             const list = $('invoices-list');
             const empty = $('empty-state');
             const count = $('invoice-count');
-
             if (!list || !empty || !count) return;
 
             const status = filterStatus ? filterStatus.value : 'all';
             const search = filterSearch ? filterSearch.value.toLowerCase() : '';
-
             let filtered = invoices.filter(inv => {
                 const matchStatus = status === 'all' || inv.status === status;
                 const matchSearch = inv.num.toLowerCase().includes(search) ||
@@ -2884,30 +1883,29 @@
 
             const curr = STATE.settings.currency || '$';
             list.innerHTML = filtered.map(inv => {
-                const status = inv.status || 'draft';
-                const statusLabels = { draft: 'Draft', sent: 'Sent', paid: 'Paid', overdue: 'Overdue' };
-                const statusClass = 'status-' + status;
+                const st = inv.status || 'draft';
+                const labels = { draft: 'Draft', sent: 'Sent', paid: 'Paid', overdue: 'Overdue' };
+                const statusClass = 'status-' + st;
                 const total = inv.totals?.grand || '0.00';
                 const date = inv.date ? new Date(inv.date).toLocaleDateString() : '—';
                 return `
-              <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-xl transition slide-up flex flex-col" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
+              <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 hover:shadow-xl transition flex flex-col">
                 <div class="flex justify-between items-start">
                   <div>
-                    <h3 class="font-bold text-lg" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${inv.num || 'INV-000'}</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${date}</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[160px]" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${(inv.to || '').slice(0, 40)}</p>
+                    <h3 class="font-bold text-lg">${inv.num || 'INV-000'}</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">${date}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[160px]">${(inv.to || '').slice(0, 40)}</p>
                   </div>
-                  <span class="status-badge ${statusClass}">${statusLabels[status] || status}</span>
+                  <span class="status-badge ${statusClass}">${labels[st] || st}</span>
                 </div>
                 <div class="flex justify-between items-end mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
-                  <span class="text-xl font-bold" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${curr}${total}</span>
+                  <span class="text-xl font-bold">${curr}${total}</span>
                   <div class="flex gap-2">
-                    <button onclick="editInvoice('${inv.id}')" class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400 text-sm font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Edit</button>
-                    <button onclick="deleteInvoice('${inv.id}')" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">Delete</button>
+                    <button onclick="editInvoice('${inv.id}')" class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400 text-sm font-medium">Edit</button>
+                    <button onclick="deleteInvoice('${inv.id}')" class="text-red-500 hover:text-red-700 dark:hover:text-red-400 text-sm font-medium">Delete</button>
                   </div>
                 </div>
-              </div>
-            `;
+              </div>`;
             }).join('');
         }
 
@@ -2939,7 +1937,6 @@
         function createNewInvoice() {
             try {
                 STATE.currentId = 'inv_' + Date.now();
-
                 const elements = {
                     invNum: requireElement('inv-num'),
                     invDate: requireElement('inv-date'),
@@ -2953,7 +1950,6 @@
                     itemsBody: requireElement('items-body'),
                     container: requireElement('invoice-container'),
                 };
-
                 elements.invNum.value = 'INV-' + String(Date.now()).slice(-6);
                 elements.invDate.value = getDefaultDateTime();
                 elements.invDue.value = getDefaultDueDate();
@@ -2963,14 +1959,10 @@
                 elements.discountVal.value = 0;
                 elements.discountType.value = '%';
                 elements.status.value = 'draft';
-
                 elements.itemsBody.innerHTML = '';
-
                 LAYOUTS.forEach(l => elements.container.classList.remove(l.id));
                 elements.container.classList.add(STATE.settings.layout || 'layout-formal');
-
                 addItem();
-
                 updateStatusDisplay();
                 updateNotesDisplay('');
                 updateLogoDisplay();
@@ -2979,10 +1971,8 @@
                 syncFromTo();
                 syncAllDesc();
                 populateBusinessDropdown();
-
                 calculate();
                 showView('editor');
-
             } catch (e) {
                 console.error('Create invoice error:', e);
                 showToast('Error creating new invoice: ' + e.message, 'error');
@@ -2994,7 +1984,6 @@
             const inv = invoices.find(i => i.id === id);
             if (!inv) { showToast('Invoice not found', 'error'); return; }
             STATE.currentId = inv.id;
-
             const elements = {
                 invNum: requireElement('inv-num'),
                 invDate: requireElement('inv-date'),
@@ -3008,7 +1997,6 @@
                 discountVal: requireElement('discount-val'),
                 discountType: requireElement('discount-type'),
             };
-
             elements.invNum.value = inv.num || '';
             elements.invDate.value = inv.date || getDefaultDateTime();
             elements.invDue.value = inv.due || getDefaultDueDate();
@@ -3019,15 +2007,10 @@
             elements.discountType.value = inv.discountType || '%';
             elements.status.value = inv.status || 'draft';
             elements.itemsBody.innerHTML = '';
-
             LAYOUTS.forEach(l => elements.container.classList.remove(l.id));
             elements.container.classList.add(STATE.settings.layout || 'layout-formal');
-
-            if (inv.items && inv.items.length) {
-                inv.items.forEach(i => addItem(i));
-            } else {
-                addItem();
-            }
+            if (inv.items && inv.items.length) inv.items.forEach(i => addItem(i));
+            else addItem();
             updateStatusDisplay();
             updateNotesDisplay(inv.notes || '');
             updateLogoDisplay();
@@ -3041,12 +2024,12 @@
         }
 
         // ============================================================
-        //  ITEMS (original functions)
+        //  ITEM HELPERS
         // ============================================================
         function updateDescDisplay(textarea) {
             const row = textarea.closest('tr');
-            const displayDiv = row.querySelector('.desc-display');
-            if (displayDiv) displayDiv.textContent = textarea.value;
+            const d = row.querySelector('.desc-display');
+            if (d) d.textContent = textarea.value;
         }
 
         function removeItem(btn) {
@@ -3058,8 +2041,7 @@
             row.style.transition = 'all 0.2s';
             row.style.opacity = '0';
             row.style.transform = 'scale(0.95)';
-            setTimeout(() => { row.remove();
-                calculate(); }, 200);
+            setTimeout(() => { row.remove(); calculate(); }, 200);
         }
 
         function escapeHtml(str) {
@@ -3092,59 +2074,43 @@
                 const q = parseFloat(row.querySelector('.qty').value) || 0;
                 const t = parseFloat(row.querySelector('.taxable').value) || 0;
                 const total = q * t;
-                const totalCell = row.querySelector('.total-cell');
-                if (totalCell) totalCell.textContent = total.toFixed(2);
+                const tc = row.querySelector('.total-cell');
+                if (tc) tc.textContent = total.toFixed(2);
                 subtotal += total;
-
-                const qtyDisplay = row.querySelector('.qty-display');
-                const rateDisplay = row.querySelector('.rate-display');
-                const taxableDisplay = row.querySelector('.taxable-display');
-                if (qtyDisplay) qtyDisplay.textContent = q;
-                if (rateDisplay) rateDisplay.textContent = row.querySelector('.rate').value || 0;
-                if (taxableDisplay) taxableDisplay.textContent = t.toFixed(2);
+                const qd = row.querySelector('.qty-display');
+                const rd = row.querySelector('.rate-display');
+                const td = row.querySelector('.taxable-display');
+                if (qd) qd.textContent = q;
+                if (rd) rd.textContent = row.querySelector('.rate').value || 0;
+                if (td) td.textContent = t.toFixed(2);
             });
 
             const dVal = parseFloat($('discount-val').value) || 0;
             const dType = $('discount-type').value;
             const discAmt = dType === '%' ? (subtotal * dVal / 100) : dVal;
             const net = Math.max(0, subtotal - discAmt);
-
             const cgstAmount = net * (cgst / 100);
             const sgstAmount = net * (sgst / 100);
             const total = net + cgstAmount + sgstAmount;
 
-            const subtotalEl = $('subtotal');
-            const cgstLabel = $('cgst-label');
-            const sgstLabel = $('sgst-label');
-            const cgstAmountEl = $('cgst-amount');
-            const sgstAmountEl = $('sgst-amount');
-            const grandTotalEl = $('grand-total');
-
-            if (subtotalEl) subtotalEl.textContent = curr + subtotal.toFixed(2);
-            if (cgstLabel) cgstLabel.textContent = cgst;
-            if (sgstLabel) sgstLabel.textContent = sgst;
-            if (cgstAmountEl) cgstAmountEl.textContent = curr + cgstAmount.toFixed(2);
-            if (sgstAmountEl) sgstAmountEl.textContent = curr + sgstAmount.toFixed(2);
-            if (grandTotalEl) grandTotalEl.textContent = curr + total.toFixed(2);
-
+            const se = $('subtotal'); const cl = $('cgst-label'); const sl = $('sgst-label');
+            const ca = $('cgst-amount'); const sa = $('sgst-amount'); const gt = $('grand-total');
+            if (se) se.textContent = curr + subtotal.toFixed(2);
+            if (cl) cl.textContent = cgst;
+            if (sl) sl.textContent = sgst;
+            if (ca) ca.textContent = curr + cgstAmount.toFixed(2);
+            if (sa) sa.textContent = curr + sgstAmount.toFixed(2);
+            if (gt) gt.textContent = curr + total.toFixed(2);
             updateDiscountDisplay();
         }
 
-        // ============================================================
-        //  NOTES
-        // ============================================================
         function updateNotesDisplay(notes) {
             const display = $('inv-notes-display');
             if (!display) return;
             const defaultNotes = STATE.settings.defaultNotes || '';
             const combined = notes || defaultNotes;
-            if (combined && combined.trim()) {
-                display.textContent = combined;
-                display.style.display = 'block';
-            } else {
-                display.textContent = '';
-                display.style.display = 'block';
-            }
+            display.textContent = combined && combined.trim() ? combined : '';
+            display.style.display = 'block';
         }
 
         // ============================================================
@@ -3153,7 +2119,6 @@
         function saveCurrentInvoice() {
             const id = STATE.currentId;
             if (!id) { showToast('No invoice loaded', 'error'); return; }
-
             const items = document.querySelectorAll('#items-body tr');
             const itemsData = Array.from(items).map(row => ({
                 desc: row.querySelector('.desc').value,
@@ -3161,9 +2126,7 @@
                 rate: row.querySelector('.rate').value,
                 taxable: row.querySelector('.taxable').value,
             }));
-
             const notesText = $('inv-notes-display') ? $('inv-notes-display').textContent : '';
-
             const data = {
                 id,
                 num: $('inv-num').value || 'INV-' + Date.now().toString().slice(-6),
@@ -3187,7 +2150,6 @@
                 },
                 updatedAt: new Date().toISOString(),
             };
-
             let invoices = getInvoices();
             const idx = invoices.findIndex(i => i.id === id);
             if (idx > -1) invoices[idx] = data;
@@ -3215,13 +2177,12 @@
             const current = STATE.settings.layout || 'layout-formal';
             grid.innerHTML = LAYOUTS.map(l => `
             <div class="layout-preview-card ${current === l.id ? 'active' : ''}" onclick="selectLayout('${l.id}')">
-              <div class="preview-box" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">
-                <div style="font-size: 1.5rem; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${l.icon}</div>
-                <div style="font-size: 0.65rem; font-weight: 700; margin-top: 2px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${l.label}</div>
-                <div style="font-size: 0.5rem; color: #94a3b8; margin-top: 2px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;">${l.id.replace('layout-', '')}</div>
+              <div class="preview-box">
+                <div style="font-size: 1.5rem;">${l.icon}</div>
+                <div style="font-size: 0.65rem; font-weight: 700; margin-top: 2px;">${l.label}</div>
+                <div style="font-size: 0.5rem; color: #94a3b8; margin-top: 2px;">${l.id.replace('layout-', '')}</div>
               </div>
-            </div>
-          `).join('');
+            </div>`).join('');
         }
 
         function selectLayout(id) {
@@ -3262,13 +2223,11 @@
             const defSgst = $('default-sgst');
             const defNotes = $('default-notes');
             const darkToggle = $('dark-toggle');
-
             if (currSelect) currSelect.value = s.currency || '$';
             if (defCgst) defCgst.value = s.cgst || 0;
             if (defSgst) defSgst.value = s.sgst || 0;
             if (defNotes) defNotes.value = s.defaultNotes || '';
             if (darkToggle) darkToggle.checked = s.dark || false;
-
             updateLogoDisplay();
             renderLayoutPreviews();
             populateBusinessDropdown();
@@ -3279,7 +2238,6 @@
             const defCgst = $('default-cgst');
             const defSgst = $('default-sgst');
             const defNotes = $('default-notes');
-
             STATE.settings = {
                 currency: currSelect ? currSelect.value : '$',
                 cgst: defCgst ? parseFloat(defCgst.value) || 0 : 0,
@@ -3320,8 +2278,8 @@
         }
 
         function importAllData() {
-            const fileInput = $('import-file');
-            if (fileInput) fileInput.click();
+            const f = $('import-file');
+            if (f) f.click();
         }
 
         function handleImport(e) {
@@ -3343,13 +2301,24 @@
                     renderBusinessesList();
                     populateBusinessDropdown();
                     showToast(`Imported ${data.invoices ? data.invoices.length : 0} invoices, ${data.items ? data.items.length : 0} items, ${data.businesses ? data.businesses.length : 0} businesses`, 'success');
-                } catch (err) {
-                    showToast('Failed to parse file', 'error');
-                }
+                } catch (err) { showToast('Failed to parse file', 'error'); }
             };
             reader.readAsText(file);
             e.target.value = '';
         }
+
+        // ============================================================
+        //  PWA — THEME COLOR
+        // ============================================================
+        function updateThemeColor() {
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) {
+                meta.setAttribute('content',
+                    document.body.classList.contains('dark') ? '#0f172a' : '#1e293b');
+            }
+        }
+        new MutationObserver(updateThemeColor)
+            .observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
         // ============================================================
         //  INIT
@@ -3376,12 +2345,12 @@
             showView('dashboard');
         }
 
+        // Wrap editInvoice / saveCurrentInvoice for session tracking
         const origEdit = editInvoice;
         editInvoice = function(id) {
             sessionStorage.setItem('proinvoice_current', id);
             origEdit(id);
         };
-
         const origSave = saveCurrentInvoice;
         saveCurrentInvoice = function() {
             origSave();
@@ -3396,9 +2365,7 @@
                 }
             }
             if (e.key === 'Escape') {
-                if (!document.getElementById('editor-view').classList.contains('hidden')) {
-                    confirmExit();
-                }
+                if (!document.getElementById('editor-view').classList.contains('hidden')) confirmExit();
             }
         });
 
@@ -3408,33 +2375,29 @@
             }
         });
 
-        // Print size slider
         const slider = document.getElementById('print-size-slider');
         const label = document.getElementById('print-size-label');
         if (slider && label) {
             document.body.style.setProperty('--print-zoom', '1');
             slider.addEventListener('input', function() {
                 const val = parseInt(this.value);
-                const zoom = val / 100;
                 label.textContent = val + '%';
-                document.body.style.setProperty('--print-zoom', zoom);
+                document.body.style.setProperty('--print-zoom', val / 100);
             });
         }
 
         // ============================================================
-        //  PWA — INSTALL + SERVICE WORKER
+        //  PWA — INSTALL PROMPT
         // ============================================================
         let deferredPrompt = null;
 
         const isStandalone = () =>
             window.matchMedia('(display-mode: standalone)').matches ||
-            window.navigator.standalone === true ||
-            document.referrer.startsWith('android-app://');
+            window.navigator.standalone === true;
 
         const isIOS = () =>
             /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
 
-        // Chrome / Edge / Android: capture the install prompt
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -3451,7 +2414,7 @@
             showToast('ProInvoice installed! 🎉', 'success');
         });
 
-        async function installPWA() {
+        window.installPWA = async function () {
             if (isStandalone()) {
                 showToast('ProInvoice is already installed.', 'info');
                 return;
@@ -3471,28 +2434,16 @@
             const btn = document.getElementById('install-btn');
             if (btn) btn.classList.add('hidden');
             if (outcome === 'accepted') showToast('Installing ProInvoice…', 'success');
-        }
+        };
 
-        // Keep theme-color in sync with dark mode
-        function updateThemeColor() {
-            const meta = document.querySelector('meta[name="theme-color"]');
-            if (meta) {
-                meta.setAttribute('content', document.body.classList.contains('dark') ? '#0f172a' : '#1e293b');
-            }
-        }
-        new MutationObserver(updateThemeColor)
-            .observe(document.body, { attributes: true, attributeFilter: ['class'] });
-
-        // Online / offline feedback
-        window.addEventListener('offline', () => showToast('You are offline — app still works.', 'info'));
-        window.addEventListener('online', () => showToast('Back online.', 'success'));
-
-        // Service worker registration
+        // ============================================================
+        //  PWA — SERVICE WORKER REGISTRATION (with graceful fallback)
+        // ============================================================
         if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
+                navigator.serviceWorker.register('sw.js', { scope: './' })
                     .then((reg) => {
-                        console.log('[PWA] Service worker registered. Scope:', reg.scope);
+                        console.log('[PWA] SW registered. Scope:', reg.scope);
                         reg.addEventListener('updatefound', () => {
                             const sw = reg.installing;
                             if (!sw) return;
@@ -3503,11 +2454,20 @@
                             });
                         });
                     })
-                    .catch((err) => console.warn('[PWA] SW registration failed:', err));
+                    .catch((err) => {
+                        // Non-fatal — app still works, just won't be installable
+                        console.warn('[PWA] SW registration failed (sw.js may be missing):', err);
+                    });
             });
+        } else if (location.protocol === 'file:') {
+            console.warn('[PWA] Running from file:// — service worker disabled. Serve over http(s) for PWA features.');
         }
 
-        // Home-screen shortcut: ?action=new
+        // Online / offline feedback
+        window.addEventListener('offline', () => showToast('You are offline — app still works.', 'info'));
+        window.addEventListener('online', () => showToast('Back online.', 'success'));
+
+        // Shortcut ?action=new
         window.addEventListener('load', () => {
             const params = new URLSearchParams(location.search);
             if (params.get('action') === 'new') {
