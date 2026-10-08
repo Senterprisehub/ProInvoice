@@ -15,7 +15,6 @@ const APP_SHELL = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) =>
-      // allSettled → one 404 won't kill the whole install
       Promise.allSettled(
         APP_SHELL.map((url) =>
           cache.add(url).catch((err) => {
@@ -47,7 +46,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (!url.protocol.startsWith('http')) return;
 
-  /* --- Navigation requests (opening the app / refresh) --- */
+  /* Navigation requests (opening the app / refresh) */
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
@@ -74,14 +73,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  /* --- Same-origin assets: cache-first, network fallback --- */
+  /* Same-origin assets: cache-first, network fallback */
   if (url.origin === self.location.origin) {
     event.respondWith(
       caches.match(req).then((cached) => {
         if (cached) return cached;
         return fetch(req)
           .then((res) => {
-            // Only cache successful, same-origin, non-opaque responses
             if (!res || res.status !== 200 || res.type === 'opaque') return res;
             const copy = res.clone();
             caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
@@ -93,7 +91,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  /* --- Cross-origin (CDN fonts, tailwind, etc.): network-first --- */
+  /* Cross-origin (CDN fonts, tailwind, html2canvas, jspdf): network-first */
   event.respondWith(
     fetch(req)
       .then((res) => {
