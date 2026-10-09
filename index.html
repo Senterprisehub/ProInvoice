@@ -837,7 +837,29 @@
                 vertical-align: middle !important;
                 box-sizing: border-box !important;
             }
-            .invoice-paper .invoice-header .header-right .header-row .header-input,
+
+            /* Original <input> is completely hidden during print.
+               The JS-generated <span> takes its place. */
+            .invoice-paper .invoice-header .header-right .header-row .header-input {
+                display: none !important;
+                visibility: hidden !important;
+                width: 0 !important;
+                height: 0 !important;
+                min-width: 0 !important;
+                max-width: 0 !important;
+                overflow: hidden !important;
+                position: absolute !important;
+                left: -9999px !important;
+                top: -9999px !important;
+                opacity: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: 0 !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
+            }
+
+            /* The JS-injected <span> is the visible cell in print. */
             .invoice-paper .invoice-header .header-right .header-row .header-print-value {
                 display: table-cell !important;
                 width: auto !important;
@@ -856,9 +878,8 @@
                 outline: none !important;
                 vertical-align: middle !important;
                 box-sizing: border-box !important;
-                -webkit-appearance: none !important;
-                appearance: none !important;
             }
+
             .invoice-paper .invoice-header .header-right .po-row-wrapper.po-hidden,
             .invoice-paper .invoice-header .header-right .po-row-wrapper.po-hidden * {
                 display: none !important;
@@ -2215,8 +2236,6 @@
 
         /* ============================================================ */
         /* PDF EXPORT — vector-based (jsPDF native text).                */
-        /* Strips non-Latin-1 chars (₹, €, emoji) so jsPDF renders       */
-        /* clean ASCII instead of the mangled "1" glyph.                 */
         /* ============================================================ */
         async function exportInvoicePDF() {
             if (!window.jspdf) { showToast('PDF library not loaded.', 'error'); return; }
