@@ -20,7 +20,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
     <style>
-        /* ===== GLOBAL FONT RESET ===== */
         * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
@@ -271,7 +270,6 @@
             body.print-color .invoice-paper { filter: none !important; }
         }
 
-        /* LAYOUTS */
         .layout-formal { border: 2px solid #1e293b; padding: 1.5rem; box-shadow: 10px 10px 0px #1e293b; }
         .layout-corporate { border: 1px solid #e2e8f0; border-top: 6px solid #1e3a8a; padding: 1.5rem; }
         .layout-remittance { border: 1px solid #94a3b8; border-left: 10px solid #1e293b; padding: 1.5rem; }
@@ -680,9 +678,6 @@
             .items-table th, .items-table td { padding: 0.3rem 0.4rem; }
         }
 
-        /* ============================================================ */
-        /* iOS SAFARI PRINT FIXES + PRINT-ONLY CORRECTIONS               */
-        /* ============================================================ */
         @page { size: A4 portrait; margin: 6mm 6mm 10mm 6mm; }
 
         @media print {
@@ -759,7 +754,6 @@
                 visibility: hidden !important;
             }
 
-            /* ---------- HARD-HIDE DISCOUNT INPUT UI IN PRINT ---------- */
             .invoice-paper .discount-input-group,
             .invoice-paper .discount-input-group *,
             .invoice-paper #discount-val,
@@ -785,9 +779,7 @@
                 margin: 0 !important;
             }
 
-            /* ============================================================ */
-            /* DEFINITIVE HEADER FIX — clean 2-column table + JS span swap   */
-            /* ============================================================ */
+            /* DEFINITIVE HEADER FIX — clean 2-column table + JS span swap */
             .invoice-paper .invoice-header {
                 display: flex !important;
                 flex-wrap: nowrap !important;
@@ -801,6 +793,7 @@
             .invoice-paper .invoice-header .header-left {
                 display: block !important;
                 flex: 1 1 auto !important;
+                width: auto !important;
                 min-width: 0 !important;
                 text-align: left !important;
             }
@@ -809,6 +802,7 @@
                 table-layout: auto !important;
                 border-collapse: collapse !important;
                 flex: 0 0 auto !important;
+                width: auto !important;
                 margin-left: auto !important;
                 padding: 0 !important;
                 border: none !important;
@@ -838,8 +832,6 @@
                 box-sizing: border-box !important;
             }
 
-            /* Original <input> is completely hidden during print.
-               The JS-generated <span> takes its place. */
             .invoice-paper .invoice-header .header-right .header-row .header-input {
                 display: none !important;
                 visibility: hidden !important;
@@ -859,7 +851,6 @@
                 appearance: none !important;
             }
 
-            /* The JS-injected <span> is the visible cell in print. */
             .invoice-paper .invoice-header .header-right .header-row .header-print-value {
                 display: table-cell !important;
                 width: auto !important;
@@ -2234,9 +2225,6 @@
         new MutationObserver(updateThemeColor)
             .observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-        /* ============================================================ */
-        /* PDF EXPORT — vector-based (jsPDF native text).                */
-        /* ============================================================ */
         async function exportInvoicePDF() {
             if (!window.jspdf) { showToast('PDF library not loaded.', 'error'); return; }
             const { jsPDF } = window.jspdf;
@@ -2585,7 +2573,6 @@
             });
         }
 
-        /* ---------- PRINT LIFECYCLE ---------- */
         window.addEventListener('beforeprint', function () {
             syncFromTo();
             syncAllDesc();
@@ -2624,7 +2611,6 @@
                 dsym.style.setProperty('display', 'none', 'important');
             }
 
-            // HEADER FIX — swap each header <input> for a <span>
             ['inv-num', 'inv-date', 'inv-due', 'inv-po'].forEach(id => {
                 const input = document.getElementById(id);
                 if (!input) return;
@@ -2652,7 +2638,7 @@
                                     text = `${dd}/${mm}/${yyyy}`;
                                 }
                             }
-                        } catch (e) { /* keep original */ }
+                        } catch (e) { }
                     }
                 }
 
