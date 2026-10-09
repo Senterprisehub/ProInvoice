@@ -16,7 +16,6 @@
     <link rel="manifest" href="manifest.json" />
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- jsPDF for vector-based PDF export (no html2canvas needed) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
@@ -682,7 +681,7 @@
         }
 
         /* ============================================================ */
-        /* iOS SAFARI PRINT FIXES                                        */
+        /* iOS SAFARI PRINT FIXES + PRINT-ONLY CORRECTIONS               */
         /* ============================================================ */
         @page { size: A4 portrait; margin: 6mm 6mm 10mm 6mm; }
 
@@ -704,22 +703,6 @@
                 vertical-align: top !important;
                 text-align: right !important;
                 width: 45% !important;
-            }
-            .invoice-paper .invoice-header .header-right .header-row {
-                display: block !important;
-                width: 100% !important;
-                text-align: right !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                justify-content: flex-end !important;
-            }
-            .invoice-paper .invoice-header .header-right .header-row .header-label,
-            .invoice-paper .invoice-header .header-right .header-row .header-input {
-                display: inline-block !important;
-                vertical-align: middle !important;
-            }
-            .invoice-paper .invoice-header .header-right .header-row .header-input {
-                text-align: right !important;
             }
             .invoice-paper .bottom-section {
                 display: table !important;
@@ -775,21 +758,115 @@
                 display: none !important;
                 visibility: hidden !important;
             }
+
+            /* ---------- HARD-HIDE DISCOUNT INPUT UI IN PRINT ---------- */
+            .invoice-paper .discount-input-group,
+            .invoice-paper .discount-input-group *,
+            .invoice-paper #discount-val,
+            .invoice-paper #discount-type,
+            .invoice-paper #discount-symbol,
+            .invoice-paper .discount-row > input,
+            .invoice-paper .discount-row > select {
+                display: none !important;
+                visibility: hidden !important;
+                width: 0 !important;
+                height: 0 !important;
+                max-width: 0 !important;
+                max-height: 0 !important;
+                overflow: hidden !important;
+                position: absolute !important;
+                left: -9999px !important;
+                top: -9999px !important;
+                opacity: 0 !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
+                border: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            /* Force the discount row to just show label + amount */
+            .invoice-paper .discount-row {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding: 1px 0 !important;
+                line-height: 1.3 !important;
+                font-size: 7pt !important;
+            }
+            .invoice-paper .discount-row .discount-label {
+                flex: 1 1 auto !important;
+                text-align: left !important;
+                display: inline-block !important;
+            }
+            .invoice-paper .discount-row .discount-display {
+                flex: 0 0 auto !important;
+                display: inline-block !important;
+                text-align: right !important;
+                font-weight: 500 !important;
+                color: #1e293b !important;
+            }
+
+            /* ---------- TIGHT 2-COLUMN HEADER (Inv # / Date / Due) ---------- */
+            .invoice-paper .invoice-header .header-right {
+                display: table !important;
+                width: 100% !important;
+                table-layout: auto !important;
+                border-collapse: collapse !important;
+                vertical-align: top !important;
+            }
+            .invoice-paper .invoice-header .header-right .header-row {
+                display: table-row !important;
+                width: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .invoice-paper .invoice-header .header-right .header-row .header-label {
+                display: table-cell !important;
+                width: 1% !important;
+                white-space: nowrap !important;
+                text-align: right !important;
+                vertical-align: middle !important;
+                padding: 1px 6px 1px 0 !important;
+                font-size: 6pt !important;
+                font-weight: 500 !important;
+                color: #1e293b !important;
+                border: none !important;
+                background: transparent !important;
+            }
+            .invoice-paper .invoice-header .header-right .header-row .header-input {
+                display: table-cell !important;
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                text-align: right !important;
+                vertical-align: middle !important;
+                padding: 1px 0 !important;
+                font-size: 6.5pt !important;
+                font-weight: 600 !important;
+                color: #000 !important;
+                border: none !important;
+                background: transparent !important;
+                white-space: nowrap !important;
+                overflow: visible !important;
+                box-sizing: border-box !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
+            }
+            .invoice-paper .invoice-header .header-right .header-row .header-input.text-left {
+                text-align: right !important;
+            }
         }
 
-        /* PDF export button pending state */
         #pdf-export-btn:disabled { opacity: 0.7; cursor: wait; }
     </style>
 </head>
 <body>
 
-    <!-- Toast -->
     <div id="toast" class="toast">
         <span id="toast-icon">✓</span>
         <span id="toast-message">Done</span>
     </div>
 
-    <!-- Nav -->
     <nav class="bg-slate-900 text-white p-3 shadow-lg sticky top-0 z-50 no-print">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
             <h1 class="text-xl font-extrabold tracking-tight cursor-pointer flex items-center gap-2" onclick="showView('dashboard')">
@@ -811,10 +888,8 @@
         </div>
     </nav>
 
-    <!-- Main -->
     <main class="max-w-7xl mx-auto p-3 md:p-6">
 
-        <!-- DASHBOARD -->
         <div id="dashboard-view" class="space-y-6">
             <div class="flex flex-wrap justify-between items-center gap-3">
                 <div>
@@ -846,7 +921,6 @@
             </div>
         </div>
 
-        <!-- EDITOR -->
         <div id="editor-view" class="hidden">
             <div class="flex flex-wrap justify-between items-center mb-6 no-print gap-3">
                 <button onclick="confirmExit()" class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 text-sm">
@@ -871,19 +945,16 @@
                         <button onclick="setPrintMode('bw')" id="print-bw-btn" class="print-mode-btn active">⚫</button>
                         <button onclick="setPrintMode('color')" id="print-color-btn" class="print-mode-btn">🎨</button>
                     </div>
-                    <button onclick="exportInvoicePDF()" id="pdf-export-btn" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg font-semibold transition text-sm flex items-center gap-1" title="Download PDF (no browser footers)">⬇ PDF</button>
+                    <button onclick="exportInvoicePDF()" id="pdf-export-btn" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg font-semibold transition text-sm flex items-center gap-1" title="Download PDF">⬇ PDF</button>
                     <button onclick="prepareAndPrint()" class="bg-slate-800 hover:bg-black text-white px-3 py-1.5 rounded-lg font-semibold transition text-sm" title="Print via browser">🖨️</button>
                 </div>
             </div>
 
             <div id="invoice-container" class="invoice-paper rounded-2xl shadow-2xl overflow-hidden">
                 <div class="watermark">INV</div>
-
                 <div class="watermark-print no-print" style="display:none;"></div>
 
                 <div class="print-scale-wrapper">
-
-                    <!-- HEADER -->
                     <div class="invoice-header">
                         <div class="header-left">
                             <div id="logo-display" class="logo-container"></div>
@@ -916,7 +987,6 @@
                         </div>
                     </div>
 
-                    <!-- FROM & TO -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div class="from-to-box">
                             <h3 class="from-to-heading text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2">
@@ -937,7 +1007,6 @@
                         </div>
                     </div>
 
-                    <!-- ITEMS TABLE -->
                     <div class="overflow-x-auto">
                         <table>
                             <thead class="bg-slate-800 text-white">
@@ -958,7 +1027,6 @@
                         + Add Item
                     </button>
 
-                    <!-- BOTTOM SECTION -->
                     <div class="bottom-section">
                         <div class="notes-col">
                             <div class="notes-heading">Notes &amp; Terms</div>
@@ -1002,12 +1070,10 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
 
-        <!-- SETTINGS -->
         <div id="settings-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl">
             <h2 class="text-2xl font-extrabold mb-6 flex items-center gap-2">⚙️ Settings</h2>
 
@@ -1091,7 +1157,6 @@
             </div>
         </div>
 
-        <!-- ITEMS MANAGEMENT VIEW -->
         <div id="items-management-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-extrabold flex items-center gap-2">📦 Items Management</h2>
@@ -1147,7 +1212,6 @@
             </div>
         </div>
 
-        <!-- BUSINESS MANAGEMENT VIEW -->
         <div id="business-management-view" class="hidden max-w-4xl mx-auto bg-white dark:bg-slate-800 p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-extrabold flex items-center gap-2">🏢 Business Management</h2>
@@ -1194,9 +1258,6 @@
     </main>
 
     <script>
-        // ============================================================
-        //  STATE
-        // ============================================================
         const STATE = {
             settings: JSON.parse(localStorage.getItem('invoiceSettings') || JSON.stringify({
                 currency: '$', cgst: 0, sgst: 0,
@@ -1219,9 +1280,6 @@
             { id: 'layout-bold', label: 'Bold', icon: '⚡' },
         ];
 
-        // ============================================================
-        //  ITEMS MANAGEMENT
-        // ============================================================
         function getItems() {
             try { return JSON.parse(localStorage.getItem('savedItems') || '[]'); } catch { return []; }
         }
@@ -1312,9 +1370,6 @@
             </tr>`).join('');
         }
 
-        // ============================================================
-        //  BUSINESS MANAGEMENT
-        // ============================================================
         function getBusinesses() {
             try { return JSON.parse(localStorage.getItem('businesses') || '[]'); } catch { return []; }
         }
@@ -1429,9 +1484,6 @@
             showToast(`Loaded "${biz.name}"`, 'success');
         }
 
-        // ============================================================
-        //  ADD ITEM
-        // ============================================================
         function addItem(data = { desc: '', qty: 1, rate: 0, taxable: 0 }) {
             const itemsBody = requireElement('items-body');
             const row = document.createElement('tr');
@@ -1498,9 +1550,6 @@
             calculate();
         }
 
-        // ============================================================
-        //  SAFE ELEMENTS
-        // ============================================================
         function getElement(id) {
             const el = document.getElementById(id);
             if (!el) console.warn(`Element #${id} not found.`);
@@ -1513,9 +1562,6 @@
         }
         const $ = id => getElement(id);
 
-        // ============================================================
-        //  TOAST
-        // ============================================================
         let toastTimer = null;
         function showToast(message, type = 'info') {
             const el = $('toast'); const icon = $('toast-icon'); const msg = $('toast-message');
@@ -1530,9 +1576,6 @@
             toastTimer = setTimeout(() => { el.classList.remove('show'); }, 2800);
         }
 
-        // ============================================================
-        //  DARK MODE
-        // ============================================================
         function toggleDark() {
             STATE.isDark = !STATE.isDark;
             document.body.classList.toggle('dark', STATE.isDark);
@@ -1554,9 +1597,6 @@
             if (toggle) toggle.checked = STATE.isDark;
         }
 
-        // ============================================================
-        //  SYNC
-        // ============================================================
         function syncFromTo() {
             const from = $('bill-from'), fromD = $('bill-from-display');
             const to = $('bill-to'), toD = $('bill-to-display');
@@ -1577,9 +1617,6 @@
             });
         }
 
-        // ============================================================
-        //  PRINT
-        // ============================================================
         function setPrintMode(mode) {
             STATE.printMode = mode;
             document.body.classList.remove('print-bw', 'print-color');
@@ -1652,9 +1689,6 @@
             display.textContent = currencySymbol + discAmt.toFixed(2);
         }
 
-        // ============================================================
-        //  LOGO
-        // ============================================================
         function handleLogoUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1709,9 +1743,6 @@
             updateDiscountDisplay();
         }
 
-        // ============================================================
-        //  VIEWS
-        // ============================================================
         function showView(view) {
             ['dashboard', 'editor', 'settings', 'items-management', 'business-management'].forEach(v => {
                 const el = $(v + '-view');
@@ -1727,9 +1758,6 @@
             if (confirm('Discard unsaved changes?')) showView('dashboard');
         }
 
-        // ============================================================
-        //  DASHBOARD
-        // ============================================================
         function getInvoices() {
             try { return JSON.parse(localStorage.getItem('invoices') || '[]'); } catch { return []; }
         }
@@ -1801,9 +1829,6 @@
             showToast('Invoice deleted', 'success');
         }
 
-        // ============================================================
-        //  CREATE / EDIT
-        // ============================================================
         function getDefaultDateTime() {
             const now = new Date();
             const offset = now.getTimezoneOffset();
@@ -1906,9 +1931,6 @@
             showView('editor');
         }
 
-        // ============================================================
-        //  ITEM HELPERS
-        // ============================================================
         function updateDescDisplay(textarea) {
             const row = textarea.closest('tr');
             const d = row.querySelector('.desc-display');
@@ -1932,9 +1954,6 @@
             return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
-        // ============================================================
-        //  CALCULATIONS
-        // ============================================================
         function updateTaxable(el) {
             const row = el.closest('tr');
             const rate = parseFloat(el.value) || 0;
@@ -1996,9 +2015,6 @@
             display.style.display = 'block';
         }
 
-        // ============================================================
-        //  SAVE
-        // ============================================================
         function saveCurrentInvoice() {
             const id = STATE.currentId;
             if (!id) { showToast('No invoice loaded', 'error'); return; }
@@ -2042,9 +2058,6 @@
             renderDashboard();
         }
 
-        // ============================================================
-        //  LAYOUT
-        // ============================================================
         function applyLayout() {
             const layout = STATE.settings.layout || 'layout-formal';
             const container = $('invoice-container');
@@ -2079,9 +2092,6 @@
             showToast('Layout changed to ' + LAYOUTS.find(l => l.id === id).label, 'success');
         }
 
-        // ============================================================
-        //  UI HELPERS
-        // ============================================================
         function updateStatusDisplay() {
             const status = $('invoice-status');
             const display = $('status-display');
@@ -2096,9 +2106,6 @@
             if (e.target.id === 'invoice-status') updateStatusDisplay();
         });
 
-        // ============================================================
-        //  SETTINGS
-        // ============================================================
         function loadSettingsUI() {
             const s = STATE.settings;
             const currSelect = $('currency-select');
@@ -2139,9 +2146,6 @@
             showView('dashboard');
         }
 
-        // ============================================================
-        //  EXPORT / IMPORT
-        // ============================================================
         function exportAllData() {
             const data = {
                 invoices: getInvoices(),
@@ -2190,9 +2194,6 @@
             e.target.value = '';
         }
 
-        // ============================================================
-        //  PWA — THEME COLOR
-        // ============================================================
         function updateThemeColor() {
             const meta = document.querySelector('meta[name="theme-color"]');
             if (meta) {
@@ -2203,10 +2204,11 @@
         new MutationObserver(updateThemeColor)
             .observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-        // ============================================================
-        //  PDF EXPORT — vector-based (jsPDF native text). No canvas.
-        //  Works reliably on iOS, tiny file size, real selectable text.
-        // ============================================================
+        /* ============================================================ */
+        /* PDF EXPORT — vector-based (jsPDF native text).                */
+        /* Strips non-Latin-1 chars (₹, €, emoji) so jsPDF renders       */
+        /* clean ASCII instead of the mangled "1" glyph.                 */
+        /* ============================================================ */
         async function exportInvoicePDF() {
             if (!window.jspdf) { showToast('PDF library not loaded.', 'error'); return; }
             const { jsPDF } = window.jspdf;
@@ -2216,48 +2218,60 @@
             if (btn) { btn.disabled = true; btn.textContent = '⏳ Generating…'; }
 
             try {
-                /* ---------- 1. GATHER DATA FROM DOM ---------- */
-                const invNum = (document.getElementById('inv-num')?.value || 'INVOICE').trim();
+                const safeText = (s) => (s == null ? '' : String(s))
+                    .replace(/[\u0100-\uFFFF]/g, '')
+                    .trim();
+
+                const cleanNum = (s) => (s == null ? '' : String(s))
+                    .replace(/[^\d.,\-]/g, '')
+                    .trim();
+
+                const currencySafe = (c) => ({
+                    '$': '$', '₹': 'Rs. ', '€': 'EUR ', '£': 'GBP ',
+                    '¥': 'JPY ', 'C$': 'C$ ', 'A$': 'A$ '
+                })[c] || (safeText(c) + ' ');
+
+                const currPrefix = currencySafe(STATE.settings.currency || '$');
+
+                const invNum = safeText(document.getElementById('inv-num')?.value || 'INVOICE');
                 const invDateRaw = document.getElementById('inv-date')?.value || '';
                 const invDueRaw = document.getElementById('inv-due')?.value || '';
-                const invPo = (document.getElementById('inv-po')?.value || '').trim();
-                const fromText = document.getElementById('bill-from')?.value || '';
-                const toText = document.getElementById('bill-to')?.value || '';
-                const notes = (document.getElementById('inv-notes-display')?.textContent || '').trim();
+                const invPo = safeText(document.getElementById('inv-po')?.value || '');
+                const fromText = safeText(document.getElementById('bill-from')?.value || '');
+                const toText = safeText(document.getElementById('bill-to')?.value || '');
+                const notes = safeText(document.getElementById('inv-notes-display')?.textContent || '');
 
                 const items = [];
                 document.querySelectorAll('#items-body tr').forEach(row => {
-                    const desc = row.querySelector('.desc')?.value || '';
+                    const desc = safeText(row.querySelector('.desc')?.value || '');
                     const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
                     const rate = parseFloat(row.querySelector('.rate')?.value) || 0;
                     const taxable = parseFloat(row.querySelector('.taxable')?.value) || 0;
                     items.push({ desc, qty, rate, taxable, total: qty * taxable });
                 });
 
-                const subtotal = document.getElementById('subtotal')?.textContent || '';
-                const cgstLabel = document.getElementById('cgst-label')?.textContent || '0';
-                const sgstLabel = document.getElementById('sgst-label')?.textContent || '0';
-                const cgstAmount = document.getElementById('cgst-amount')?.textContent || '';
-                const sgstAmount = document.getElementById('sgst-amount')?.textContent || '';
-                const grandTotal = document.getElementById('grand-total')?.textContent || '';
-                const discountDisplay = document.getElementById('discount-display')?.textContent || '';
-                const discountPercent = document.getElementById('discount-percent-label')?.textContent || '0%';
+                const subtotalNum = cleanNum(document.getElementById('subtotal')?.textContent || '');
+                const cgstLabel = cleanNum(document.getElementById('cgst-label')?.textContent || '0') || '0';
+                const sgstLabel = cleanNum(document.getElementById('sgst-label')?.textContent || '0') || '0';
+                const cgstNum = cleanNum(document.getElementById('cgst-amount')?.textContent || '');
+                const sgstNum = cleanNum(document.getElementById('sgst-amount')?.textContent || '');
+                const grandNum = cleanNum(document.getElementById('grand-total')?.textContent || '');
+                const discountNum = cleanNum(document.getElementById('discount-display')?.textContent || '');
+                const discountPercent = safeText(document.getElementById('discount-percent-label')?.textContent || '0%');
                 const discountVal = parseFloat(document.getElementById('discount-val')?.value) || 0;
 
-                /* ---------- 2. HELPERS ---------- */
                 const fmtDate = (s) => {
                     if (!s) return '';
                     try {
                         const d = new Date(s);
-                        if (isNaN(d.getTime())) return s;
+                        if (isNaN(d.getTime())) return safeText(s);
                         const dd = String(d.getDate()).padStart(2, '0');
                         const mm = String(d.getMonth() + 1).padStart(2, '0');
                         const yyyy = d.getFullYear();
                         return `${dd}-${mm}-${yyyy}`;
-                    } catch { return s; }
+                    } catch { return safeText(s); }
                 };
 
-                /* ---------- 3. SETUP PDF ---------- */
                 const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
                 const pageW = pdf.internal.pageSize.getWidth();
                 const pageH = pdf.internal.pageSize.getHeight();
@@ -2295,7 +2309,6 @@
                     pdf.setTextColor(30, 41, 59);
                 };
 
-                /* ---------- 4. HEADER ---------- */
                 pdf.setFont('helvetica', 'bold');
                 pdf.setFontSize(26);
                 pdf.setTextColor(15, 23, 42);
@@ -2327,13 +2340,11 @@
 
                 y += metaOffset + 6;
 
-                /* ---------- 5. HORIZONTAL RULE ---------- */
                 pdf.setDrawColor(226, 232, 240);
                 pdf.setLineWidth(0.4);
                 pdf.line(margin, y, pageW - margin, y);
                 y += 5;
 
-                /* ---------- 6. FROM / BILL TO BOXES ---------- */
                 const boxGap = 6;
                 const boxW = (contentW - boxGap) / 2;
                 const lineH = 4.2;
@@ -2346,7 +2357,6 @@
                 const boxH = Math.max(fromH, toH, 18);
                 const boxY = y;
 
-                // FROM
                 pdf.setDrawColor(226, 232, 240);
                 pdf.setLineWidth(0.3);
                 pdf.roundedRect(margin, boxY, boxW, boxH, 1.5, 1.5);
@@ -2360,13 +2370,9 @@
                 let fy = boxY + boxPadding + headingH + 1;
                 fromLines.forEach(line => {
                     const wrapped = pdf.splitTextToSize(line, boxW - boxPadding * 2 - 1);
-                    wrapped.forEach(wl => {
-                        pdf.text(wl, margin + boxPadding, fy);
-                        fy += lineH;
-                    });
+                    wrapped.forEach(wl => { pdf.text(wl, margin + boxPadding, fy); fy += lineH; });
                 });
 
-                // BILL TO
                 const toX = margin + boxW + boxGap;
                 pdf.setDrawColor(226, 232, 240);
                 pdf.roundedRect(toX, boxY, boxW, boxH, 1.5, 1.5);
@@ -2380,15 +2386,11 @@
                 let ty2 = boxY + boxPadding + headingH + 1;
                 toLines.forEach(line => {
                     const wrapped = pdf.splitTextToSize(line, boxW - boxPadding * 2 - 1);
-                    wrapped.forEach(wl => {
-                        pdf.text(wl, toX + boxPadding, ty2);
-                        ty2 += lineH;
-                    });
+                    wrapped.forEach(wl => { pdf.text(wl, toX + boxPadding, ty2); ty2 += lineH; });
                 });
 
                 y = boxY + boxH + 6;
 
-                /* ---------- 7. ITEMS TABLE ---------- */
                 drawTableHeader();
 
                 const minRowH = 8;
@@ -2414,10 +2416,7 @@
                     pdf.setTextColor(15, 23, 42);
 
                     let descY = y + rowPadY;
-                    descLines.forEach(dl => {
-                        pdf.text(dl, cx, descY);
-                        descY += 4;
-                    });
+                    descLines.forEach(dl => { pdf.text(dl, cx, descY); descY += 4; });
 
                     cx += colDesc;
                     pdf.text(String(item.qty), cx + colQty - 2, y + 5.5, { align: 'right' });
@@ -2434,7 +2433,6 @@
 
                 y += 6;
 
-                /* ---------- 8. NOTES + TOTALS ---------- */
                 const notesW = contentW * 0.55;
                 const totalsX = margin + notesW + contentW * 0.03;
 
@@ -2460,19 +2458,19 @@
                     pdf.text(label, totalsX, totY);
                     pdf.setFont('helvetica', 'bold');
                     pdf.setTextColor(15, 23, 42);
-                    pdf.text(val, pageW - margin, totY, { align: 'right' });
+                    pdf.text(currPrefix + val, pageW - margin, totY, { align: 'right' });
                     totY += 5;
                 };
 
-                addTotalRow('Subtotal', subtotal);
+                addTotalRow('Subtotal', subtotalNum);
                 if (discountVal > 0) {
-                    addTotalRow(`Discount (${discountPercent})`, discountDisplay);
+                    addTotalRow(`Discount (${discountPercent})`, discountNum);
                 }
-                if (cgstLabel !== '0' && parseFloat(cgstLabel) > 0) {
-                    addTotalRow(`CGST (${cgstLabel}%)`, cgstAmount);
+                if (parseFloat(cgstLabel) > 0) {
+                    addTotalRow(`CGST (${cgstLabel}%)`, cgstNum);
                 }
-                if (sgstLabel !== '0' && parseFloat(sgstLabel) > 0) {
-                    addTotalRow(`SGST (${sgstLabel}%)`, sgstAmount);
+                if (parseFloat(sgstLabel) > 0) {
+                    addTotalRow(`SGST (${sgstLabel}%)`, sgstNum);
                 }
 
                 totY += 1;
@@ -2484,9 +2482,8 @@
                 pdf.setFontSize(11);
                 pdf.setTextColor(15, 23, 42);
                 pdf.text('Total', totalsX, totY);
-                pdf.text(grandTotal, pageW - margin, totY, { align: 'right' });
+                pdf.text(currPrefix + grandNum, pageW - margin, totY, { align: 'right' });
 
-                /* ---------- 9. SAVE ---------- */
                 const safeName = (invNum || 'invoice').replace(/[^\w\-]+/g, '_');
                 pdf.save(`${safeName}.pdf`);
                 showToast('PDF downloaded ✓', 'success');
@@ -2498,9 +2495,6 @@
             }
         }
 
-        // ============================================================
-        //  INIT
-        // ============================================================
         function init() {
             initDark();
             applyLayout();
@@ -2563,6 +2557,7 @@
             });
         }
 
+        /* ---------- PRINT LIFECYCLE — reinforced hide for discount UI ---------- */
         window.addEventListener('beforeprint', function () {
             syncFromTo();
             syncAllDesc();
@@ -2580,22 +2575,55 @@
                 }
             }
 
+            // HARD-HIDE the discount input UI (Chrome/Safari ignore CSS sometimes)
+            const dig = document.querySelector('.discount-input-group');
+            if (dig) {
+                dig.dataset.prevDisplay = dig.style.display || '';
+                dig.style.setProperty('display', 'none', 'important');
+            }
+            const dval = document.getElementById('discount-val');
+            if (dval) {
+                dval.dataset.prevDisplay = dval.style.display || '';
+                dval.style.setProperty('display', 'none', 'important');
+            }
+            const dsel = document.getElementById('discount-type');
+            if (dsel) {
+                dsel.dataset.prevDisplay = dsel.style.display || '';
+                dsel.style.setProperty('display', 'none', 'important');
+            }
+            const dsym = document.getElementById('discount-symbol');
+            if (dsym) {
+                dsym.dataset.prevDisplay = dsym.style.display || '';
+                dsym.style.setProperty('display', 'none', 'important');
+            }
+
             const invNum = document.getElementById('inv-num');
             document.title = (invNum && invNum.value) ? invNum.value : 'INVOICE';
         });
 
         window.addEventListener('afterprint', function () {
             document.title = 'ProInvoice | Professional Billing';
+
             const poRow = document.getElementById('po-row');
             if (poRow) {
                 poRow.classList.remove('po-hidden');
                 poRow.style.display = '';
             }
+
+            const dig = document.querySelector('.discount-input-group');
+            if (dig) {
+                dig.style.display = dig.dataset.prevDisplay || '';
+                delete dig.dataset.prevDisplay;
+            }
+            ['discount-val', 'discount-type', 'discount-symbol'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.display = el.dataset.prevDisplay || '';
+                    delete el.dataset.prevDisplay;
+                }
+            });
         });
 
-        // ============================================================
-        //  PWA — INSTALL PROMPT
-        // ============================================================
         let deferredPrompt = null;
 
         const isStandalone = () =>
@@ -2643,9 +2671,6 @@
             if (outcome === 'accepted') showToast('Installing ProInvoice…', 'success');
         };
 
-        // ============================================================
-        //  SERVICE WORKER REGISTRATION
-        // ============================================================
         if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js', { scope: './' })
@@ -2662,11 +2687,11 @@
                         });
                     })
                     .catch((err) => {
-                        console.warn('[PWA] SW registration failed (sw.js may be missing):', err);
+                        console.warn('[PWA] SW registration failed:', err);
                     });
             });
         } else if (location.protocol === 'file:') {
-            console.warn('[PWA] Running from file:// — service worker disabled. Serve over http(s) for PWA features.');
+            console.warn('[PWA] Running from file:// — service worker disabled.');
         }
 
         window.addEventListener('offline', () => showToast('You are offline — app still works.', 'info'));
