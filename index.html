@@ -786,146 +786,81 @@
             }
 
             /* ============================================================ */
-            /* FINAL OVERRIDE — HEADER ALIGNMENT                             */
-            /* Placed last to win any specificity ties.                      */
+            /* DEFINITIVE HEADER FIX — clean 2-column table + JS span swap   */
             /* ============================================================ */
             .invoice-paper .invoice-header {
-                display: table !important;
-                width: 100% !important;
-                table-layout: auto !important;
-                border-collapse: collapse !important;
+                display: flex !important;
                 flex-wrap: nowrap !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+                width: 100% !important;
                 padding-bottom: 6pt !important;
                 margin-bottom: 6pt !important;
                 border-bottom: 1px solid #cccccc !important;
             }
             .invoice-paper .invoice-header .header-left {
-                display: table-cell !important;
-                width: auto !important;
-                vertical-align: top !important;
+                display: block !important;
+                flex: 1 1 auto !important;
+                min-width: 0 !important;
                 text-align: left !important;
-                padding-right: 12pt !important;
-                box-sizing: border-box !important;
             }
             .invoice-paper .invoice-header .header-right {
-                display: table-cell !important;
-                width: 1% !important;
-                min-width: 0 !important;
-                max-width: none !important;
-                vertical-align: top !important;
-                text-align: right !important;
-                white-space: nowrap !important;
-                padding: 0 !important;
-                box-sizing: border-box !important;
-            }
-            .invoice-paper .invoice-header .header-right .header-row {
-                display: block !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                text-align: right !important;
-                white-space: nowrap !important;
-                line-height: 1.7 !important;
-                font-size: 0 !important;
-            }
-            .invoice-paper .invoice-header .header-right .header-row .header-label,
-            .invoice-paper .invoice-header .header-right .header-row .header-input {
-                display: inline-block !important;
-                vertical-align: middle !important;
-                white-space: nowrap !important;
-                font-size: 7.5pt !important;
-                line-height: 1.4 !important;
-                box-sizing: border-box !important;
-                border: none !important;
-                background: transparent !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            .invoice-paper .invoice-header .header-right .header-row .header-label {
-                width: 44px !important;
-                min-width: 44px !important;
-                max-width: 44px !important;
-                text-align: right !important;
-                padding-right: 8px !important;
-                font-weight: 500 !important;
-                color: #1e293b !important;
-            }
-            .invoice-paper .invoice-header .header-right .header-row .header-input {
-                width: auto !important;
-                min-width: 0 !important;
-                max-width: none !important;
-                text-align: left !important;
-                font-weight: 600 !important;
-                color: #000000 !important;
-                -webkit-appearance: none !important;
-                appearance: none !important;
-                overflow: visible !important;
-            }
-            .invoice-paper .invoice-header .header-right .header-row .header-input.text-left {
-                text-align: left !important;
-            }
-
-            /* ============================================================ */
-            /* FINAL OVERRIDE — DISCOUNT ROW AMOUNT FLUSH RIGHT              */
-            /* ============================================================ */
-            .invoice-paper .totals-col .discount-row {
                 display: table !important;
-                width: 100% !important;
                 table-layout: auto !important;
                 border-collapse: collapse !important;
-                padding: 1px 0 !important;
-                line-height: 1.3 !important;
-                font-size: 7pt !important;
+                flex: 0 0 auto !important;
+                margin-left: auto !important;
+                padding: 0 !important;
+                border: none !important;
+                white-space: nowrap !important;
+            }
+            .invoice-paper .invoice-header .header-right .header-row {
+                display: table-row !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: auto !important;
+                white-space: nowrap !important;
+            }
+            .invoice-paper .invoice-header .header-right .header-row .header-label {
+                display: table-cell !important;
+                width: auto !important;
+                min-width: 44px !important;
+                text-align: right !important;
+                padding: 1pt 8pt 1pt 0 !important;
+                margin: 0 !important;
+                font-size: 7.5pt !important;
+                font-weight: 500 !important;
+                color: #1e293b !important;
+                white-space: nowrap !important;
+                border: none !important;
+                background: transparent !important;
+                vertical-align: middle !important;
                 box-sizing: border-box !important;
             }
-            .invoice-paper .totals-col .discount-row > .discount-label {
+            .invoice-paper .invoice-header .header-right .header-row .header-input,
+            .invoice-paper .invoice-header .header-right .header-row .header-print-value {
                 display: table-cell !important;
-                vertical-align: middle !important;
                 width: auto !important;
                 min-width: 0 !important;
                 max-width: none !important;
                 text-align: left !important;
-                white-space: nowrap !important;
-                font-size: 7pt !important;
-                font-weight: normal !important;
-                color: #1e293b !important;
-                padding: 0 !important;
+                padding: 1pt 0 !important;
                 margin: 0 !important;
+                font-size: 7.5pt !important;
+                font-weight: 600 !important;
+                color: #000000 !important;
+                white-space: nowrap !important;
                 border: none !important;
                 background: transparent !important;
-                float: none !important;
-                flex: none !important;
-            }
-            .invoice-paper .totals-col .discount-row > .discount-display {
-                display: table-cell !important;
+                box-shadow: none !important;
+                outline: none !important;
                 vertical-align: middle !important;
-                width: 1% !important;
-                min-width: 0 !important;
-                max-width: none !important;
-                text-align: right !important;
-                white-space: nowrap !important;
-                font-size: 7pt !important;
-                font-weight: 500 !important;
-                color: #1e293b !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                border: none !important;
-                background: transparent !important;
-                float: none !important;
-                flex: none !important;
+                box-sizing: border-box !important;
+                -webkit-appearance: none !important;
+                appearance: none !important;
             }
-            .invoice-paper .totals-col .discount-row > .discount-input-group {
-                display: none !important;
-                visibility: hidden !important;
-                width: 0 !important;
-                height: 0 !important;
-                overflow: hidden !important;
-                position: static !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                border: 0 !important;
-            }
-            .invoice-paper .totals-col .discount-row > .discount-input-group * {
+            .invoice-paper .invoice-header .header-right .po-row-wrapper.po-hidden,
+            .invoice-paper .invoice-header .header-right .po-row-wrapper.po-hidden * {
                 display: none !important;
                 visibility: hidden !important;
             }
@@ -2631,6 +2566,7 @@
             });
         }
 
+        /* ---------- PRINT LIFECYCLE ---------- */
         window.addEventListener('beforeprint', function () {
             syncFromTo();
             syncAllDesc();
@@ -2669,6 +2605,44 @@
                 dsym.style.setProperty('display', 'none', 'important');
             }
 
+            // HEADER FIX — swap each header <input> for a <span>
+            ['inv-num', 'inv-date', 'inv-due', 'inv-po'].forEach(id => {
+                const input = document.getElementById(id);
+                if (!input) return;
+                if (input.dataset.printSpan === '1') return;
+
+                const span = document.createElement('span');
+                span.className = 'header-print-value';
+                let text = input.value || '';
+
+                if (id === 'inv-date' || id === 'inv-due') {
+                    if (text) {
+                        try {
+                            const d = new Date(text);
+                            if (!isNaN(d.getTime())) {
+                                const dd = String(d.getDate()).padStart(2, '0');
+                                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                                const yyyy = d.getFullYear();
+                                if (id === 'inv-date') {
+                                    let hh = d.getHours();
+                                    const min = String(d.getMinutes()).padStart(2, '0');
+                                    const ampm = hh >= 12 ? 'PM' : 'AM';
+                                    hh = hh % 12; if (hh === 0) hh = 12;
+                                    text = `${dd}/${mm}/${yyyy}, ${String(hh).padStart(2, '0')}:${min} ${ampm}`;
+                                } else {
+                                    text = `${dd}/${mm}/${yyyy}`;
+                                }
+                            }
+                        } catch (e) { /* keep original */ }
+                    }
+                }
+
+                span.textContent = text || ' ';
+                input.dataset.printSpan = '1';
+                input.style.display = 'none';
+                input.parentNode.insertBefore(span, input.nextSibling);
+            });
+
             const invNum = document.getElementById('inv-num');
             document.title = (invNum && invNum.value) ? invNum.value : 'INVOICE';
         });
@@ -2692,6 +2666,15 @@
                 if (el) {
                     el.style.display = el.dataset.prevDisplay || '';
                     delete el.dataset.prevDisplay;
+                }
+            });
+
+            document.querySelectorAll('.header-print-value').forEach(span => span.remove());
+            ['inv-num', 'inv-date', 'inv-due', 'inv-po'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.style.display = '';
+                    delete input.dataset.printSpan;
                 }
             });
         });
