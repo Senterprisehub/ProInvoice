@@ -2,7 +2,7 @@
    ProInvoice Service Worker
    v5 — cache-bump for currency-symbol fix
    ========================================================= */
-const CACHE_NAME = 'proinvoice-v5';
+const CACHE_NAME = 'proinvoice-v6';
 
 const APP_SHELL = [
   './',
