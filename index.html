@@ -784,76 +784,150 @@
                 padding: 0 !important;
                 margin: 0 !important;
             }
-            /* Force the discount row to just show label + amount */
-            .invoice-paper .discount-row {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                padding: 1px 0 !important;
-                line-height: 1.3 !important;
-                font-size: 7pt !important;
-            }
-            .invoice-paper .discount-row .discount-label {
-                flex: 1 1 auto !important;
-                text-align: left !important;
-                display: inline-block !important;
-            }
-            .invoice-paper .discount-row .discount-display {
-                flex: 0 0 auto !important;
-                display: inline-block !important;
-                text-align: right !important;
-                font-weight: 500 !important;
-                color: #1e293b !important;
-            }
 
-            /* ---------- TIGHT 2-COLUMN HEADER (Inv # / Date / Due) ---------- */
-            .invoice-paper .invoice-header .header-right {
+            /* ============================================================ */
+            /* FINAL OVERRIDE — HEADER ALIGNMENT                             */
+            /* Placed last to win any specificity ties.                      */
+            /* ============================================================ */
+            .invoice-paper .invoice-header {
                 display: table !important;
                 width: 100% !important;
                 table-layout: auto !important;
                 border-collapse: collapse !important;
-                vertical-align: top !important;
+                flex-wrap: nowrap !important;
+                padding-bottom: 6pt !important;
+                margin-bottom: 6pt !important;
+                border-bottom: 1px solid #cccccc !important;
             }
-            .invoice-paper .invoice-header .header-right .header-row {
-                display: table-row !important;
+            .invoice-paper .invoice-header .header-left {
+                display: table-cell !important;
                 width: auto !important;
-                margin: 0 !important;
-                padding: 0 !important;
+                vertical-align: top !important;
+                text-align: left !important;
+                padding-right: 12pt !important;
+                box-sizing: border-box !important;
             }
-            .invoice-paper .invoice-header .header-right .header-row .header-label {
+            .invoice-paper .invoice-header .header-right {
                 display: table-cell !important;
                 width: 1% !important;
-                white-space: nowrap !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                vertical-align: top !important;
                 text-align: right !important;
+                white-space: nowrap !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
+            }
+            .invoice-paper .invoice-header .header-right .header-row {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                text-align: right !important;
+                white-space: nowrap !important;
+                line-height: 1.7 !important;
+                font-size: 0 !important;
+            }
+            .invoice-paper .invoice-header .header-right .header-row .header-label,
+            .invoice-paper .invoice-header .header-right .header-row .header-input {
+                display: inline-block !important;
                 vertical-align: middle !important;
-                padding: 1px 6px 1px 0 !important;
-                font-size: 6pt !important;
-                font-weight: 500 !important;
-                color: #1e293b !important;
+                white-space: nowrap !important;
+                font-size: 7.5pt !important;
+                line-height: 1.4 !important;
+                box-sizing: border-box !important;
                 border: none !important;
                 background: transparent !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .invoice-paper .invoice-header .header-right .header-row .header-label {
+                width: 44px !important;
+                min-width: 44px !important;
+                max-width: 44px !important;
+                text-align: right !important;
+                padding-right: 8px !important;
+                font-weight: 500 !important;
+                color: #1e293b !important;
             }
             .invoice-paper .invoice-header .header-right .header-row .header-input {
-                display: table-cell !important;
                 width: auto !important;
                 min-width: 0 !important;
                 max-width: none !important;
-                text-align: right !important;
-                vertical-align: middle !important;
-                padding: 1px 0 !important;
-                font-size: 6.5pt !important;
+                text-align: left !important;
                 font-weight: 600 !important;
-                color: #000 !important;
-                border: none !important;
-                background: transparent !important;
-                white-space: nowrap !important;
-                overflow: visible !important;
-                box-sizing: border-box !important;
+                color: #000000 !important;
                 -webkit-appearance: none !important;
                 appearance: none !important;
+                overflow: visible !important;
             }
             .invoice-paper .invoice-header .header-right .header-row .header-input.text-left {
+                text-align: left !important;
+            }
+
+            /* ============================================================ */
+            /* FINAL OVERRIDE — DISCOUNT ROW AMOUNT FLUSH RIGHT              */
+            /* ============================================================ */
+            .invoice-paper .totals-col .discount-row {
+                display: table !important;
+                width: 100% !important;
+                table-layout: auto !important;
+                border-collapse: collapse !important;
+                padding: 1px 0 !important;
+                line-height: 1.3 !important;
+                font-size: 7pt !important;
+                box-sizing: border-box !important;
+            }
+            .invoice-paper .totals-col .discount-row > .discount-label {
+                display: table-cell !important;
+                vertical-align: middle !important;
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: none !important;
+                text-align: left !important;
+                white-space: nowrap !important;
+                font-size: 7pt !important;
+                font-weight: normal !important;
+                color: #1e293b !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none !important;
+                background: transparent !important;
+                float: none !important;
+                flex: none !important;
+            }
+            .invoice-paper .totals-col .discount-row > .discount-display {
+                display: table-cell !important;
+                vertical-align: middle !important;
+                width: 1% !important;
+                min-width: 0 !important;
+                max-width: none !important;
                 text-align: right !important;
+                white-space: nowrap !important;
+                font-size: 7pt !important;
+                font-weight: 500 !important;
+                color: #1e293b !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none !important;
+                background: transparent !important;
+                float: none !important;
+                flex: none !important;
+            }
+            .invoice-paper .totals-col .discount-row > .discount-input-group {
+                display: none !important;
+                visibility: hidden !important;
+                width: 0 !important;
+                height: 0 !important;
+                overflow: hidden !important;
+                position: static !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: 0 !important;
+            }
+            .invoice-paper .totals-col .discount-row > .discount-input-group * {
+                display: none !important;
+                visibility: hidden !important;
             }
         }
 
@@ -2557,7 +2631,6 @@
             });
         }
 
-        /* ---------- PRINT LIFECYCLE — reinforced hide for discount UI ---------- */
         window.addEventListener('beforeprint', function () {
             syncFromTo();
             syncAllDesc();
@@ -2575,7 +2648,6 @@
                 }
             }
 
-            // HARD-HIDE the discount input UI (Chrome/Safari ignore CSS sometimes)
             const dig = document.querySelector('.discount-input-group');
             if (dig) {
                 dig.dataset.prevDisplay = dig.style.display || '';
