@@ -1,8 +1,8 @@
 /* =========================================================
    ProInvoice Service Worker
-   v4 — precache manifest + icons, robust offline fallback
+   v5 — cache-bump for currency-symbol fix
    ========================================================= */
-const CACHE_NAME = 'proinvoice-v4';
+const CACHE_NAME = 'proinvoice-v5';
 
 const APP_SHELL = [
   './',
