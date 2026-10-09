@@ -1,8 +1,8 @@
 /* =========================================================
    ProInvoice Service Worker
-   v3 — precache manifest + icons, robust offline fallback
+   v4 — precache manifest + icons, robust offline fallback
    ========================================================= */
-const CACHE_NAME = 'proinvoice-v3';
+const CACHE_NAME = 'proinvoice-v4';
 
 const APP_SHELL = [
   './',
@@ -13,7 +13,6 @@ const APP_SHELL = [
   './sw.js'
 ];
 
-/* ---------- INSTALL ---------- */
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) =>
@@ -29,7 +28,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-/* ---------- ACTIVATE ---------- */
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
@@ -40,7 +38,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-/* ---------- FETCH ---------- */
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -48,7 +45,6 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (!url.protocol.startsWith('http')) return;
 
-  /* Navigation requests */
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
@@ -75,7 +71,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  /* Same-origin: cache-first */
   if (url.origin === self.location.origin) {
     event.respondWith(
       caches.match(req).then((cached) => {
@@ -93,7 +88,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  /* Cross-origin: network-first */
   event.respondWith(
     fetch(req)
       .then((res) => {
