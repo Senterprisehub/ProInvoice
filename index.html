@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>ProInvoice | Professional Billing</title>
 
-    <!-- ============================================================ -->
-    <!-- PWA META — real manifest.json file (no runtime blob)         -->
-    <!-- ============================================================ -->
     <meta name="theme-color" content="#0f172a" />
     <meta name="description" content="ProInvoice — create, manage, and print professional invoices. Works offline." />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -19,8 +16,7 @@
     <link rel="manifest" href="manifest.json" />
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PDF export libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF for vector-based PDF export (no html2canvas needed) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
@@ -687,7 +683,6 @@
 
         /* ============================================================ */
         /* iOS SAFARI PRINT FIXES                                        */
-        /* iOS print breaks flexbox — force table layout instead         */
         /* ============================================================ */
         @page { size: A4 portrait; margin: 6mm 6mm 10mm 6mm; }
 
@@ -782,121 +777,8 @@
             }
         }
 
-        /* ============================================================ */
-        /* PDF EXPORT MODE — swaps inputs for display spans during       */
-        /* html2canvas capture. No iOS browser footers.                  */
-        /* ============================================================ */
-        body.pdf-mode .invoice-paper input,
-        body.pdf-mode .invoice-paper textarea { display: none !important; }
-        body.pdf-mode .invoice-paper .desc-display,
-        body.pdf-mode .invoice-paper .from-to-display,
-        body.pdf-mode .invoice-paper .discount-display {
-            display: block !important;
-            padding: 1px 3px !important;
-            white-space: pre-wrap !important;
-            word-wrap: break-word !important;
-            color: #1e293b !important;
-        }
-        body.pdf-mode .invoice-paper .qty-display,
-        body.pdf-mode .invoice-paper .rate-display,
-        body.pdf-mode .invoice-paper .taxable-display {
-            display: inline-block !important;
-            width: 100% !important;
-            text-align: right !important;
-            font-weight: 500 !important;
-            color: #1e293b !important;
-        }
-        body.pdf-mode .invoice-paper .item-selector,
-        body.pdf-mode .invoice-paper .business-selector,
-        body.pdf-mode .invoice-paper .discount-input-group,
-        body.pdf-mode .invoice-paper #discount-type,
-        body.pdf-mode .no-print,
-        body.pdf-mode .watermark-print { display: none !important; }
-        body.pdf-mode .invoice-paper table td:last-child,
-        body.pdf-mode .invoice-paper table th:last-child,
-        body.pdf-mode .invoice-paper .col-delete { display: none !important; }
-        body.pdf-mode .invoice-paper table td input,
-        body.pdf-mode .invoice-paper table td textarea { display: none !important; }
-        body.pdf-mode .invoice-paper .total-cell {
-            display: inline-block !important;
-            font-weight: 600 !important;
-            color: #1e293b !important;
-        }
-        body.pdf-mode .invoice-paper .po-row-wrapper.po-hidden,
-        body.pdf-mode .invoice-paper .po-row-wrapper.po-hidden * { display: none !important; }
-        body.pdf-mode .invoice-paper .invoice-header {
-            display: table !important;
-            width: 100% !important;
-            table-layout: fixed !important;
-        }
-        body.pdf-mode .invoice-paper .invoice-header .header-left {
-            display: table-cell !important;
-            width: 55% !important;
-            vertical-align: top !important;
-            text-align: left !important;
-        }
-        body.pdf-mode .invoice-paper .invoice-header .header-right {
-            display: table-cell !important;
-            width: 45% !important;
-            vertical-align: top !important;
-            text-align: right !important;
-        }
-        body.pdf-mode .invoice-paper .invoice-header .header-right .header-row {
-            display: block !important;
-            width: 100% !important;
-            text-align: right !important;
-        }
-        body.pdf-mode .invoice-paper .invoice-header .header-right .header-row .header-label,
-        body.pdf-mode .invoice-paper .invoice-header .header-right .header-row .header-input {
-            display: inline-block !important;
-            vertical-align: middle !important;
-        }
-        body.pdf-mode .invoice-paper .bottom-section {
-            display: table !important;
-            width: 100% !important;
-            table-layout: fixed !important;
-        }
-        body.pdf-mode .invoice-paper .bottom-section .notes-col {
-            display: table-cell !important;
-            width: 55% !important;
-            vertical-align: top !important;
-            padding-right: 10px !important;
-            box-sizing: border-box !important;
-            order: unset !important;
-        }
-        body.pdf-mode .invoice-paper .bottom-section .totals-col {
-            display: table-cell !important;
-            width: 45% !important;
-            vertical-align: top !important;
-            box-sizing: border-box !important;
-            order: unset !important;
-        }
-        body.pdf-mode .invoice-paper .totals-col .totals-row,
-        body.pdf-mode .invoice-paper .totals-col .tax-row,
-        body.pdf-mode .invoice-paper .totals-col .discount-row,
-        body.pdf-mode .invoice-paper .totals-col .total-row {
-            display: table !important;
-            width: 100% !important;
-        }
-        body.pdf-mode .invoice-paper .totals-col .totals-row > *,
-        body.pdf-mode .invoice-paper .totals-col .tax-row > *,
-        body.pdf-mode .invoice-paper .totals-col .discount-row > *,
-        body.pdf-mode .invoice-paper .totals-col .total-row > * {
-            display: table-cell !important;
-            vertical-align: middle !important;
-        }
-        body.pdf-mode .invoice-paper .totals-col .totals-row .totals-label,
-        body.pdf-mode .invoice-paper .totals-col .tax-row .tax-label,
-        body.pdf-mode .invoice-paper .totals-col .discount-row .discount-label,
-        body.pdf-mode .invoice-paper .totals-col .total-row .total-label {
-            text-align: left !important;
-        }
-        body.pdf-mode .invoice-paper .totals-col .totals-row .totals-value,
-        body.pdf-mode .invoice-paper .totals-col .tax-row .tax-amount,
-        body.pdf-mode .invoice-paper .totals-col .discount-row .discount-display,
-        body.pdf-mode .invoice-paper .totals-col .total-row .total-value {
-            text-align: right !important;
-        }
+        /* PDF export button pending state */
+        #pdf-export-btn:disabled { opacity: 0.7; cursor: wait; }
     </style>
 </head>
 <body>
@@ -997,10 +879,8 @@
             <div id="invoice-container" class="invoice-paper rounded-2xl shadow-2xl overflow-hidden">
                 <div class="watermark">INV</div>
 
-                <!-- WATERMARK FOR PRINT -->
                 <div class="watermark-print no-print" style="display:none;"></div>
 
-                <!-- PRINT SCALE WRAPPER -->
                 <div class="print-scale-wrapper">
 
                     <!-- HEADER -->
@@ -1123,7 +1003,7 @@
                         </div>
                     </div>
 
-                </div><!-- End print-scale-wrapper -->
+                </div>
             </div>
         </div>
 
@@ -2324,102 +2204,296 @@
             .observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
         // ============================================================
-        //  PDF EXPORT
+        //  PDF EXPORT — vector-based (jsPDF native text). No canvas.
+        //  Works reliably on iOS, tiny file size, real selectable text.
         // ============================================================
         async function exportInvoicePDF() {
+            if (!window.jspdf) { showToast('PDF library not loaded.', 'error'); return; }
+            const { jsPDF } = window.jspdf;
+
             const btn = document.getElementById('pdf-export-btn');
-            const paper = document.querySelector('.invoice-paper');
-            if (!paper) { showToast('No invoice loaded.', 'error'); return; }
-            if (typeof html2canvas === 'undefined' || !window.jspdf) {
-                showToast('PDF library not loaded. Check your connection.', 'error');
-                return;
-            }
-
             const originalBtnText = btn ? btn.textContent : '';
-            if (btn) { btn.disabled = true; btn.textContent = '⏳ Rendering…'; }
-
-            syncFromTo();
-            syncAllDesc();
-            updateDiscountDisplay();
-
-            const poInput = document.getElementById('inv-po');
-            const poRow = document.getElementById('po-row');
-            const poWasHidden = poRow && poInput && poInput.value.trim() === '';
-            if (poWasHidden) poRow.classList.add('po-hidden');
-
-            const prevZoom = document.body.style.getPropertyValue('--print-zoom') || '1';
-            const scrollX = window.scrollX;
-            const scrollY = window.scrollY;
-
-            document.body.style.setProperty('--print-zoom', '1');
-
-            const wmPrint = paper.querySelector('.watermark-print');
-            const wmPrevDisplay = wmPrint ? wmPrint.style.display : '';
-            if (wmPrint) wmPrint.style.display = 'none';
-
-            document.body.classList.add('pdf-mode');
-
-            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ Generating…'; }
 
             try {
-                const canvas = await html2canvas(paper, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: false,
-                    backgroundColor: '#ffffff',
-                    logging: false,
-                    scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: paper.scrollWidth,
-                    windowHeight: paper.scrollHeight
+                /* ---------- 1. GATHER DATA FROM DOM ---------- */
+                const invNum = (document.getElementById('inv-num')?.value || 'INVOICE').trim();
+                const invDateRaw = document.getElementById('inv-date')?.value || '';
+                const invDueRaw = document.getElementById('inv-due')?.value || '';
+                const invPo = (document.getElementById('inv-po')?.value || '').trim();
+                const fromText = document.getElementById('bill-from')?.value || '';
+                const toText = document.getElementById('bill-to')?.value || '';
+                const notes = (document.getElementById('inv-notes-display')?.textContent || '').trim();
+
+                const items = [];
+                document.querySelectorAll('#items-body tr').forEach(row => {
+                    const desc = row.querySelector('.desc')?.value || '';
+                    const qty = parseFloat(row.querySelector('.qty')?.value) || 0;
+                    const rate = parseFloat(row.querySelector('.rate')?.value) || 0;
+                    const taxable = parseFloat(row.querySelector('.taxable')?.value) || 0;
+                    items.push({ desc, qty, rate, taxable, total: qty * taxable });
                 });
 
-                const { jsPDF } = window.jspdf;
+                const subtotal = document.getElementById('subtotal')?.textContent || '';
+                const cgstLabel = document.getElementById('cgst-label')?.textContent || '0';
+                const sgstLabel = document.getElementById('sgst-label')?.textContent || '0';
+                const cgstAmount = document.getElementById('cgst-amount')?.textContent || '';
+                const sgstAmount = document.getElementById('sgst-amount')?.textContent || '';
+                const grandTotal = document.getElementById('grand-total')?.textContent || '';
+                const discountDisplay = document.getElementById('discount-display')?.textContent || '';
+                const discountPercent = document.getElementById('discount-percent-label')?.textContent || '0%';
+                const discountVal = parseFloat(document.getElementById('discount-val')?.value) || 0;
+
+                /* ---------- 2. HELPERS ---------- */
+                const fmtDate = (s) => {
+                    if (!s) return '';
+                    try {
+                        const d = new Date(s);
+                        if (isNaN(d.getTime())) return s;
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const yyyy = d.getFullYear();
+                        return `${dd}-${mm}-${yyyy}`;
+                    } catch { return s; }
+                };
+
+                /* ---------- 3. SETUP PDF ---------- */
                 const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
                 const pageW = pdf.internal.pageSize.getWidth();
                 const pageH = pdf.internal.pageSize.getHeight();
+                const margin = 12;
+                const contentW = pageW - margin * 2;
 
-                const imgW = pageW;
-                const imgH = (canvas.height * imgW) / canvas.width;
+                const colDesc = contentW * 0.36;
+                const colQty = contentW * 0.12;
+                const colRate = contentW * 0.16;
+                const colTaxable = contentW * 0.17;
+                const colTotal = contentW * 0.19;
 
-                if (imgH <= pageH) {
-                    pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, imgW, imgH);
-                } else {
-                    const sliceHeightPx = Math.floor(canvas.width * (pageH / pageW));
-                    let y = 0;
-                    let pageIndex = 0;
-                    while (y < canvas.height) {
-                        const sliceH = Math.min(sliceHeightPx, canvas.height - y);
-                        const slice = document.createElement('canvas');
-                        slice.width = canvas.width;
-                        slice.height = sliceH;
-                        const ctx = slice.getContext('2d');
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillRect(0, 0, slice.width, slice.height);
-                        ctx.drawImage(canvas, 0, y, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+                let y = margin;
 
-                        if (pageIndex > 0) pdf.addPage();
-                        const sliceImgH = (sliceH * imgW) / canvas.width;
-                        pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, imgW, sliceImgH);
-                        y += sliceH;
-                        pageIndex++;
-                    }
+                const drawTableHeader = () => {
+                    const rowH = 8;
+                    pdf.setFillColor(30, 41, 59);
+                    pdf.rect(margin, y, contentW, rowH, 'F');
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setFontSize(8);
+                    pdf.setTextColor(255, 255, 255);
+                    let hx = margin + 2;
+                    pdf.text('DESCRIPTION', hx, y + 5.5);
+                    hx += colDesc;
+                    pdf.text('QTY', hx + colQty - 2, y + 5.5, { align: 'right' });
+                    hx += colQty;
+                    pdf.text('RATE', hx + colRate - 2, y + 5.5, { align: 'right' });
+                    hx += colRate;
+                    pdf.text('TAXABLE', hx + colTaxable - 2, y + 5.5, { align: 'right' });
+                    hx += colTaxable;
+                    pdf.text('TOTAL', hx + colTotal - 2, y + 5.5, { align: 'right' });
+                    y += rowH;
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(8.5);
+                    pdf.setTextColor(30, 41, 59);
+                };
+
+                /* ---------- 4. HEADER ---------- */
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(26);
+                pdf.setTextColor(15, 23, 42);
+                pdf.text('INVOICE', margin, y + 8);
+
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(8.5);
+                pdf.setTextColor(100, 116, 139);
+                const metaLabelX = pageW - margin - 45;
+                const metaValueX = pageW - margin;
+                pdf.text('Inv #', metaLabelX, y + 3);
+                pdf.text('Date', metaLabelX, y + 8);
+                pdf.text('Due', metaLabelX, y + 13);
+                let metaOffset = 18;
+                if (invPo && invPo !== '0') {
+                    pdf.text('PO #', metaLabelX, y + 18);
+                    metaOffset = 23;
                 }
 
-                const invNumRaw = (document.getElementById('inv-num')?.value || 'invoice').trim();
-                const safeName = invNumRaw.replace(/[^\w\-]+/g, '_') || 'invoice';
-                pdf.save(`${safeName}.pdf`);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(9);
+                pdf.setTextColor(15, 23, 42);
+                pdf.text(invNum, metaValueX, y + 3, { align: 'right' });
+                pdf.text(fmtDate(invDateRaw), metaValueX, y + 8, { align: 'right' });
+                pdf.text(fmtDate(invDueRaw) || invDueRaw, metaValueX, y + 13, { align: 'right' });
+                if (invPo && invPo !== '0') {
+                    pdf.text(invPo, metaValueX, y + 18, { align: 'right' });
+                }
 
+                y += metaOffset + 6;
+
+                /* ---------- 5. HORIZONTAL RULE ---------- */
+                pdf.setDrawColor(226, 232, 240);
+                pdf.setLineWidth(0.4);
+                pdf.line(margin, y, pageW - margin, y);
+                y += 5;
+
+                /* ---------- 6. FROM / BILL TO BOXES ---------- */
+                const boxGap = 6;
+                const boxW = (contentW - boxGap) / 2;
+                const lineH = 4.2;
+                const boxPadding = 3;
+                const headingH = 5;
+                const fromLines = fromText.split('\n').map(l => l.trim()).filter(Boolean);
+                const toLines = toText.split('\n').map(l => l.trim()).filter(Boolean);
+                const fromH = headingH + Math.max(fromLines.length, 1) * lineH + boxPadding * 2;
+                const toH = headingH + Math.max(toLines.length, 1) * lineH + boxPadding * 2;
+                const boxH = Math.max(fromH, toH, 18);
+                const boxY = y;
+
+                // FROM
+                pdf.setDrawColor(226, 232, 240);
+                pdf.setLineWidth(0.3);
+                pdf.roundedRect(margin, boxY, boxW, boxH, 1.5, 1.5);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(7.5);
+                pdf.setTextColor(100, 116, 139);
+                pdf.text('FROM', margin + boxPadding, boxY + boxPadding + 2.5);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(8.5);
+                pdf.setTextColor(15, 23, 42);
+                let fy = boxY + boxPadding + headingH + 1;
+                fromLines.forEach(line => {
+                    const wrapped = pdf.splitTextToSize(line, boxW - boxPadding * 2 - 1);
+                    wrapped.forEach(wl => {
+                        pdf.text(wl, margin + boxPadding, fy);
+                        fy += lineH;
+                    });
+                });
+
+                // BILL TO
+                const toX = margin + boxW + boxGap;
+                pdf.setDrawColor(226, 232, 240);
+                pdf.roundedRect(toX, boxY, boxW, boxH, 1.5, 1.5);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(7.5);
+                pdf.setTextColor(100, 116, 139);
+                pdf.text('BILL TO', toX + boxPadding, boxY + boxPadding + 2.5);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(8.5);
+                pdf.setTextColor(15, 23, 42);
+                let ty2 = boxY + boxPadding + headingH + 1;
+                toLines.forEach(line => {
+                    const wrapped = pdf.splitTextToSize(line, boxW - boxPadding * 2 - 1);
+                    wrapped.forEach(wl => {
+                        pdf.text(wl, toX + boxPadding, ty2);
+                        ty2 += lineH;
+                    });
+                });
+
+                y = boxY + boxH + 6;
+
+                /* ---------- 7. ITEMS TABLE ---------- */
+                drawTableHeader();
+
+                const minRowH = 8;
+                const rowPadY = 4;
+
+                items.forEach((item) => {
+                    const descLines = pdf.splitTextToSize(item.desc || '', colDesc - 4);
+                    const thisRowH = Math.max(minRowH, descLines.length * 4 + rowPadY);
+
+                    if (y + thisRowH > pageH - 45) {
+                        pdf.addPage();
+                        y = margin;
+                        drawTableHeader();
+                    }
+
+                    pdf.setDrawColor(226, 232, 240);
+                    pdf.setLineWidth(0.2);
+                    pdf.rect(margin, y, contentW, thisRowH);
+
+                    let cx = margin + 2;
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(8.5);
+                    pdf.setTextColor(15, 23, 42);
+
+                    let descY = y + rowPadY;
+                    descLines.forEach(dl => {
+                        pdf.text(dl, cx, descY);
+                        descY += 4;
+                    });
+
+                    cx += colDesc;
+                    pdf.text(String(item.qty), cx + colQty - 2, y + 5.5, { align: 'right' });
+                    cx += colQty;
+                    pdf.text(item.rate.toFixed(2), cx + colRate - 2, y + 5.5, { align: 'right' });
+                    cx += colRate;
+                    pdf.text(item.taxable.toFixed(2), cx + colTaxable - 2, y + 5.5, { align: 'right' });
+                    cx += colTaxable;
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(item.total.toFixed(2), cx + colTotal - 2, y + 5.5, { align: 'right' });
+
+                    y += thisRowH;
+                });
+
+                y += 6;
+
+                /* ---------- 8. NOTES + TOTALS ---------- */
+                const notesW = contentW * 0.55;
+                const totalsX = margin + notesW + contentW * 0.03;
+
+                if (notes) {
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setFontSize(7.5);
+                    pdf.setTextColor(100, 116, 139);
+                    pdf.text('NOTES & TERMS', margin, y);
+
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(7.5);
+                    pdf.setTextColor(60, 72, 88);
+                    const noteLines = pdf.splitTextToSize(notes, notesW);
+                    pdf.text(noteLines, margin, y + 4.5);
+                }
+
+                let totY = y;
+                const addTotalRow = (label, val) => {
+                    if (!val) return;
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setFontSize(9);
+                    pdf.setTextColor(100, 116, 139);
+                    pdf.text(label, totalsX, totY);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(15, 23, 42);
+                    pdf.text(val, pageW - margin, totY, { align: 'right' });
+                    totY += 5;
+                };
+
+                addTotalRow('Subtotal', subtotal);
+                if (discountVal > 0) {
+                    addTotalRow(`Discount (${discountPercent})`, discountDisplay);
+                }
+                if (cgstLabel !== '0' && parseFloat(cgstLabel) > 0) {
+                    addTotalRow(`CGST (${cgstLabel}%)`, cgstAmount);
+                }
+                if (sgstLabel !== '0' && parseFloat(sgstLabel) > 0) {
+                    addTotalRow(`SGST (${sgstLabel}%)`, sgstAmount);
+                }
+
+                totY += 1;
+                pdf.setDrawColor(15, 23, 42);
+                pdf.setLineWidth(0.5);
+                pdf.line(totalsX, totY, pageW - margin, totY);
+                totY += 6;
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(11);
+                pdf.setTextColor(15, 23, 42);
+                pdf.text('Total', totalsX, totY);
+                pdf.text(grandTotal, pageW - margin, totY, { align: 'right' });
+
+                /* ---------- 9. SAVE ---------- */
+                const safeName = (invNum || 'invoice').replace(/[^\w\-]+/g, '_');
+                pdf.save(`${safeName}.pdf`);
                 showToast('PDF downloaded ✓', 'success');
             } catch (err) {
                 console.error('[PDF] Export failed:', err);
                 showToast('PDF export failed: ' + (err.message || err), 'error');
             } finally {
-                document.body.classList.remove('pdf-mode');
-                document.body.style.setProperty('--print-zoom', prevZoom);
-                if (wmPrint) wmPrint.style.display = wmPrevDisplay;
-                if (poWasHidden && poRow) poRow.classList.remove('po-hidden');
-                window.scrollTo(scrollX, scrollY);
                 if (btn) { btn.disabled = false; btn.textContent = originalBtnText || '⬇ PDF'; }
             }
         }
@@ -2449,7 +2523,6 @@
             showView('dashboard');
         }
 
-        // Wrap editInvoice / saveCurrentInvoice for session tracking
         const origEdit = editInvoice;
         editInvoice = function(id) {
             sessionStorage.setItem('proinvoice_current', id);
@@ -2490,9 +2563,6 @@
             });
         }
 
-        // ============================================================
-        //  PRINT LIFECYCLE — works for iOS Share→Print, Ctrl+P, menu
-        // ============================================================
         window.addEventListener('beforeprint', function () {
             syncFromTo();
             syncAllDesc();
@@ -2602,7 +2672,6 @@
         window.addEventListener('offline', () => showToast('You are offline — app still works.', 'info'));
         window.addEventListener('online', () => showToast('Back online.', 'success'));
 
-        // Home-screen shortcut ?action=new
         window.addEventListener('load', () => {
             const params = new URLSearchParams(location.search);
             if (params.get('action') === 'new') {
