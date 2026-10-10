@@ -779,7 +779,6 @@
                 margin: 0 !important;
             }
 
-            /* DEFINITIVE HEADER FIX — clean 2-column table + JS span swap */
             .invoice-paper .invoice-header {
                 display: flex !important;
                 flex-wrap: nowrap !important;
@@ -879,6 +878,29 @@
         }
 
         #pdf-export-btn:disabled { opacity: 0.7; cursor: wait; }
+
+        /* ============================================================ */
+        /* iOS SAFE-AREA FIX — push nav below the status bar             */
+        /* (battery / wifi / time / notch area)                          */
+        /* ============================================================ */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            body {
+                padding-top: env(safe-area-inset-top);
+            }
+            nav.sticky {
+                padding-top: calc(0.75rem + env(safe-area-inset-top)) !important;
+            }
+            .toast {
+                bottom: calc(2rem + env(safe-area-inset-bottom));
+            }
+        }
+        @supports not (padding-top: env(safe-area-inset-top)) {
+            @media (max-width: 480px) {
+                nav.sticky {
+                    padding-top: 1.5rem !important;
+                }
+            }
+        }
     </style>
 </head>
 <body>
